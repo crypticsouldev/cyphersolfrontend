@@ -31,6 +31,20 @@ export default function Editor() {
   const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>()
   const [selectedCredentialId, setSelectedCredentialId] = useState<string>('')
 
+  const selectedNode = useMemo(() => {
+    if (!selectedNodeId) return undefined
+    return draft?.nodes.find((n) => n.id === selectedNodeId)
+  }, [draft, selectedNodeId])
+
+  const selectedNodeData = useMemo(() => {
+    return ((selectedNode?.data as any) || {}) as Record<string, unknown>
+  }, [selectedNode])
+
+  const selectedNodeType = useMemo(() => {
+    const t = selectedNodeData.type
+    return typeof t === 'string' && t.length > 0 ? t : 'log'
+  }, [selectedNodeData.type])
+
   const title = useMemo(() => workflow?.name || 'workflow editor', [workflow?.name])
 
   useEffect(() => {
@@ -91,15 +105,19 @@ export default function Editor() {
       setSelectedCredentialId('')
       return
     }
-    const node = draft?.nodes.find((n) => n.id === selectedNodeId)
-    const current = (node?.data as any)?.credentialId
+    const current = selectedNodeData.credentialId
     setSelectedCredentialId(typeof current === 'string' ? current : '')
-  }, [selectedNodeId, draft])
+  }, [selectedNodeId, selectedNodeData.credentialId])
 
   function onAttachCredential(credentialId: string) {
     if (!selectedNodeId) return
     setSelectedCredentialId(credentialId)
     flowRef.current?.patchNodeData(selectedNodeId, { credentialId: credentialId || undefined })
+  }
+
+  function patchSelectedNode(patch: Record<string, unknown>) {
+    if (!selectedNodeId) return
+    flowRef.current?.patchNodeData(selectedNodeId, patch)
   }
 
   async function onSave() {
@@ -187,41 +205,142 @@ export default function Editor() {
             background: '#fff',
             border: '1px solid #ddd',
             borderRadius: 10,
-            padding: 10,
-            display: 'flex',
+            padding: 12,
+            display: 'grid',
             gap: 10,
-            alignItems: 'center',
             maxWidth: 520,
           }}
         >
-          <div style={{ fontSize: 12, color: '#666' }}>selected node: {selectedNodeId}</div>
-          <select
-            value={selectedCredentialId}
-            onChange={(e) => onAttachCredential(e.target.value)}
-            disabled={busy}
-            style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
-          >
-            <option value="">no credential</option>
-            {credentials.map((c) => (
-              <option key={c.id} value={c.id}>
-                {c.provider} · {c.name}
-              </option>
-            ))}
-          </select>
-          <Link
-            to="/credentials"
-            style={{
-              padding: '6px 8px',
-              borderRadius: 6,
-              border: '1px solid #ddd',
-              background: '#fff',
-              textDecoration: 'none',
-              color: 'inherit',
-              fontSize: 12,
-            }}
-          >
-            manage
-          </Link>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline' }}>
+            <div style={{ fontSize: 12, color: '#666' }}>selected node</div>
+            <div style={{ fontSize: 12, fontFamily: 'monospace' }}>{selectedNodeId}</div>
+          </div>
+
+          <div style={{ display: 'grid', gap: 6 }}>
+            <div style={{ fontSize: 12, color: '#666' }}>label</div>
+            <input
+              value={typeof selectedNodeData.label === 'string' ? selectedNodeData.label : ''}
+              onChange={(e) => patchSelectedNode({ label: e.target.value })}
+              disabled={busy}
+              style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+              placeholder="label"
+            />
+          </div>
+
+          <div style={{ display: 'grid', gap: 6 }}>
+            <div style={{ fontSize: 12, color: '#666' }}>type</div>
+            <select
+              value={selectedNodeType}
+              onChange={(e) => patchSelectedNode({ type: e.target.value })}
+              disabled={busy}
+              style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+            >
+              <option value="log">log</option>
+              <option value="delay">delay</option>
+              <option value="http_request">http_request</option>
+            </select>
+          </div>
+
+          {selectedNodeType === 'log' ? (
+            <div style={{ display: 'grid', gap: 6 }}>
+              <div style={{ fontSize: 12, color: '#666' }}>message</div>
+              <input
+                value={typeof selectedNodeData.message === 'string' ? selectedNodeData.message : ''}
+                onChange={(e) => patchSelectedNode({ message: e.target.value })}
+                disabled={busy}
+                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                placeholder="message"
+              />
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'delay' ? (
+            <div style={{ display: 'grid', gap: 6 }}>
+              <div style={{ fontSize: 12, color: '#666' }}>delay ms</div>
+              <input
+                type="number"
+                value={
+                  typeof selectedNodeData.ms === 'number'
+                    ? selectedNodeData.ms
+                    : typeof selectedNodeData.ms === 'string'
+                      ? selectedNodeData.ms
+                      : ''
+                }
+                onChange={(e) => {
+                  const val = e.target.value
+                  patchSelectedNode({ ms: val === '' ? undefined : Number(val) })
+                }}
+                disabled={busy}
+                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                placeholder="1000"
+                min={0}
+              />
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'http_request' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>url</div>
+                <input
+                  value={typeof selectedNodeData.url === 'string' ? selectedNodeData.url : ''}
+                  onChange={(e) => patchSelectedNode({ url: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="https://api.example.com/path"
+                />
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>method</div>
+                <select
+                  value={typeof selectedNodeData.method === 'string' ? selectedNodeData.method : 'GET'}
+                  onChange={(e) => patchSelectedNode({ method: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                >
+                  <option value="GET">GET</option>
+                  <option value="POST">POST</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>credential</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <select
+                    value={selectedCredentialId}
+                    onChange={(e) => onAttachCredential(e.target.value)}
+                    disabled={busy}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                  >
+                    <option value="">no credential</option>
+                    {credentials.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.provider} · {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Link
+                    to="/credentials"
+                    style={{
+                      padding: '6px 8px',
+                      borderRadius: 6,
+                      border: '1px solid #ddd',
+                      background: '#fff',
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      fontSize: 12,
+                    }}
+                  >
+                    manage
+                  </Link>
+                </div>
+                <div style={{ fontSize: 12, color: '#666' }}>
+                  requires backend allowlist via <span style={{ fontFamily: 'monospace' }}>EXECUTOR_HTTP_ALLOWED_HOSTS</span>
+                </div>
+              </div>
+            </div>
+          ) : null}
         </div>
       ) : null}
         <button
