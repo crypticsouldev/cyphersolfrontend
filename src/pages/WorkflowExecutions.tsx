@@ -22,33 +22,49 @@ export default function WorkflowExecutions() {
 
   const title = useMemo(() => workflow?.name || 'executions', [workflow?.name])
 
-  useEffect(() => {
-    async function load() {
-      if (!workflowId) return
+  async function fetchExecutions(options?: { silent?: boolean }) {
+    if (!workflowId) return
+
+    if (!options?.silent) {
       setBusy(true)
       setError(undefined)
+    }
 
-      try {
-        const wfRes = await getWorkflow(workflowId)
-        setWorkflow(wfRes.workflow)
+    try {
+      const wfRes = await getWorkflow(workflowId)
+      setWorkflow(wfRes.workflow)
 
-        const exRes = await listWorkflowExecutions(workflowId)
-        setExecutions(exRes.executions)
-      } catch (err) {
-        const apiErr = err as ApiError
-        if (apiErr.status === 401) {
-          clearAuthToken()
-          navigate('/login', { replace: true })
-          return
-        }
-        const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
-        setError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
-      } finally {
+      const exRes = await listWorkflowExecutions(workflowId)
+      setExecutions(exRes.executions)
+    } catch (err) {
+      const apiErr = err as ApiError
+      if (apiErr.status === 401) {
+        clearAuthToken()
+        navigate('/login', { replace: true })
+        return
+      }
+      const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
+      setError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
+    } finally {
+      if (!options?.silent) {
         setBusy(false)
       }
     }
+  }
 
-    void load()
+  useEffect(() => {
+    void fetchExecutions()
+  }, [workflowId])
+
+  useEffect(() => {
+    if (!workflowId) return
+    const t = window.setInterval(() => {
+      void fetchExecutions({ silent: true })
+    }, 2000)
+
+    return () => {
+      window.clearInterval(t)
+    }
   }, [workflowId])
 
   return (

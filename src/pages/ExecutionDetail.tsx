@@ -11,7 +11,35 @@ export default function ExecutionDetail() {
 
   const [execution, setExecution] = useState<Execution | undefined>()
   const [busy, setBusy] = useState(false)
+  const [polling, setPolling] = useState(false)
   const [error, setError] = useState<string | undefined>()
+
+  async function fetchExecution(options?: { silent?: boolean }) {
+    if (!executionId) return
+
+    if (!options?.silent) {
+      setBusy(true)
+      setError(undefined)
+    }
+
+    try {
+      const res = await getExecution(executionId)
+      setExecution(res.execution)
+    } catch (err) {
+      const apiErr = err as ApiError
+      if (apiErr.status === 401) {
+        clearAuthToken()
+        navigate('/login', { replace: true })
+        return
+      }
+      const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
+      setError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
+    } finally {
+      if (!options?.silent) {
+        setBusy(false)
+      }
+    }
+  }
 
   const title = useMemo(() => {
     if (!execution) return 'execution'
@@ -19,37 +47,39 @@ export default function ExecutionDetail() {
   }, [execution])
 
   useEffect(() => {
-    async function load() {
-      if (!executionId) return
-      setBusy(true)
-      setError(undefined)
+    void fetchExecution()
+  }, [executionId])
 
-      try {
-        const res = await getExecution(executionId)
-        setExecution(res.execution)
-      } catch (err) {
-        const apiErr = err as ApiError
-        if (apiErr.status === 401) {
-          clearAuthToken()
-          navigate('/login', { replace: true })
-          return
-        }
-        const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
-        setError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
-      } finally {
-        setBusy(false)
-      }
+  useEffect(() => {
+    if (!executionId) return
+    if (!execution) return
+
+    const shouldPoll = execution.status === 'queued' || execution.status === 'running'
+    if (!shouldPoll) {
+      setPolling(false)
+      return
     }
 
-    void load()
-  }, [executionId])
+    setPolling(true)
+
+    const t = window.setTimeout(() => {
+      void fetchExecution({ silent: true })
+    }, 1000)
+
+    return () => {
+      window.clearTimeout(t)
+    }
+  }, [executionId, execution?.status])
 
   return (
     <div style={{ maxWidth: 900, margin: '40px auto', padding: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
         <div style={{ display: 'grid', gap: 4 }}>
           <div style={{ fontSize: 12, color: '#666' }}>Execution</div>
-          <h1 style={{ margin: 0 }}>{title}</h1>
+          <div style={{ display: 'flex', gap: 10, alignItems: 'baseline' }}>
+            <h1 style={{ margin: 0 }}>{title}</h1>
+            {polling ? <span style={{ fontSize: 12, color: '#666' }}>auto-refreshing</span> : null}
+          </div>
         </div>
 
         <div style={{ display: 'flex', gap: 8 }}>
