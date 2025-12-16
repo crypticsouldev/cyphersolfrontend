@@ -31,6 +31,8 @@ type Props = {
 
 export type CreateWorkFlowHandle = {
   patchNodeData: (nodeId: string, patch: Record<string, unknown>) => void
+  addNode: (node: Node) => void
+  deleteNode: (nodeId: string) => void
 }
 
 const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
@@ -66,6 +68,13 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
         setNodes((prev) =>
           prev.map((n) => (n.id === nodeId ? { ...n, data: { ...(n.data as any), ...patch } } : n)),
         )
+      },
+      addNode: (node: Node) => {
+        setNodes((prev) => [...prev, node])
+      },
+      deleteNode: (nodeId: string) => {
+        setNodes((prev) => prev.filter((n) => n.id !== nodeId))
+        setEdges((prev) => prev.filter((e) => e.source !== nodeId && e.target !== nodeId))
       },
     }),
     [],

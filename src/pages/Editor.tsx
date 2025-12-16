@@ -120,6 +120,59 @@ export default function Editor() {
     flowRef.current?.patchNodeData(selectedNodeId, patch)
   }
 
+  function getNextNodeId(existing: Node[]) {
+    const used = new Set(existing.map((n) => n.id))
+    let i = 1
+    while (used.has(`n${i}`)) i += 1
+    return `n${i}`
+  }
+
+  function addNode(kind: 'log' | 'delay' | 'http_request') {
+    if (!draft) return
+
+    const id = getNextNodeId(draft.nodes)
+    const maxY = draft.nodes.reduce((acc, n) => Math.max(acc, (n.position as any)?.y ?? 0), 0)
+    const position = { x: 260, y: maxY + 120 }
+
+    const baseData: Record<string, unknown> = {
+      label: kind,
+      type: kind,
+    }
+
+    if (kind === 'log') {
+      baseData.message = 'hello'
+    }
+
+    if (kind === 'delay') {
+      baseData.ms = 1000
+    }
+
+    if (kind === 'http_request') {
+      baseData.url = 'https://example.com'
+      baseData.method = 'GET'
+    }
+
+    const node: Node = {
+      id,
+      position,
+      data: baseData,
+    }
+
+    flowRef.current?.addNode(node)
+    setSelectedNodeId(id)
+  }
+
+  function deleteSelectedNode() {
+    if (!selectedNodeId) return
+    if (!draft) return
+
+    const ok = window.confirm(`delete node ${selectedNodeId}?`)
+    if (!ok) return
+
+    flowRef.current?.deleteNode(selectedNodeId)
+    setSelectedNodeId(undefined)
+  }
+
   async function onSave() {
     if (!workflowId || !draft) return
     setBusy(true)
@@ -350,6 +403,38 @@ export default function Editor() {
           style={{ background: '#111', color: '#fff', border: '1px solid #333', padding: '6px 10px', borderRadius: 6 }}
         >
           {busy ? 'working...' : 'save'}
+        </button>
+        <button
+          type="button"
+          onClick={() => addNode('log')}
+          disabled={busy || !draft}
+          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
+        >
+          add log
+        </button>
+        <button
+          type="button"
+          onClick={() => addNode('delay')}
+          disabled={busy || !draft}
+          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
+        >
+          add delay
+        </button>
+        <button
+          type="button"
+          onClick={() => addNode('http_request')}
+          disabled={busy || !draft}
+          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
+        >
+          add http
+        </button>
+        <button
+          type="button"
+          onClick={deleteSelectedNode}
+          disabled={busy || !draft || !selectedNodeId}
+          style={{ background: '#fff', color: '#b42318', border: '1px solid #f3c7c7', padding: '6px 10px', borderRadius: 6 }}
+        >
+          delete node
         </button>
         <button
           type="button"
