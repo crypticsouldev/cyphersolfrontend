@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import RequireAuth from './components/RequireAuth'
+import Credentials from './pages/Credentials'
 import Dashboard from './pages/Dashboard'
 import ExecutionDetail from './pages/ExecutionDetail'
 import Editor from './pages/Editor'
@@ -15,6 +16,7 @@ export default function App() {
 
         <Route element={<RequireAuth />}>
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/credentials" element={<Credentials />} />
           <Route path="/editor/:id" element={<Editor />} />
           <Route path="/workflows/:id/executions" element={<WorkflowExecutions />} />
           <Route path="/executions/:id" element={<ExecutionDetail />} />

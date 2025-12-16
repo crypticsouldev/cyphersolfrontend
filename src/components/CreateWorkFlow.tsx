@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import {
   ReactFlow,
   applyNodeChanges,
@@ -23,9 +23,15 @@ type Props = {
   initialNodes?: Node[]
   initialEdges?: Edge[]
   onDefinitionChange?: (definition: { nodes: Node[]; edges: Edge[] }) => void
+  onNodeSelect?: (nodeId: string | undefined) => void
 }
 
-export default function CreateWorkFlow({ initialNodes, initialEdges, onDefinitionChange }: Props) {
+export type CreateWorkFlowHandle = {
+  patchNodeData: (nodeId: string, patch: Record<string, unknown>) => void
+}
+
+const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
+  ({ initialNodes, initialEdges, onDefinitionChange, onNodeSelect }, ref) => {
   const [nodes, setNodes] = useState<Node[]>(initialNodes ?? defaultNodes)
   const [edges, setEdges] = useState<Edge[]>(initialEdges ?? defaultEdges)
 
@@ -43,6 +49,18 @@ export default function CreateWorkFlow({ initialNodes, initialEdges, onDefinitio
   useEffect(() => {
     onDefinitionChange?.({ nodes, edges })
   }, [nodes, edges, onDefinitionChange])
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      patchNodeData: (nodeId: string, patch: Record<string, unknown>) => {
+        setNodes((prev) =>
+          prev.map((n) => (n.id === nodeId ? { ...n, data: { ...(n.data as any), ...patch } } : n)),
+        )
+      },
+    }),
+    [],
+  )
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
@@ -67,8 +85,13 @@ export default function CreateWorkFlow({ initialNodes, initialEdges, onDefinitio
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        onNodeClick={(_evt, node) => onNodeSelect?.(node.id)}
+        onPaneClick={() => onNodeSelect?.(undefined)}
         fitView
       />
     </div>
   )
-}
+  },
+)
+
+export default CreateWorkFlow

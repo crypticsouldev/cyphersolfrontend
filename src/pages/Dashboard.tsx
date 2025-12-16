@@ -69,6 +69,21 @@ export default function Dashboard() {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
         <h1 style={{ margin: 0 }}>Workflows</h1>
         <div style={{ display: 'flex', gap: 8 }}>
+          <Link
+            to="/credentials"
+            style={{
+              padding: '8px 12px',
+              borderRadius: 6,
+              border: '1px solid #ddd',
+              background: '#fff',
+              textDecoration: 'none',
+              color: 'inherit',
+              display: 'inline-flex',
+              alignItems: 'center',
+            }}
+          >
+            credentials
+          </Link>
           <button
             type="button"
             onClick={onCreate}

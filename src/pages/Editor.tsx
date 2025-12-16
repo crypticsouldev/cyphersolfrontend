@@ -1,8 +1,16 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import type { Edge, Node } from '@xyflow/react'
-import CreateWorkFlow from '../components/CreateWorkFlow'
-import { type ApiError, getWorkflow, runWorkflow, updateWorkflow, type Workflow } from '../lib/api'
+import CreateWorkFlow, { type CreateWorkFlowHandle } from '../components/CreateWorkFlow'
+import {
+  type ApiError,
+  getWorkflow,
+  listCredentials,
+  runWorkflow,
+  updateWorkflow,
+  type CredentialSummary,
+  type Workflow,
+} from '../lib/api'
 import { clearAuthToken } from '../lib/auth'
 
 export default function Editor() {
@@ -17,6 +25,11 @@ export default function Editor() {
   const [draft, setDraft] = useState<{ nodes: Node[]; edges: Edge[] } | undefined>()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | undefined>()
+
+  const flowRef = useRef<CreateWorkFlowHandle | null>(null)
+  const [credentials, setCredentials] = useState<CredentialSummary[]>([])
+  const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>()
+  const [selectedCredentialId, setSelectedCredentialId] = useState<string>('')
 
   const title = useMemo(() => workflow?.name || 'workflow editor', [workflow?.name])
 
@@ -51,6 +64,43 @@ export default function Editor() {
 
     void load()
   }, [workflowId])
+
+  useEffect(() => {
+    async function loadCreds() {
+      setError(undefined)
+      try {
+        const res = await listCredentials()
+        setCredentials(res.credentials)
+      } catch (err) {
+        const apiErr = err as ApiError
+        if (apiErr.status === 401) {
+          clearAuthToken()
+          navigate('/login', { replace: true })
+          return
+        }
+        const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
+        setError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
+      }
+    }
+
+    void loadCreds()
+  }, [])
+
+  useEffect(() => {
+    if (!selectedNodeId) {
+      setSelectedCredentialId('')
+      return
+    }
+    const node = draft?.nodes.find((n) => n.id === selectedNodeId)
+    const current = (node?.data as any)?.credentialId
+    setSelectedCredentialId(typeof current === 'string' ? current : '')
+  }, [selectedNodeId, draft])
+
+  function onAttachCredential(credentialId: string) {
+    if (!selectedNodeId) return
+    setSelectedCredentialId(credentialId)
+    flowRef.current?.patchNodeData(selectedNodeId, { credentialId: credentialId || undefined })
+  }
 
   async function onSave() {
     if (!workflowId || !draft) return
@@ -126,6 +176,54 @@ export default function Editor() {
             executions
           </Link>
         ) : null}
+
+      {selectedNodeId ? (
+        <div
+          style={{
+            position: 'absolute',
+            top: 92,
+            left: 12,
+            zIndex: 10,
+            background: '#fff',
+            border: '1px solid #ddd',
+            borderRadius: 10,
+            padding: 10,
+            display: 'flex',
+            gap: 10,
+            alignItems: 'center',
+            maxWidth: 520,
+          }}
+        >
+          <div style={{ fontSize: 12, color: '#666' }}>selected node: {selectedNodeId}</div>
+          <select
+            value={selectedCredentialId}
+            onChange={(e) => onAttachCredential(e.target.value)}
+            disabled={busy}
+            style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+          >
+            <option value="">no credential</option>
+            {credentials.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.provider} · {c.name}
+              </option>
+            ))}
+          </select>
+          <Link
+            to="/credentials"
+            style={{
+              padding: '6px 8px',
+              borderRadius: 6,
+              border: '1px solid #ddd',
+              background: '#fff',
+              textDecoration: 'none',
+              color: 'inherit',
+              fontSize: 12,
+            }}
+          >
+            manage
+          </Link>
+        </div>
+      ) : null}
         <button
           type="button"
           onClick={onSave}
@@ -165,9 +263,11 @@ export default function Editor() {
       ) : null}
 
       <CreateWorkFlow
+        ref={flowRef}
         initialNodes={initialNodes}
         initialEdges={initialEdges}
         onDefinitionChange={(definition) => setDraft(definition)}
+        onNodeSelect={(nodeId) => setSelectedNodeId(nodeId)}
       />
     </div>
   )

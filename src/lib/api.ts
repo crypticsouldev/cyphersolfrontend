@@ -123,6 +123,22 @@ export type WorkflowExecutionsListResponse = {
   executions: ExecutionSummary[]
 }
 
+export type CredentialSummary = {
+  id: string
+  provider: string
+  name: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type CredentialsListResponse = {
+  credentials: CredentialSummary[]
+}
+
+export type CredentialResponse = {
+  credential: CredentialSummary
+}
+
 export async function signup(email: string, password: string) {
   return request<AuthResponse>('/auth/signup', {
     method: 'POST',
@@ -177,4 +193,19 @@ export async function listWorkflowExecutions(workflowId: string) {
 
 export async function getExecution(executionId: string) {
   return request<ExecutionResponse>(`/executions/${executionId}`)
+}
+
+export async function listCredentials() {
+  return request<CredentialsListResponse>('/credentials')
+}
+
+export async function createCredential(provider: string, name: string, secret: unknown) {
+  return request<CredentialResponse>('/credentials', {
+    method: 'POST',
+    body: JSON.stringify({ provider, name, secret }),
+  })
+}
+
+export async function deleteCredential(id: string) {
+  return request<{ ok: true }>(`/credentials/${id}`, { method: 'DELETE' })
 }
