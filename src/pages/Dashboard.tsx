@@ -22,7 +22,8 @@ export default function Dashboard() {
         navigate('/login', { replace: true })
         return
       }
-      setError(apiErr.message || 'failed')
+      const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
+      setError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
     }
   }
 
@@ -43,7 +44,8 @@ export default function Dashboard() {
         navigate('/login', { replace: true })
         return
       }
-      setError(apiErr.message || 'failed')
+      const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
+      setError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
     } finally {
       setBusy(false)
     }

@@ -27,7 +27,8 @@ export default function Login() {
       navigate('/dashboard', { replace: true })
     } catch (err) {
       const apiErr = err as ApiError
-      setError(apiErr.message || 'failed')
+      const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
+      setError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
     } finally {
       setBusy(false)
     }

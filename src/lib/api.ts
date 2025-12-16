@@ -3,6 +3,8 @@ import { getAuthToken } from './auth'
 export type ApiError = {
   message: string
   status: number
+  code?: string
+  requestId?: string
 }
 
 function getApiBaseUrl() {
@@ -44,7 +46,10 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
       (payload as any)?.message ||
       (typeof payload === 'string' ? payload : 'request failed')
 
-    const err: ApiError = { message, status: res.status }
+    const code = (payload as any)?.error?.code
+    const requestId = (payload as any)?.error?.requestId || res.headers.get('x-request-id') || undefined
+
+    const err: ApiError = { message, status: res.status, code, requestId }
     throw err
   }
 
@@ -103,9 +108,20 @@ export async function listWorkflows() {
   return request<WorkflowsListResponse>('/workflows')
 }
 
+export async function getWorkflow(id: string) {
+  return request<WorkflowResponse>(`/workflows/${id}`)
+}
+
 export async function createWorkflow(name: string, definition: unknown) {
   return request<WorkflowResponse>('/workflows', {
     method: 'POST',
     body: JSON.stringify({ name, definition }),
+  })
+}
+
+export async function updateWorkflow(id: string, patch: { name?: string; definition?: unknown }) {
+  return request<WorkflowResponse>(`/workflows/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify(patch),
   })
 }

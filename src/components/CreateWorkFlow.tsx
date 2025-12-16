@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   ReactFlow,
   applyNodeChanges,
@@ -12,16 +12,37 @@ import {
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 
-const initialNodes: Node[] = [
+const defaultNodes: Node[] = [
   { id: 'n1', position: { x: 0, y: 0 }, data: { label: 'Node 1' } },
   { id: 'n2', position: { x: 0, y: 100 }, data: { label: 'Node 2' } },
 ]
 
-const initialEdges: Edge[] = [{ id: 'n1-n2', source: 'n1', target: 'n2' }]
+const defaultEdges: Edge[] = [{ id: 'n1-n2', source: 'n1', target: 'n2' }]
 
-export default function CreateWorkFlow() {
-  const [nodes, setNodes] = useState<Node[]>(initialNodes)
-  const [edges, setEdges] = useState<Edge[]>(initialEdges)
+type Props = {
+  initialNodes?: Node[]
+  initialEdges?: Edge[]
+  onDefinitionChange?: (definition: { nodes: Node[]; edges: Edge[] }) => void
+}
+
+export default function CreateWorkFlow({ initialNodes, initialEdges, onDefinitionChange }: Props) {
+  const [nodes, setNodes] = useState<Node[]>(initialNodes ?? defaultNodes)
+  const [edges, setEdges] = useState<Edge[]>(initialEdges ?? defaultEdges)
+
+  const didHydrateRef = useRef(false)
+
+  useEffect(() => {
+    if (didHydrateRef.current) return
+    if (!initialNodes && !initialEdges) return
+
+    setNodes(initialNodes ?? defaultNodes)
+    setEdges(initialEdges ?? defaultEdges)
+    didHydrateRef.current = true
+  }, [initialNodes, initialEdges])
+
+  useEffect(() => {
+    onDefinitionChange?.({ nodes, edges })
+  }, [nodes, edges, onDefinitionChange])
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes) => setNodes((nodesSnapshot) => applyNodeChanges(changes, nodesSnapshot)),
