@@ -82,6 +82,47 @@ export type WorkflowResponse = {
   workflow: Workflow
 }
 
+export type ExecutionStatus = 'queued' | 'running' | 'success' | 'failed' | 'cancelled'
+
+export type ExecutionLog = {
+  timestamp: string
+  level: 'info' | 'warn' | 'error'
+  message: string
+  nodeId?: string
+}
+
+export type Execution = {
+  id: string
+  workflowId: string
+  userId: string
+  status: ExecutionStatus
+  startedAt?: string
+  finishedAt?: string
+  logs: ExecutionLog[]
+  nodeStatuses?: unknown
+  createdAt: string
+  updatedAt: string
+}
+
+export type ExecutionSummary = {
+  id: string
+  workflowId: string
+  userId: string
+  status: ExecutionStatus
+  startedAt?: string
+  finishedAt?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type ExecutionResponse = {
+  execution: Execution
+}
+
+export type WorkflowExecutionsListResponse = {
+  executions: ExecutionSummary[]
+}
+
 export async function signup(email: string, password: string) {
   return request<AuthResponse>('/auth/signup', {
     method: 'POST',
@@ -124,4 +165,16 @@ export async function updateWorkflow(id: string, patch: { name?: string; definit
     method: 'PATCH',
     body: JSON.stringify(patch),
   })
+}
+
+export async function runWorkflow(id: string) {
+  return request<ExecutionResponse>(`/workflows/${id}/run`, { method: 'POST' })
+}
+
+export async function listWorkflowExecutions(workflowId: string) {
+  return request<WorkflowExecutionsListResponse>(`/workflows/${workflowId}/executions`)
+}
+
+export async function getExecution(executionId: string) {
+  return request<ExecutionResponse>(`/executions/${executionId}`)
 }

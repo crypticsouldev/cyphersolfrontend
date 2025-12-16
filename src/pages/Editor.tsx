@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import type { Edge, Node } from '@xyflow/react'
 import CreateWorkFlow from '../components/CreateWorkFlow'
-import { type ApiError, getWorkflow, updateWorkflow, type Workflow } from '../lib/api'
+import { type ApiError, getWorkflow, runWorkflow, updateWorkflow, type Workflow } from '../lib/api'
 import { clearAuthToken } from '../lib/auth'
 
 export default function Editor() {
@@ -73,6 +73,27 @@ export default function Editor() {
     }
   }
 
+  async function onRun() {
+    if (!workflowId) return
+    setBusy(true)
+    setError(undefined)
+    try {
+      const res = await runWorkflow(workflowId)
+      navigate(`/executions/${res.execution.id}`)
+    } catch (err) {
+      const apiErr = err as ApiError
+      if (apiErr.status === 401) {
+        clearAuthToken()
+        navigate('/login', { replace: true })
+        return
+      }
+      const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
+      setError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
       <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 10, display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -90,6 +111,21 @@ export default function Editor() {
           back
         </Link>
         <span style={{ fontSize: 12, color: '#666' }}>{title}</span>
+        {workflowId ? (
+          <Link
+            to={`/workflows/${workflowId}/executions`}
+            style={{
+              background: '#fff',
+              border: '1px solid #ddd',
+              padding: '6px 10px',
+              borderRadius: 6,
+              textDecoration: 'none',
+              color: 'inherit',
+            }}
+          >
+            executions
+          </Link>
+        ) : null}
         <button
           type="button"
           onClick={onSave}
@@ -97,6 +133,14 @@ export default function Editor() {
           style={{ background: '#111', color: '#fff', border: '1px solid #333', padding: '6px 10px', borderRadius: 6 }}
         >
           {busy ? 'working...' : 'save'}
+        </button>
+        <button
+          type="button"
+          onClick={onRun}
+          disabled={busy || !workflowId}
+          style={{ background: '#0b5', color: '#fff', border: '1px solid #084', padding: '6px 10px', borderRadius: 6 }}
+        >
+          {busy ? 'working...' : 'run'}
         </button>
         <span style={{ fontSize: 12, color: '#666' }}>id: {params.id}</span>
       </div>
