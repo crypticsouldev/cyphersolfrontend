@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
+import type { Edge, Node } from '@xyflow/react'
 import { clearAuthToken } from '../lib/auth'
-import { type ApiError, getExecution, type Execution, type NodeExecutionState } from '../lib/api'
+import CreateWorkFlow from '../components/CreateWorkFlow'
+import { type ApiError, getExecution, getWorkflow, type Execution, type NodeExecutionState } from '../lib/api'
 
 export default function ExecutionDetail() {
   const params = useParams()
@@ -13,6 +15,9 @@ export default function ExecutionDetail() {
   const [busy, setBusy] = useState(false)
   const [polling, setPolling] = useState(false)
   const [error, setError] = useState<string | undefined>()
+
+  const [graph, setGraph] = useState<{ nodes: Node[]; edges: Edge[] } | undefined>()
+  const [graphError, setGraphError] = useState<string | undefined>()
 
   async function fetchExecution(options?: { silent?: boolean }) {
     if (!executionId) return
@@ -60,6 +65,65 @@ export default function ExecutionDetail() {
     if (status === 'skipped' || status === 'cancelled') return '#6b7280'
     return '#374151'
   }
+
+  function getStatusBg(status: string) {
+    if (status === 'success') return '#ecfdf3'
+    if (status === 'failed') return '#fef3f2'
+    if (status === 'running') return '#eff8ff'
+    if (status === 'queued' || status === 'pending') return '#f3f4f6'
+    if (status === 'skipped' || status === 'cancelled') return '#f9fafb'
+    return '#f9fafb'
+  }
+
+  useEffect(() => {
+    async function loadWorkflow() {
+      if (!execution?.workflowId) return
+      setGraphError(undefined)
+
+      try {
+        const wfRes = await getWorkflow(execution.workflowId)
+        const def = wfRes.workflow.definition as any
+        const nodes = Array.isArray(def?.nodes) ? (def.nodes as Node[]) : ([] as Node[])
+        const edges = Array.isArray(def?.edges) ? (def.edges as Edge[]) : ([] as Edge[])
+        setGraph({ nodes, edges })
+      } catch (err) {
+        const apiErr = err as ApiError
+        if (apiErr.status === 401) {
+          clearAuthToken()
+          navigate('/login', { replace: true })
+          return
+        }
+        const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
+        setGraphError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
+      }
+    }
+
+    void loadWorkflow()
+  }, [execution?.workflowId])
+
+  const styledGraphNodes = useMemo(() => {
+    if (!graph) return undefined
+    const nodeStatuses = execution?.nodeStatuses || {}
+
+    return graph.nodes.map((n) => {
+      const state = (nodeStatuses as any)?.[n.id] as NodeExecutionState | undefined
+      const status = String(state?.status || 'pending')
+      const labelRaw = (n.data as any)?.label
+      const baseLabel = typeof labelRaw === 'string' && labelRaw.length > 0 ? labelRaw : n.id
+
+      return {
+        ...n,
+        data: { ...(n.data as any), label: `${baseLabel} (${status})` },
+        style: {
+          ...(n.style as any),
+          border: `2px solid ${getStatusColor(status)}`,
+          background: getStatusBg(status),
+          borderRadius: 10,
+          padding: 6,
+        },
+      }
+    })
+  }, [graph, execution?.nodeStatuses])
 
   useEffect(() => {
     void fetchExecution()
@@ -144,6 +208,24 @@ export default function ExecutionDetail() {
                 {execution.startedAt ? ` · started: ${new Date(execution.startedAt).toLocaleString()}` : ''}
                 {execution.finishedAt ? ` · finished: ${new Date(execution.finishedAt).toLocaleString()}` : ''}
               </div>
+            </div>
+
+            <div style={{ display: 'grid', gap: 8 }}>
+              <div style={{ fontSize: 12, color: '#666' }}>Graph</div>
+              {graphError ? <div style={{ color: '#700' }}>{graphError}</div> : null}
+              {!styledGraphNodes || !graph ? (
+                <div style={{ color: '#555' }}>loading graph...</div>
+              ) : (
+                <div style={{ border: '1px solid #eee', borderRadius: 10, overflow: 'hidden' }}>
+                  <CreateWorkFlow
+                    initialNodes={styledGraphNodes}
+                    initialEdges={graph.edges}
+                    readOnly
+                    syncFromProps
+                    containerStyle={{ width: '100%', height: 340 }}
+                  />
+                </div>
+              )}
             </div>
 
             <div style={{ display: 'grid', gap: 8 }}>

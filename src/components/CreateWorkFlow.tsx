@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react'
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState, type CSSProperties } from 'react'
 import {
   ReactFlow,
   applyNodeChanges,
@@ -24,6 +24,9 @@ type Props = {
   initialEdges?: Edge[]
   onDefinitionChange?: (definition: { nodes: Node[]; edges: Edge[] }) => void
   onNodeSelect?: (nodeId: string | undefined) => void
+  containerStyle?: CSSProperties
+  readOnly?: boolean
+  syncFromProps?: boolean
 }
 
 export type CreateWorkFlowHandle = {
@@ -31,20 +34,26 @@ export type CreateWorkFlowHandle = {
 }
 
 const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
-  ({ initialNodes, initialEdges, onDefinitionChange, onNodeSelect }, ref) => {
+  ({ initialNodes, initialEdges, onDefinitionChange, onNodeSelect, containerStyle, readOnly, syncFromProps }, ref) => {
   const [nodes, setNodes] = useState<Node[]>(initialNodes ?? defaultNodes)
   const [edges, setEdges] = useState<Edge[]>(initialEdges ?? defaultEdges)
 
   const didHydrateRef = useRef(false)
 
   useEffect(() => {
+    if (syncFromProps) {
+      setNodes(initialNodes ?? defaultNodes)
+      setEdges(initialEdges ?? defaultEdges)
+      return
+    }
+
     if (didHydrateRef.current) return
     if (!initialNodes && !initialEdges) return
 
     setNodes(initialNodes ?? defaultNodes)
     setEdges(initialEdges ?? defaultEdges)
     didHydrateRef.current = true
-  }, [initialNodes, initialEdges])
+  }, [initialNodes, initialEdges, syncFromProps])
 
   useEffect(() => {
     onDefinitionChange?.({ nodes, edges })
@@ -78,13 +87,15 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
   )
 
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
+    <div style={{ width: '100vw', height: '100vh', ...containerStyle }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
+        onNodesChange={readOnly ? undefined : onNodesChange}
+        onEdgesChange={readOnly ? undefined : onEdgesChange}
+        onConnect={readOnly ? undefined : onConnect}
+        nodesDraggable={!readOnly}
+        nodesConnectable={!readOnly}
         onNodeClick={(_evt, node) => onNodeSelect?.(node.id)}
         onPaneClick={() => onNodeSelect?.(undefined)}
         fitView
