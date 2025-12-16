@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { clearAuthToken } from '../lib/auth'
-import { type ApiError, getExecution, type Execution } from '../lib/api'
+import { type ApiError, getExecution, type Execution, type NodeExecutionState } from '../lib/api'
 
 export default function ExecutionDetail() {
   const params = useParams()
@@ -45,6 +45,21 @@ export default function ExecutionDetail() {
     if (!execution) return 'execution'
     return `${execution.status}`
   }, [execution])
+
+  const nodeEntries = useMemo(() => {
+    const entries = Object.entries(execution?.nodeStatuses || {}) as Array<[string, NodeExecutionState]>
+    entries.sort(([a], [b]) => a.localeCompare(b))
+    return entries
+  }, [execution?.nodeStatuses])
+
+  function getStatusColor(status: string) {
+    if (status === 'success') return '#157f3b'
+    if (status === 'failed') return '#b42318'
+    if (status === 'running') return '#175cd3'
+    if (status === 'queued' || status === 'pending') return '#4b5563'
+    if (status === 'skipped' || status === 'cancelled') return '#6b7280'
+    return '#374151'
+  }
 
   useEffect(() => {
     void fetchExecution()
@@ -129,6 +144,56 @@ export default function ExecutionDetail() {
                 {execution.startedAt ? ` · started: ${new Date(execution.startedAt).toLocaleString()}` : ''}
                 {execution.finishedAt ? ` · finished: ${new Date(execution.finishedAt).toLocaleString()}` : ''}
               </div>
+            </div>
+
+            <div style={{ display: 'grid', gap: 8 }}>
+              <div style={{ fontSize: 12, color: '#666' }}>Node statuses</div>
+              {nodeEntries.length === 0 ? (
+                <div style={{ color: '#555' }}>no node statuses</div>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr>
+                        <th style={{ textAlign: 'left', fontSize: 12, color: '#666', padding: '8px 6px' }}>node</th>
+                        <th style={{ textAlign: 'left', fontSize: 12, color: '#666', padding: '8px 6px' }}>status</th>
+                        <th style={{ textAlign: 'left', fontSize: 12, color: '#666', padding: '8px 6px' }}>started</th>
+                        <th style={{ textAlign: 'left', fontSize: 12, color: '#666', padding: '8px 6px' }}>finished</th>
+                        <th style={{ textAlign: 'left', fontSize: 12, color: '#666', padding: '8px 6px' }}>error</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {nodeEntries.map(([nodeId, state]) => (
+                        <tr key={nodeId} style={{ borderTop: '1px solid #eee' }}>
+                          <td style={{ padding: '10px 6px', fontFamily: 'monospace', fontSize: 13 }}>{nodeId}</td>
+                          <td style={{ padding: '10px 6px' }}>
+                            <span
+                              style={{
+                                display: 'inline-block',
+                                padding: '3px 8px',
+                                borderRadius: 999,
+                                fontSize: 12,
+                                border: '1px solid #e5e7eb',
+                                color: getStatusColor(String(state?.status || 'unknown')),
+                                background: '#fff',
+                              }}
+                            >
+                              {String(state?.status || 'unknown')}
+                            </span>
+                          </td>
+                          <td style={{ padding: '10px 6px', fontSize: 12, color: '#333' }}>
+                            {state?.startedAt ? new Date(state.startedAt).toLocaleString() : '—'}
+                          </td>
+                          <td style={{ padding: '10px 6px', fontSize: 12, color: '#333' }}>
+                            {state?.finishedAt ? new Date(state.finishedAt).toLocaleString() : '—'}
+                          </td>
+                          <td style={{ padding: '10px 6px', fontSize: 12, color: '#b42318' }}>{state?.error || ''}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
 
             <div style={{ display: 'grid', gap: 8 }}>

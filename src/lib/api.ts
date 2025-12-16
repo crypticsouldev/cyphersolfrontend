@@ -91,6 +91,15 @@ export type ExecutionLog = {
   nodeId?: string
 }
 
+export type NodeExecutionStatus = 'pending' | 'running' | 'success' | 'failed' | 'skipped'
+
+export type NodeExecutionState = {
+  status: NodeExecutionStatus | string
+  startedAt?: string
+  finishedAt?: string
+  error?: string
+}
+
 export type Execution = {
   id: string
   workflowId: string
@@ -99,7 +108,7 @@ export type Execution = {
   startedAt?: string
   finishedAt?: string
   logs: ExecutionLog[]
-  nodeStatuses?: unknown
+  nodeStatuses?: Record<string, NodeExecutionState>
   createdAt: string
   updatedAt: string
 }
