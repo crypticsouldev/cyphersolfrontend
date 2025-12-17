@@ -57,6 +57,12 @@ export default function ExecutionDetail() {
     return entries
   }, [execution?.nodeStatuses])
 
+  const outputEntries = useMemo(() => {
+    const entries = Object.entries(execution?.nodeOutputs || {}) as Array<[string, unknown]>
+    entries.sort(([a], [b]) => a.localeCompare(b))
+    return entries
+  }, [execution?.nodeOutputs])
+
   function getStatusColor(status: string) {
     if (status === 'success') return '#157f3b'
     if (status === 'failed') return '#b42318'
@@ -224,6 +230,39 @@ export default function ExecutionDetail() {
                     syncFromProps
                     containerStyle={{ width: '100%', height: 340 }}
                   />
+                </div>
+              )}
+            </div>
+
+            <div style={{ display: 'grid', gap: 8 }}>
+              <div style={{ fontSize: 12, color: '#666' }}>Outputs</div>
+              {outputEntries.length === 0 ? (
+                <div style={{ color: '#555' }}>no outputs</div>
+              ) : (
+                <div style={{ display: 'grid', gap: 10 }}>
+                  {outputEntries.map(([nodeId, output]) => (
+                    <div
+                      key={nodeId}
+                      style={{ border: '1px solid #eee', borderRadius: 10, padding: 12, background: '#fff' }}
+                    >
+                      <div style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>node: {nodeId}</div>
+                      <pre
+                        style={{
+                          margin: 0,
+                          fontSize: 12,
+                          background: '#fafafa',
+                          border: '1px solid #eee',
+                          borderRadius: 8,
+                          padding: 10,
+                          overflowX: 'auto',
+                          whiteSpace: 'pre-wrap',
+                          wordBreak: 'break-word',
+                        }}
+                      >
+                        {JSON.stringify(output, null, 2)}
+                      </pre>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>

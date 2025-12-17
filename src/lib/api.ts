@@ -109,6 +109,7 @@ export type Execution = {
   finishedAt?: string
   logs: ExecutionLog[]
   nodeStatuses?: Record<string, NodeExecutionState>
+  nodeOutputs?: Record<string, unknown>
   createdAt: string
   updatedAt: string
 }
