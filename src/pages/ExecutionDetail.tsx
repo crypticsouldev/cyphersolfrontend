@@ -19,6 +19,9 @@ export default function ExecutionDetail() {
   const [graph, setGraph] = useState<{ nodes: Node[]; edges: Edge[] } | undefined>()
   const [graphError, setGraphError] = useState<string | undefined>()
 
+  const [focusNodeId, setFocusNodeId] = useState<string | undefined>()
+  const [highlightNodeId, setHighlightNodeId] = useState<string | undefined>()
+
   async function fetchExecution(options?: { silent?: boolean }) {
     if (!executionId) return
 
@@ -62,6 +65,37 @@ export default function ExecutionDetail() {
     entries.sort(([a], [b]) => a.localeCompare(b))
     return entries
   }, [execution?.nodeOutputs])
+
+  const firstLogIndexByNodeId = useMemo(() => {
+    const map: Record<string, number> = {}
+    const logs = execution?.logs || []
+    for (let i = 0; i < logs.length; i += 1) {
+      const nodeId = logs[i]?.nodeId
+      if (!nodeId) continue
+      if (map[nodeId] !== undefined) continue
+      map[nodeId] = i
+    }
+    return map
+  }, [execution?.logs])
+
+  useEffect(() => {
+    if (!focusNodeId) return
+
+    const outputEl = document.getElementById(`node-output-${focusNodeId}`)
+    const logEl = document.getElementById(`node-log-${focusNodeId}`)
+    const statusEl = document.getElementById(`node-status-${focusNodeId}`)
+    const target = outputEl || logEl || statusEl
+    if (!target) return
+
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    setHighlightNodeId(focusNodeId)
+
+    const t = window.setTimeout(() => {
+      setHighlightNodeId((cur) => (cur === focusNodeId ? undefined : cur))
+    }, 1200)
+
+    return () => window.clearTimeout(t)
+  }, [focusNodeId])
 
   function getStatusColor(status: string) {
     if (status === 'success') return '#157f3b'
@@ -228,6 +262,9 @@ export default function ExecutionDetail() {
                     initialEdges={graph.edges}
                     readOnly
                     syncFromProps
+                    onNodeSelect={(nodeId) => {
+                      if (nodeId) setFocusNodeId(nodeId)
+                    }}
                     containerStyle={{ width: '100%', height: 340 }}
                   />
                 </div>
@@ -243,6 +280,7 @@ export default function ExecutionDetail() {
                   {outputEntries.map(([nodeId, output]) => (
                     <div
                       key={nodeId}
+                      id={`node-output-${nodeId}`}
                       style={{ border: '1px solid #eee', borderRadius: 10, padding: 12, background: '#fff' }}
                     >
                       <div style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>node: {nodeId}</div>
@@ -257,6 +295,7 @@ export default function ExecutionDetail() {
                           overflowX: 'auto',
                           whiteSpace: 'pre-wrap',
                           wordBreak: 'break-word',
+                          outline: highlightNodeId === nodeId ? '2px solid #175cd3' : undefined,
                         }}
                       >
                         {JSON.stringify(output, null, 2)}
@@ -285,7 +324,11 @@ export default function ExecutionDetail() {
                     </thead>
                     <tbody>
                       {nodeEntries.map(([nodeId, state]) => (
-                        <tr key={nodeId} style={{ borderTop: '1px solid #eee' }}>
+                        <tr
+                          key={nodeId}
+                          id={`node-status-${nodeId}`}
+                          style={{ borderTop: '1px solid #eee', outline: highlightNodeId === nodeId ? '2px solid #175cd3' : undefined }}
+                        >
                           <td style={{ padding: '10px 6px', fontFamily: 'monospace', fontSize: 13 }}>{nodeId}</td>
                           <td style={{ padding: '10px 6px' }}>
                             <span
@@ -326,6 +369,7 @@ export default function ExecutionDetail() {
                   {execution.logs.map((l, idx) => (
                     <div
                       key={idx}
+                      id={l.nodeId && firstLogIndexByNodeId[l.nodeId] === idx ? `node-log-${l.nodeId}` : undefined}
                       style={{
                         border: '1px solid #eee',
                         borderRadius: 8,
@@ -333,6 +377,7 @@ export default function ExecutionDetail() {
                         background: '#fafafa',
                         display: 'grid',
                         gap: 4,
+                        outline: l.nodeId && highlightNodeId === l.nodeId ? '2px solid #175cd3' : undefined,
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
