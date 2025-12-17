@@ -127,7 +127,7 @@ export default function Editor() {
     return `n${i}`
   }
 
-  function addNode(kind: 'log' | 'delay' | 'http_request') {
+  function addNode(kind: 'log' | 'delay' | 'http_request' | 'timer_trigger') {
     if (!draft) return
 
     const id = getNextNodeId(draft.nodes)
@@ -150,6 +150,10 @@ export default function Editor() {
     if (kind === 'http_request') {
       baseData.url = 'https://example.com'
       baseData.method = 'GET'
+    }
+
+    if (kind === 'timer_trigger') {
+      baseData.intervalSeconds = 60
     }
 
     const node: Node = {
@@ -215,6 +219,28 @@ export default function Editor() {
     }
   }
 
+  async function onToggleEnabled() {
+    if (!workflowId) return
+    setBusy(true)
+    setError(undefined)
+    try {
+      const next = !workflow?.enabled
+      const res = await updateWorkflow(workflowId, { enabled: next })
+      setWorkflow(res.workflow)
+    } catch (err) {
+      const apiErr = err as ApiError
+      if (apiErr.status === 401) {
+        clearAuthToken()
+        navigate('/login', { replace: true })
+        return
+      }
+      const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
+      setError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <div style={{ width: '100vw', height: '100vh' }}>
       <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 10, display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -232,6 +258,11 @@ export default function Editor() {
           back
         </Link>
         <span style={{ fontSize: 12, color: '#666' }}>{title}</span>
+        {workflow ? (
+          <span style={{ fontSize: 12, color: workflow.enabled ? '#157f3b' : '#666' }}>
+            {workflow.enabled ? 'enabled' : 'disabled'}
+          </span>
+        ) : null}
         {workflowId ? (
           <Link
             to={`/workflows/${workflowId}/executions`}
@@ -288,6 +319,7 @@ export default function Editor() {
               disabled={busy}
               style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
             >
+              <option value="timer_trigger">timer_trigger</option>
               <option value="log">log</option>
               <option value="delay">delay</option>
               <option value="http_request">http_request</option>
@@ -304,6 +336,33 @@ export default function Editor() {
                 style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
                 placeholder="message"
               />
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'timer_trigger' ? (
+            <div style={{ display: 'grid', gap: 6 }}>
+              <div style={{ fontSize: 12, color: '#666' }}>interval seconds</div>
+              <input
+                type="number"
+                value={
+                  typeof selectedNodeData.intervalSeconds === 'number'
+                    ? selectedNodeData.intervalSeconds
+                    : typeof selectedNodeData.intervalSeconds === 'string'
+                      ? selectedNodeData.intervalSeconds
+                      : ''
+                }
+                onChange={(e) => {
+                  const val = e.target.value
+                  patchSelectedNode({ intervalSeconds: val === '' ? undefined : Number(val) })
+                }}
+                disabled={busy}
+                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                placeholder="60"
+                min={1}
+              />
+              <div style={{ fontSize: 12, color: '#666' }}>
+                used by the trigger service when workflow is enabled
+              </div>
             </div>
           ) : null}
 
@@ -403,6 +462,28 @@ export default function Editor() {
           style={{ background: '#111', color: '#fff', border: '1px solid #333', padding: '6px 10px', borderRadius: 6 }}
         >
           {busy ? 'working...' : 'save'}
+        </button>
+        <button
+          type="button"
+          onClick={onToggleEnabled}
+          disabled={busy || !workflowId || !workflow}
+          style={{
+            background: workflow?.enabled ? '#fff' : '#fff',
+            color: workflow?.enabled ? '#b42318' : '#157f3b',
+            border: '1px solid #ddd',
+            padding: '6px 10px',
+            borderRadius: 6,
+          }}
+        >
+          {workflow?.enabled ? 'disable' : 'enable'}
+        </button>
+        <button
+          type="button"
+          onClick={() => addNode('timer_trigger')}
+          disabled={busy || !draft}
+          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
+        >
+          add timer
         </button>
         <button
           type="button"
