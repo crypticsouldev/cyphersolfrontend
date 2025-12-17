@@ -70,6 +70,9 @@ export type Workflow = {
   id: string
   name: string
   definition: unknown
+  enabled?: boolean
+  nextRunAt?: string
+  lockedUntil?: string
   createdAt: string
   updatedAt: string
 }
@@ -186,7 +189,7 @@ export async function createWorkflow(name: string, definition: unknown) {
   })
 }
 
-export async function updateWorkflow(id: string, patch: { name?: string; definition?: unknown }) {
+export async function updateWorkflow(id: string, patch: { name?: string; definition?: unknown; enabled?: boolean }) {
   return request<WorkflowResponse>(`/workflows/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(patch),
