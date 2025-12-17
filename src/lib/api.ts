@@ -73,6 +73,8 @@ export type Workflow = {
   enabled?: boolean
   nextRunAt?: string
   lockedUntil?: string
+  overlapPolicy?: 'skip' | 'queue' | 'allow'
+  maxBacklog?: number
   createdAt: string
   updatedAt: string
 }
@@ -225,7 +227,16 @@ export async function createWorkflow(name: string, definition: unknown) {
   })
 }
 
-export async function updateWorkflow(id: string, patch: { name?: string; definition?: unknown; enabled?: boolean }) {
+export async function updateWorkflow(
+  id: string,
+  patch: {
+    name?: string
+    definition?: unknown
+    enabled?: boolean
+    overlapPolicy?: 'skip' | 'queue' | 'allow'
+    maxBacklog?: number
+  },
+) {
   return request<WorkflowResponse>(`/workflows/${id}`, {
     method: 'PATCH',
     body: JSON.stringify(patch),

@@ -31,6 +31,7 @@ export default function Editor() {
   const [credentials, setCredentials] = useState<CredentialSummary[]>([])
   const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>()
   const [selectedCredentialId, setSelectedCredentialId] = useState<string>('')
+  const [maxBacklogDraft, setMaxBacklogDraft] = useState('')
 
   const handleDefinitionChange = useCallback((definition: { nodes: Node[]; edges: Edge[] }) => {
     setDraft(definition)
@@ -91,6 +92,11 @@ export default function Editor() {
   }, [draft])
 
   const title = useMemo(() => workflow?.name || 'workflow editor', [workflow?.name])
+
+  useEffect(() => {
+    const mb = workflow?.maxBacklog
+    setMaxBacklogDraft(mb !== undefined && mb !== null ? String(mb) : '5')
+  }, [workflow?.id, workflow?.maxBacklog])
 
   useEffect(() => {
     async function load() {
@@ -248,6 +254,52 @@ export default function Editor() {
     setError(undefined)
     try {
       const res = await updateWorkflow(workflowId, { definition: draft })
+      setWorkflow(res.workflow)
+    } catch (err) {
+      const apiErr = err as ApiError
+      if (apiErr.status === 401) {
+        clearAuthToken()
+        navigate('/login', { replace: true })
+        return
+      }
+      const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
+      setError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function onSetOverlapPolicy(nextPolicy: 'skip' | 'queue' | 'allow') {
+    if (!workflowId) return
+    if (!workflow) return
+
+    setBusy(true)
+    setError(undefined)
+    try {
+      const res = await updateWorkflow(workflowId, { overlapPolicy: nextPolicy })
+      setWorkflow(res.workflow)
+    } catch (err) {
+      const apiErr = err as ApiError
+      if (apiErr.status === 401) {
+        clearAuthToken()
+        navigate('/login', { replace: true })
+        return
+      }
+      const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
+      setError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function onSetMaxBacklog(nextMaxBacklog: number) {
+    if (!workflowId) return
+    if (!workflow) return
+
+    setBusy(true)
+    setError(undefined)
+    try {
+      const res = await updateWorkflow(workflowId, { maxBacklog: nextMaxBacklog })
       setWorkflow(res.workflow)
     } catch (err) {
       const apiErr = err as ApiError
@@ -705,6 +757,34 @@ export default function Editor() {
         >
           {workflow?.enabled ? 'disable' : 'enable'}
         </button>
+        <select
+          value={workflow?.overlapPolicy || 'skip'}
+          onChange={(e) => void onSetOverlapPolicy(e.target.value as 'skip' | 'queue' | 'allow')}
+          disabled={busy || !workflowId || !workflow}
+          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
+        >
+          <option value="skip">overlap: skip</option>
+          <option value="queue">overlap: queue</option>
+          <option value="allow">overlap: allow</option>
+        </select>
+        {(workflow?.overlapPolicy || 'skip') === 'queue' ? (
+          <input
+            type="number"
+            value={maxBacklogDraft}
+            onChange={(e) => setMaxBacklogDraft(e.target.value)}
+            onBlur={() => {
+              const n = Number(maxBacklogDraft)
+              if (Number.isFinite(n) && n >= 0) {
+                void onSetMaxBacklog(n)
+              }
+            }}
+            disabled={busy || !workflowId || !workflow}
+            style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6, width: 160 }}
+            placeholder="max backlog"
+            min={0}
+            max={1000}
+          />
+        ) : null}
         <button
           type="button"
           onClick={onRenameWorkflow}
