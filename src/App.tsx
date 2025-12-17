@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard'
 import ExecutionDetail from './pages/ExecutionDetail'
 import Editor from './pages/Editor'
 import Login from './pages/Login'
+import PaperTrades from './pages/PaperTrades'
 import WorkflowExecutions from './pages/WorkflowExecutions'
 
 export default function App() {
@@ -17,6 +18,7 @@ export default function App() {
         <Route element={<RequireAuth />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/credentials" element={<Credentials />} />
+          <Route path="/paper-trades" element={<PaperTrades />} />
           <Route path="/editor/:id" element={<Editor />} />
           <Route path="/workflows/:id/executions" element={<WorkflowExecutions />} />
           <Route path="/executions/:id" element={<ExecutionDetail />} />

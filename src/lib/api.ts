@@ -152,6 +152,42 @@ export type CredentialResponse = {
   credential: CredentialSummary
 }
 
+export type PaperOrderSide = 'buy' | 'sell'
+
+export type PaperOrder = {
+  id: string
+  userId: string
+  workflowId: string
+  executionId: string
+  nodeId: string
+  symbol: string
+  side: PaperOrderSide
+  quantity: number
+  price?: number
+  filledAt: string
+  status: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type PaperOrdersListResponse = {
+  paperOrders: PaperOrder[]
+  nextCursor?: string
+}
+
+export type PaperPosition = {
+  symbol: string
+  buyQty: number
+  sellQty: number
+  netQuantity: number
+  lastTradeAt?: string
+  tradeCount: number
+}
+
+export type PaperPositionsResponse = {
+  positions: PaperPosition[]
+}
+
 export async function signup(email: string, password: string) {
   return request<AuthResponse>('/auth/signup', {
     method: 'POST',
@@ -225,4 +261,26 @@ export async function createCredential(provider: string, name: string, secret: u
 
 export async function deleteCredential(id: string) {
   return request<{ ok: true }>(`/credentials/${id}`, { method: 'DELETE' })
+}
+
+export async function listPaperOrders(params: {
+  workflowId?: string
+  symbol?: string
+  limit?: number
+  cursor?: string
+} = {}) {
+  const qs = new URLSearchParams()
+  if (params.workflowId) qs.set('workflowId', params.workflowId)
+  if (params.symbol) qs.set('symbol', params.symbol)
+  if (params.limit !== undefined) qs.set('limit', String(params.limit))
+  if (params.cursor) qs.set('cursor', params.cursor)
+  const q = qs.toString()
+  return request<PaperOrdersListResponse>(`/paper-orders${q ? `?${q}` : ''}`)
+}
+
+export async function listPaperPositions(params: { workflowId?: string } = {}) {
+  const qs = new URLSearchParams()
+  if (params.workflowId) qs.set('workflowId', params.workflowId)
+  const q = qs.toString()
+  return request<PaperPositionsResponse>(`/paper-orders/positions${q ? `?${q}` : ''}`)
 }

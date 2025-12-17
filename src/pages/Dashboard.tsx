@@ -156,6 +156,21 @@ export default function Dashboard() {
           >
             credentials
           </Link>
+          <Link
+            to="/paper-trades"
+            style={{
+              padding: '8px 12px',
+              borderRadius: 6,
+              border: '1px solid #ddd',
+              background: '#fff',
+              textDecoration: 'none',
+              color: 'inherit',
+              display: 'inline-flex',
+              alignItems: 'center',
+            }}
+          >
+            paper trades
+          </Link>
           <button
             type="button"
             onClick={onCreate}
