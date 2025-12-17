@@ -172,7 +172,7 @@ export default function Editor() {
     return `n${i}`
   }
 
-  function addNode(kind: 'log' | 'delay' | 'http_request' | 'timer_trigger') {
+  function addNode(kind: 'log' | 'delay' | 'http_request' | 'timer_trigger' | 'paper_order') {
     if (!draft) return
 
     if (kind === 'timer_trigger') {
@@ -208,6 +208,13 @@ export default function Editor() {
     if (kind === 'http_request') {
       baseData.url = 'https://example.com'
       baseData.method = 'GET'
+    }
+
+    if (kind === 'paper_order') {
+      baseData.symbol = 'SOL'
+      baseData.side = 'buy'
+      baseData.quantity = 1
+      baseData.price = 150
     }
 
     if (kind === 'timer_trigger') {
@@ -469,6 +476,7 @@ export default function Editor() {
               <option value="log">log</option>
               <option value="delay">delay</option>
               <option value="http_request">http_request</option>
+              <option value="paper_order">paper_order</option>
             </select>
           </div>
 
@@ -599,6 +607,80 @@ export default function Editor() {
               </div>
             </div>
           ) : null}
+
+          {selectedNodeType === 'paper_order' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>symbol</div>
+                <input
+                  value={typeof selectedNodeData.symbol === 'string' ? selectedNodeData.symbol : ''}
+                  onChange={(e) => patchSelectedNode({ symbol: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="SOL"
+                />
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>side</div>
+                <select
+                  value={typeof selectedNodeData.side === 'string' ? selectedNodeData.side : 'buy'}
+                  onChange={(e) => patchSelectedNode({ side: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                >
+                  <option value="buy">buy</option>
+                  <option value="sell">sell</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>quantity</div>
+                <input
+                  type="number"
+                  value={
+                    typeof selectedNodeData.quantity === 'number'
+                      ? selectedNodeData.quantity
+                      : typeof selectedNodeData.quantity === 'string'
+                        ? selectedNodeData.quantity
+                        : ''
+                  }
+                  onChange={(e) => {
+                    const val = e.target.value
+                    patchSelectedNode({ quantity: val === '' ? undefined : Number(val) })
+                  }}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="1"
+                  min={0}
+                  step={0.0001}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>price (optional)</div>
+                <input
+                  type="number"
+                  value={
+                    typeof selectedNodeData.price === 'number'
+                      ? selectedNodeData.price
+                      : typeof selectedNodeData.price === 'string'
+                        ? selectedNodeData.price
+                        : ''
+                  }
+                  onChange={(e) => {
+                    const val = e.target.value
+                    patchSelectedNode({ price: val === '' ? undefined : Number(val) })
+                  }}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="150"
+                  min={0}
+                  step={0.0001}
+                />
+              </div>
+            </div>
+          ) : null}
         </div>
       ) : null}
         <button
@@ -670,6 +752,14 @@ export default function Editor() {
           style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
         >
           add http
+        </button>
+        <button
+          type="button"
+          onClick={() => addNode('paper_order')}
+          disabled={busy || !draft}
+          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
+        >
+          add paper trade
         </button>
         <button
           type="button"
