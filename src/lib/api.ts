@@ -196,6 +196,10 @@ export async function updateWorkflow(id: string, patch: { name?: string; definit
   })
 }
 
+export async function deleteWorkflow(id: string) {
+  return request<{ ok: true }>(`/workflows/${id}`, { method: 'DELETE' })
+}
+
 export async function runWorkflow(id: string) {
   return request<ExecutionResponse>(`/workflows/${id}/run`, { method: 'POST' })
 }

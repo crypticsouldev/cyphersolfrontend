@@ -4,6 +4,7 @@ import type { Edge, Node } from '@xyflow/react'
 import CreateWorkFlow, { type CreateWorkFlowHandle } from '../components/CreateWorkFlow'
 import {
   type ApiError,
+  deleteWorkflow,
   getWorkflow,
   listCredentials,
   runWorkflow,
@@ -48,6 +49,46 @@ export default function Editor() {
     const t = selectedNodeData.type
     return typeof t === 'string' && t.length > 0 ? t : 'log'
   }, [selectedNodeData.type])
+
+  const enableEligibility = useMemo((): { ok: boolean; reason?: string } => {
+    if (!draft) return { ok: false, reason: 'no workflow loaded' }
+
+    const triggers = draft.nodes.filter((n) => {
+      const data = (n.data as any) || {}
+      const kind = String(data?.type || (n as any)?.type || '')
+      return kind === 'timer_trigger'
+    })
+
+    if (triggers.length === 0) {
+      return { ok: false, reason: 'add a timer_trigger node to enable automation' }
+    }
+
+    if (triggers.length > 1) {
+      return { ok: false, reason: 'only one trigger node is allowed' }
+    }
+
+    const data = (triggers[0].data as any) || {}
+    const intervalMs = data.intervalMs
+    const intervalSeconds = data.intervalSeconds
+
+    const ms =
+      intervalMs !== undefined ? Number(intervalMs) : intervalSeconds !== undefined ? Number(intervalSeconds) * 1000 : Number.NaN
+
+    if (!Number.isFinite(ms) || ms <= 0) {
+      return { ok: false, reason: 'timer_trigger requires a valid interval' }
+    }
+
+    return { ok: true, reason: undefined }
+  }, [draft])
+
+  const hasTriggerNode = useMemo(() => {
+    if (!draft) return false
+    return draft.nodes.some((n) => {
+      const data = (n.data as any) || {}
+      const kind = String(data?.type || (n as any)?.type || '')
+      return kind === 'timer_trigger'
+    })
+  }, [draft])
 
   const title = useMemo(() => workflow?.name || 'workflow editor', [workflow?.name])
 
@@ -134,6 +175,19 @@ export default function Editor() {
   function addNode(kind: 'log' | 'delay' | 'http_request' | 'timer_trigger') {
     if (!draft) return
 
+    if (kind === 'timer_trigger') {
+      const existing = draft.nodes.find((n) => {
+        const data = (n.data as any) || {}
+        const nodeKind = String(data?.type || (n as any)?.type || '')
+        return nodeKind === 'timer_trigger'
+      })
+      if (existing) {
+        setError('only one trigger node is allowed')
+        setSelectedNodeId(existing.id)
+        return
+      }
+    }
+
     const id = getNextNodeId(draft.nodes)
     const maxY = draft.nodes.reduce((acc, n) => Math.max(acc, (n.position as any)?.y ?? 0), 0)
     const position = { x: 260, y: maxY + 120 }
@@ -202,6 +256,60 @@ export default function Editor() {
     }
   }
 
+  async function onRenameWorkflow() {
+    if (!workflowId || !workflow) return
+
+    const nextName = window.prompt('rename workflow', workflow.name)
+    if (nextName === null) return
+    if (!nextName.trim()) {
+      setError('name is required')
+      return
+    }
+
+    setBusy(true)
+    setError(undefined)
+    try {
+      const res = await updateWorkflow(workflowId, { name: nextName })
+      setWorkflow(res.workflow)
+    } catch (err) {
+      const apiErr = err as ApiError
+      if (apiErr.status === 401) {
+        clearAuthToken()
+        navigate('/login', { replace: true })
+        return
+      }
+      const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
+      setError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function onDeleteWorkflow() {
+    if (!workflowId || !workflow) return
+
+    const ok = window.confirm(`delete workflow "${workflow.name}"?`)
+    if (!ok) return
+
+    setBusy(true)
+    setError(undefined)
+    try {
+      await deleteWorkflow(workflowId)
+      navigate('/dashboard', { replace: true })
+    } catch (err) {
+      const apiErr = err as ApiError
+      if (apiErr.status === 401) {
+        clearAuthToken()
+        navigate('/login', { replace: true })
+        return
+      }
+      const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
+      setError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   async function onRun() {
     if (!workflowId) return
     setBusy(true)
@@ -225,11 +333,22 @@ export default function Editor() {
 
   async function onToggleEnabled() {
     if (!workflowId) return
+
+    const next = !workflow?.enabled
+    if (next && !enableEligibility.ok) {
+      setError(enableEligibility.reason || 'workflow is not valid for enabling')
+      return
+    }
+
+    if (next && !draft) {
+      setError('no workflow loaded')
+      return
+    }
+
     setBusy(true)
     setError(undefined)
     try {
-      const next = !workflow?.enabled
-      const res = await updateWorkflow(workflowId, { enabled: next })
+      const res = await updateWorkflow(workflowId, next ? { enabled: true, definition: draft } : { enabled: false })
       setWorkflow(res.workflow)
     } catch (err) {
       const apiErr = err as ApiError
@@ -266,6 +385,9 @@ export default function Editor() {
           <span style={{ fontSize: 12, color: workflow.enabled ? '#157f3b' : '#666' }}>
             {workflow.enabled ? 'enabled' : 'disabled'}
           </span>
+        ) : null}
+        {workflow && !workflow.enabled && !enableEligibility.ok ? (
+          <span style={{ fontSize: 12, color: '#b42318' }}>{enableEligibility.reason || 'not ready to enable'}</span>
         ) : null}
         {workflowId ? (
           <Link
@@ -319,7 +441,27 @@ export default function Editor() {
             <div style={{ fontSize: 12, color: '#666' }}>type</div>
             <select
               value={selectedNodeType}
-              onChange={(e) => patchSelectedNode({ type: e.target.value })}
+              onChange={(e) => {
+                const nextType = e.target.value
+                if (nextType === 'timer_trigger' && draft) {
+                  const existingTrigger = draft.nodes.find((n) => {
+                    const data = (n.data as any) || {}
+                    const kind = String(data?.type || (n as any)?.type || '')
+                    return kind === 'timer_trigger' && n.id !== selectedNodeId
+                  })
+                  if (existingTrigger) {
+                    setError('only one trigger node is allowed')
+                    return
+                  }
+
+                  const currentIntervalSeconds = (selectedNodeData as any).intervalSeconds
+                  const needsDefault = currentIntervalSeconds === undefined || currentIntervalSeconds === null || currentIntervalSeconds === ''
+                  patchSelectedNode(needsDefault ? { type: nextType, intervalSeconds: 60 } : { type: nextType })
+                  return
+                }
+
+                patchSelectedNode({ type: nextType })
+              }}
               disabled={busy}
               style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
             >
@@ -470,7 +612,7 @@ export default function Editor() {
         <button
           type="button"
           onClick={onToggleEnabled}
-          disabled={busy || !workflowId || !workflow}
+          disabled={busy || !workflowId || !workflow || (!workflow.enabled && !enableEligibility.ok)}
           style={{
             background: workflow?.enabled ? '#fff' : '#fff',
             color: workflow?.enabled ? '#b42318' : '#157f3b',
@@ -483,8 +625,24 @@ export default function Editor() {
         </button>
         <button
           type="button"
+          onClick={onRenameWorkflow}
+          disabled={busy || !workflowId || !workflow}
+          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
+        >
+          rename
+        </button>
+        <button
+          type="button"
+          onClick={onDeleteWorkflow}
+          disabled={busy || !workflowId || !workflow}
+          style={{ background: '#fff', color: '#b42318', border: '1px solid #f3c7c7', padding: '6px 10px', borderRadius: 6 }}
+        >
+          delete
+        </button>
+        <button
+          type="button"
           onClick={() => addNode('timer_trigger')}
-          disabled={busy || !draft}
+          disabled={busy || !draft || hasTriggerNode}
           style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
         >
           add timer
