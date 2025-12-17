@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import type { Edge, Node } from '@xyflow/react'
 import CreateWorkFlow, { type CreateWorkFlowHandle } from '../components/CreateWorkFlow'
@@ -30,6 +30,10 @@ export default function Editor() {
   const [credentials, setCredentials] = useState<CredentialSummary[]>([])
   const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>()
   const [selectedCredentialId, setSelectedCredentialId] = useState<string>('')
+
+  const handleDefinitionChange = useCallback((definition: { nodes: Node[]; edges: Edge[] }) => {
+    setDraft(definition)
+  }, [])
 
   const selectedNode = useMemo(() => {
     if (!selectedNodeId) return undefined
@@ -551,7 +555,7 @@ export default function Editor() {
         ref={flowRef}
         initialNodes={initialNodes}
         initialEdges={initialEdges}
-        onDefinitionChange={(definition) => setDraft(definition)}
+        onDefinitionChange={handleDefinitionChange}
         onNodeSelect={(nodeId) => setSelectedNodeId(nodeId)}
       />
     </div>
