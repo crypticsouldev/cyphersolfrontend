@@ -40,6 +40,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   const res = await fetch(`${getApiBaseUrl()}${path}`, {
     ...init,
     headers,
+    cache: 'no-store',
   })
 
   if (!res.ok) {

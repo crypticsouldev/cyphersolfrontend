@@ -13,7 +13,8 @@ export default function Credentials() {
   const navigate = useNavigate()
 
   const [credentials, setCredentials] = useState<CredentialSummary[]>([])
-  const [provider, setProvider] = useState('')
+  const [providerType, setProviderType] = useState<'solana_wallet' | 'api_token' | 'custom'>('solana_wallet')
+  const [customProvider, setCustomProvider] = useState('')
   const [name, setName] = useState('')
   const [secretText, setSecretText] = useState('')
   const [busy, setBusy] = useState(false)
@@ -46,14 +47,27 @@ export default function Credentials() {
     setError(undefined)
 
     try {
-      let secret: unknown = secretText
-      try {
-        secret = secretText ? JSON.parse(secretText) : ''
-      } catch {
+      const provider = providerType === 'custom' ? customProvider.trim() : providerType
+      if (!provider) {
+        setError('provider is required')
+        return
+      }
+
+      let secret: unknown
+      if (providerType === 'solana_wallet' || providerType === 'api_token') {
+        secret = secretText.trim()
+      } else {
+        secret = secretText
+        try {
+          secret = secretText ? JSON.parse(secretText) : ''
+        } catch {
+        }
       }
 
       await createCredential(provider, name, secret)
-      setProvider('')
+
+      setProviderType('solana_wallet')
+      setCustomProvider('')
       setName('')
       setSecretText('')
       await load()
@@ -138,15 +152,31 @@ export default function Credentials() {
           <form onSubmit={onCreate} style={{ display: 'grid', gap: 10 }}>
             <label style={{ display: 'grid', gap: 6 }}>
               <span>Provider</span>
-              <input
-                value={provider}
-                onChange={(e) => setProvider(e.target.value)}
-                required
+              <select
+                value={providerType}
+                onChange={(e) => setProviderType(e.target.value as any)}
                 disabled={busy}
-                placeholder="binance / smtp / ..."
                 style={{ padding: 10, border: '1px solid #ddd', borderRadius: 6 }}
-              />
+              >
+                <option value="solana_wallet">solana wallet</option>
+                <option value="api_token">api token</option>
+                <option value="custom">custom</option>
+              </select>
             </label>
+
+            {providerType === 'custom' ? (
+              <label style={{ display: 'grid', gap: 6 }}>
+                <span>Custom provider id</span>
+                <input
+                  value={customProvider}
+                  onChange={(e) => setCustomProvider(e.target.value)}
+                  required
+                  disabled={busy}
+                  placeholder="binance / smtp / ..."
+                  style={{ padding: 10, border: '1px solid #ddd', borderRadius: 6 }}
+                />
+              </label>
+            ) : null}
 
             <label style={{ display: 'grid', gap: 6 }}>
               <span>Name</span>
@@ -161,16 +191,35 @@ export default function Credentials() {
             </label>
 
             <label style={{ display: 'grid', gap: 6 }}>
-              <span>Secret (JSON preferred)</span>
+              <span>
+                {providerType === 'solana_wallet'
+                  ? 'Secret key (base58)'
+                  : providerType === 'api_token'
+                    ? 'Token'
+                    : 'Secret (JSON preferred)'}
+              </span>
               <textarea
                 value={secretText}
                 onChange={(e) => setSecretText(e.target.value)}
                 disabled={busy}
-                placeholder='{"apiKey":"...","apiSecret":"..."}'
+                placeholder={
+                  providerType === 'solana_wallet'
+                    ? 'base58 secret key (will be encrypted)'
+                    : providerType === 'api_token'
+                      ? 'token (will be encrypted)'
+                      : '{"apiKey":"...","apiSecret":"..."}'
+                }
                 rows={6}
                 style={{ padding: 10, border: '1px solid #ddd', borderRadius: 6, fontFamily: 'monospace' }}
               />
             </label>
+
+            {providerType === 'solana_wallet' ? (
+              <div style={{ fontSize: 12, color: '#666' }}>
+                create this to make it appear in <span style={{ fontFamily: 'monospace' }}>solana_balance</span> and{' '}
+                <span style={{ fontFamily: 'monospace' }}>jupiter_swap</span> nodes.
+              </div>
+            ) : null}
 
             <button
               type="submit"
