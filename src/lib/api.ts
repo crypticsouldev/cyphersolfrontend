@@ -142,6 +142,7 @@ export type CredentialSummary = {
   id: string
   provider: string
   name: string
+  publicKey?: string
   createdAt: string
   updatedAt: string
 }

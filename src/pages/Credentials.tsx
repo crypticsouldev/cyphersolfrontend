@@ -205,6 +205,9 @@ export default function Credentials() {
                   <div style={{ display: 'grid', gap: 2 }}>
                     <div style={{ fontWeight: 600 }}>{c.provider}</div>
                     <div style={{ fontSize: 12, color: '#666' }}>{c.name}</div>
+                    {c.publicKey ? (
+                      <div style={{ fontSize: 12, color: '#666', fontFamily: 'monospace' }}>{c.publicKey}</div>
+                    ) : null}
                     <div style={{ fontSize: 12, color: '#666', fontFamily: 'monospace' }}>{c.id}</div>
                   </div>
                   <button

@@ -57,7 +57,7 @@ export default function Editor() {
     const triggers = draft.nodes.filter((n) => {
       const data = (n.data as any) || {}
       const kind = String(data?.type || (n as any)?.type || '')
-      return kind === 'timer_trigger' || kind === 'price_trigger'
+      return kind === 'timer_trigger' || kind === 'price_trigger' || kind === 'helius_webhook_trigger'
     })
 
     if (triggers.length === 0) {
@@ -70,6 +70,10 @@ export default function Editor() {
 
     const data = (triggers[0].data as any) || {}
     const kind = String(data?.type || (triggers[0] as any)?.type || '')
+
+    if (kind === 'helius_webhook_trigger') {
+      return { ok: true, reason: undefined }
+    }
 
     const intervalMs = data.intervalMs
     const intervalSeconds = data.intervalSeconds
@@ -102,7 +106,7 @@ export default function Editor() {
     return draft.nodes.some((n) => {
       const data = (n.data as any) || {}
       const kind = String(data?.type || (n as any)?.type || '')
-      return kind === 'timer_trigger' || kind === 'price_trigger'
+      return kind === 'timer_trigger' || kind === 'price_trigger' || kind === 'helius_webhook_trigger'
     })
   }, [draft])
 
@@ -193,14 +197,24 @@ export default function Editor() {
     return `n${i}`
   }
 
-  function addNode(kind: 'log' | 'delay' | 'http_request' | 'timer_trigger' | 'price_trigger' | 'market_data' | 'paper_order') {
+  function addNode(
+    kind:
+      | 'log'
+      | 'delay'
+      | 'http_request'
+      | 'timer_trigger'
+      | 'price_trigger'
+      | 'helius_webhook_trigger'
+      | 'market_data'
+      | 'paper_order',
+  ) {
     if (!draft) return
 
-    if (kind === 'timer_trigger' || kind === 'price_trigger') {
+    if (kind === 'timer_trigger' || kind === 'price_trigger' || kind === 'helius_webhook_trigger') {
       const existing = draft.nodes.find((n) => {
         const data = (n.data as any) || {}
         const nodeKind = String(data?.type || (n as any)?.type || '')
-        return nodeKind === 'timer_trigger' || nodeKind === 'price_trigger'
+        return nodeKind === 'timer_trigger' || nodeKind === 'price_trigger' || nodeKind === 'helius_webhook_trigger'
       })
       if (existing) {
         setError('only one trigger node is allowed')
@@ -253,6 +267,10 @@ export default function Editor() {
       baseData.direction = 'crosses_above'
       baseData.threshold = 150
       baseData.intervalSeconds = 60
+    }
+
+    if (kind === 'helius_webhook_trigger') {
+      // no config in v1
     }
 
     const node: Node = {
@@ -530,11 +548,17 @@ export default function Editor() {
               value={selectedNodeType}
               onChange={(e) => {
                 const nextType = e.target.value
-                if ((nextType === 'timer_trigger' || nextType === 'price_trigger') && draft) {
+                if (
+                  (nextType === 'timer_trigger' || nextType === 'price_trigger' || nextType === 'helius_webhook_trigger') &&
+                  draft
+                ) {
                   const existingTrigger = draft.nodes.find((n) => {
                     const data = (n.data as any) || {}
                     const kind = String(data?.type || (n as any)?.type || '')
-                    return (kind === 'timer_trigger' || kind === 'price_trigger') && n.id !== selectedNodeId
+                    return (
+                      (kind === 'timer_trigger' || kind === 'price_trigger' || kind === 'helius_webhook_trigger') &&
+                      n.id !== selectedNodeId
+                    )
                   })
                   if (existingTrigger) {
                     setError('only one trigger node is allowed')
@@ -557,7 +581,13 @@ export default function Editor() {
                         : { type: nextType },
                     )
                   } else {
-                    patchSelectedNode(needsDefault ? { type: nextType, intervalSeconds: 60 } : { type: nextType })
+                    patchSelectedNode(
+                      nextType === 'helius_webhook_trigger'
+                        ? { type: nextType }
+                        : needsDefault
+                          ? { type: nextType, intervalSeconds: 60 }
+                          : { type: nextType },
+                    )
                   }
                   return
                 }
@@ -569,6 +599,7 @@ export default function Editor() {
             >
               <option value="timer_trigger">timer_trigger</option>
               <option value="price_trigger">price_trigger</option>
+              <option value="helius_webhook_trigger">helius_webhook_trigger</option>
               <option value="log">log</option>
               <option value="delay">delay</option>
               <option value="http_request">http_request</option>
@@ -587,6 +618,21 @@ export default function Editor() {
                 style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
                 placeholder="message"
               />
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'helius_webhook_trigger' ? (
+            <div style={{ display: 'grid', gap: 6 }}>
+              <div style={{ fontSize: 12, color: '#666' }}>webhook trigger</div>
+              <div style={{ fontSize: 12, color: '#666' }}>
+                configure Helius to POST to:
+              </div>
+              <div style={{ fontSize: 12, color: '#666', fontFamily: 'monospace' }}>
+                /webhooks/helius/{workflow?.id || '<workflowId>'}
+              </div>
+              <div style={{ fontSize: 12, color: '#666' }}>
+                set the Authorization header to match HELIUS_WEBHOOK_AUTH_HEADER
+              </div>
             </div>
           ) : null}
 
@@ -976,6 +1022,14 @@ export default function Editor() {
           style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
         >
           add price trigger
+        </button>
+        <button
+          type="button"
+          onClick={() => addNode('helius_webhook_trigger')}
+          disabled={busy || !draft || hasTriggerNode}
+          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
+        >
+          add helius webhook
         </button>
         <button
           type="button"
