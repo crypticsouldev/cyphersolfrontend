@@ -22,6 +22,15 @@ export default function ExecutionDetail() {
   const [focusNodeId, setFocusNodeId] = useState<string | undefined>()
   const [highlightNodeId, setHighlightNodeId] = useState<string | undefined>()
 
+  const [solanaExplorerCluster, setSolanaExplorerCluster] = useState<'mainnet-beta' | 'devnet'>(() => {
+    const v = window.localStorage.getItem('solanaExplorerCluster')
+    return v === 'devnet' ? 'devnet' : 'mainnet-beta'
+  })
+
+  useEffect(() => {
+    window.localStorage.setItem('solanaExplorerCluster', solanaExplorerCluster)
+  }, [solanaExplorerCluster])
+
   async function fetchExecution(options?: { silent?: boolean }) {
     if (!executionId) return
 
@@ -124,6 +133,12 @@ export default function ExecutionDetail() {
     return `${s.slice(0, head)}...${s.slice(-tail)}`
   }
 
+  function buildSolanaExplorerUrl(path: string): string {
+    const base = 'https://explorer.solana.com'
+    const clusterParam = solanaExplorerCluster === 'devnet' ? '?cluster=devnet' : ''
+    return `${base}${path}${clusterParam}`
+  }
+
   function renderNodeOutput(output: unknown): ReactNode {
     if (isRecord(output) && output.kind === 'jupiter_swap') {
       const signature = typeof output.signature === 'string' ? output.signature : undefined
@@ -138,7 +153,7 @@ export default function ExecutionDetail() {
             <div style={{ fontSize: 12, color: '#666' }}>signature</div>
             {signature ? (
               <a
-                href={`https://explorer.solana.com/tx/${signature}`}
+                href={buildSolanaExplorerUrl(`/tx/${signature}`)}
                 target="_blank"
                 rel="noreferrer"
                 style={{ fontFamily: 'monospace', fontSize: 13, textDecoration: 'none', color: '#175cd3' }}
@@ -153,11 +168,33 @@ export default function ExecutionDetail() {
           <div style={{ display: 'grid', gap: 6, gridTemplateColumns: '1fr 1fr' }}>
             <div style={{ display: 'grid', gap: 4 }}>
               <div style={{ fontSize: 12, color: '#666' }}>input mint</div>
-              <div style={{ fontFamily: 'monospace', fontSize: 13 }}>{inputMint || '—'}</div>
+              {inputMint ? (
+                <a
+                  href={buildSolanaExplorerUrl(`/address/${inputMint}`)}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ fontFamily: 'monospace', fontSize: 13, textDecoration: 'none', color: '#175cd3' }}
+                >
+                  {inputMint}
+                </a>
+              ) : (
+                <div style={{ fontFamily: 'monospace', fontSize: 13, color: '#666' }}>—</div>
+              )}
             </div>
             <div style={{ display: 'grid', gap: 4 }}>
               <div style={{ fontSize: 12, color: '#666' }}>output mint</div>
-              <div style={{ fontFamily: 'monospace', fontSize: 13 }}>{outputMint || '—'}</div>
+              {outputMint ? (
+                <a
+                  href={buildSolanaExplorerUrl(`/address/${outputMint}`)}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ fontFamily: 'monospace', fontSize: 13, textDecoration: 'none', color: '#175cd3' }}
+                >
+                  {outputMint}
+                </a>
+              ) : (
+                <div style={{ fontFamily: 'monospace', fontSize: 13, color: '#666' }}>—</div>
+              )}
             </div>
           </div>
 
@@ -185,7 +222,18 @@ export default function ExecutionDetail() {
         <div style={{ display: 'grid', gap: 10 }}>
           <div style={{ display: 'grid', gap: 4 }}>
             <div style={{ fontSize: 12, color: '#666' }}>public key</div>
-            <div style={{ fontFamily: 'monospace', fontSize: 13 }}>{publicKey || '—'}</div>
+            {publicKey ? (
+              <a
+                href={buildSolanaExplorerUrl(`/address/${publicKey}`)}
+                target="_blank"
+                rel="noreferrer"
+                style={{ fontFamily: 'monospace', fontSize: 13, textDecoration: 'none', color: '#175cd3' }}
+              >
+                {publicKey}
+              </a>
+            ) : (
+              <div style={{ fontFamily: 'monospace', fontSize: 13, color: '#666' }}>—</div>
+            )}
           </div>
 
           <div style={{ display: 'grid', gap: 6, gridTemplateColumns: '1fr 1fr' }}>
@@ -223,7 +271,21 @@ export default function ExecutionDetail() {
                       const decimals = typeof tok.decimals === 'number' ? tok.decimals : undefined
                       return (
                         <tr key={idx} style={{ borderTop: '1px solid #eee' }}>
-                          <td style={{ padding: '10px 6px', fontFamily: 'monospace', fontSize: 13 }}>{mint ? shorten(mint, 8, 8) : '—'}</td>
+                          <td style={{ padding: '10px 6px', fontFamily: 'monospace', fontSize: 13 }}>
+                            {mint ? (
+                              <a
+                                href={buildSolanaExplorerUrl(`/address/${mint}`)}
+                                target="_blank"
+                                rel="noreferrer"
+                                title={mint}
+                                style={{ textDecoration: 'none', color: '#175cd3' }}
+                              >
+                                {shorten(mint, 8, 8)}
+                              </a>
+                            ) : (
+                              '—'
+                            )}
+                          </td>
                           <td style={{ padding: '10px 6px', fontFamily: 'monospace', fontSize: 13 }}>{uiAmountString || '—'}</td>
                           <td style={{ padding: '10px 6px', fontFamily: 'monospace', fontSize: 13 }}>{amount || '—'}</td>
                           <td style={{ padding: '10px 6px', fontFamily: 'monospace', fontSize: 13 }}>{decimals !== undefined ? String(decimals) : '—'}</td>
@@ -344,7 +406,18 @@ export default function ExecutionDetail() {
           </div>
         </div>
 
-        <div style={{ display: 'flex', gap: 8 }}>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            <div style={{ fontSize: 12, color: '#666' }}>explorer</div>
+            <select
+              value={solanaExplorerCluster}
+              onChange={(e) => setSolanaExplorerCluster(e.target.value as 'mainnet-beta' | 'devnet')}
+              style={{ padding: '8px 10px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', fontSize: 12 }}
+            >
+              <option value="mainnet-beta">mainnet</option>
+              <option value="devnet">devnet</option>
+            </select>
+          </div>
           {execution ? (
             <Link
               to={`/workflows/${execution.workflowId}/executions`}
