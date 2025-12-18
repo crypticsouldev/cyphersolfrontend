@@ -6,10 +6,12 @@ import {
   type ApiError,
   deleteWorkflow,
   getWorkflow,
+  getMeta,
   listCredentials,
   runWorkflow,
   updateWorkflow,
   type CredentialSummary,
+  type MetaResponse,
   type Workflow,
 } from '../lib/api'
 import { clearAuthToken } from '../lib/auth'
@@ -26,6 +28,8 @@ export default function Editor() {
   const [draft, setDraft] = useState<{ nodes: Node[]; edges: Edge[] } | undefined>()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | undefined>()
+
+  const [meta, setMeta] = useState<MetaResponse | undefined>()
 
   const flowRef = useRef<CreateWorkFlowHandle | null>(null)
   const [credentials, setCredentials] = useState<CredentialSummary[]>([])
@@ -169,6 +173,16 @@ export default function Editor() {
     }
 
     void loadCreds()
+  }, [])
+
+  useEffect(() => {
+    async function loadMeta() {
+      await getMeta()
+        .then((res) => setMeta(res))
+        .catch(() => undefined)
+    }
+
+    void loadMeta()
   }, [])
 
   useEffect(() => {
@@ -786,6 +800,12 @@ export default function Editor() {
                   min={0}
                   step={0.000001}
                 />
+                {meta && Number.isFinite(Number((selectedNodeData as any).amount)) &&
+                Number((selectedNodeData as any).amount) > meta.jupiterSwapMaxAmount ? (
+                  <div style={{ fontSize: 12, color: '#b42318' }}>
+                    amount exceeds max ({meta.jupiterSwapMaxAmount})
+                  </div>
+                ) : null}
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
@@ -809,7 +829,19 @@ export default function Editor() {
                   min={1}
                   max={10_000}
                 />
+                {meta && Number.isFinite(Number((selectedNodeData as any).slippageBps)) &&
+                Number((selectedNodeData as any).slippageBps) > meta.jupiterSwapMaxSlippageBps ? (
+                  <div style={{ fontSize: 12, color: '#b42318' }}>
+                    slippage exceeds max ({meta.jupiterSwapMaxSlippageBps} bps)
+                  </div>
+                ) : null}
               </div>
+
+              {meta ? (
+                <div style={{ fontSize: 12, color: '#666' }}>
+                  safety caps: max amount {meta.jupiterSwapMaxAmount} · max slippage {meta.jupiterSwapMaxSlippageBps} bps
+                </div>
+              ) : null}
 
               <div style={{ fontSize: 12, color: '#666' }}>
                 requires backend rpc via <span style={{ fontFamily: 'monospace' }}>SOLANA_RPC_URL</span>

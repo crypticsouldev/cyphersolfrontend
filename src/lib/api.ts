@@ -66,6 +66,11 @@ export type MeResponse = {
   user: { id: string; email: string }
 }
 
+export type MetaResponse = {
+  jupiterSwapMaxAmount: number
+  jupiterSwapMaxSlippageBps: number
+}
+
 export type Workflow = {
   id: string
   name: string
@@ -207,6 +212,10 @@ export async function signin(email: string, password: string) {
 
 export async function me() {
   return request<MeResponse>('/auth/me')
+}
+
+export async function getMeta() {
+  return request<MetaResponse>('/meta')
 }
 
 export async function signout() {
