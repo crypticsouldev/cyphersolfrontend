@@ -37,6 +37,7 @@ export default function Editor() {
   const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>()
   const [selectedCredentialId, setSelectedCredentialId] = useState<string>('')
   const [maxBacklogDraft, setMaxBacklogDraft] = useState('')
+  const [addNodeSelection, setAddNodeSelection] = useState('')
 
   const handleDefinitionChange = useCallback((definition: { nodes: Node[]; edges: Edge[] }) => {
     setDraft(definition)
@@ -587,60 +588,88 @@ export default function Editor() {
   }
 
   return (
-    <div style={{ width: '100vw', height: '100vh' }}>
-      <div style={{ position: 'absolute', top: 12, left: 12, zIndex: 10, display: 'flex', gap: 10, alignItems: 'center' }}>
-        <Link
-          to="/dashboard"
-          style={{
-            background: '#fff',
-            border: '1px solid #ddd',
-            padding: '6px 10px',
-            borderRadius: 6,
-            textDecoration: 'none',
-            color: 'inherit',
-          }}
-        >
-          back
-        </Link>
-        <span style={{ fontSize: 12, color: '#666' }}>{title}</span>
-        {workflow ? (
-          <span style={{ fontSize: 12, color: workflow.enabled ? '#157f3b' : '#666' }}>
-            {workflow.enabled ? 'enabled' : 'disabled'}
-          </span>
-        ) : null}
-        {workflow && !workflow.enabled && !enableEligibility.ok ? (
-          <span style={{ fontSize: 12, color: '#b42318' }}>{enableEligibility.reason || 'not ready to enable'}</span>
-        ) : null}
-        {workflowId ? (
+    <div style={{ width: '100vw', height: '100vh', background: '#f8fafc' }}>
+      <div
+        style={{
+          position: 'absolute',
+          top: 12,
+          left: 12,
+          right: 12,
+          zIndex: 10,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          gap: 12,
+          background: '#fff',
+          border: '1px solid #e5e7eb',
+          padding: '10px 12px',
+          borderRadius: 12,
+          boxShadow: '0 1px 2px rgba(16, 24, 40, 0.06)',
+        }}
+      >
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
           <Link
-            to={`/workflows/${workflowId}/executions`}
+            to="/dashboard"
             style={{
               background: '#fff',
-              border: '1px solid #ddd',
-              padding: '6px 10px',
-              borderRadius: 6,
+              border: '1px solid #e5e7eb',
+              padding: '8px 10px',
+              borderRadius: 10,
               textDecoration: 'none',
               color: 'inherit',
+              fontSize: 12,
             }}
           >
-            executions
+            back
           </Link>
-        ) : null}
+          <div style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
+            <span style={{ fontSize: 12, color: '#111' }}>{title}</span>
+            {workflow ? (
+              <span style={{ fontSize: 12, color: workflow.enabled ? '#157f3b' : '#666' }}>
+                {workflow.enabled ? 'enabled' : 'disabled'}
+              </span>
+            ) : null}
+          </div>
+          {workflow && !workflow.enabled && !enableEligibility.ok ? (
+            <span style={{ fontSize: 12, color: '#b42318' }}>{enableEligibility.reason || 'not ready to enable'}</span>
+          ) : null}
+        </div>
+
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          {workflowId ? (
+            <Link
+              to={`/workflows/${workflowId}/executions`}
+              style={{
+                background: '#fff',
+                border: '1px solid #e5e7eb',
+                padding: '8px 10px',
+                borderRadius: 10,
+                textDecoration: 'none',
+                color: 'inherit',
+                fontSize: 12,
+              }}
+            >
+              executions
+            </Link>
+          ) : null}
+        </div>
+      </div>
 
       {selectedNodeId ? (
         <div
           style={{
             position: 'absolute',
-            top: 92,
+            top: 122,
             left: 12,
             zIndex: 10,
             background: '#fff',
-            border: '1px solid #ddd',
+            border: '1px solid #e5e7eb',
             borderRadius: 10,
             padding: 12,
             display: 'grid',
             gap: 10,
             maxWidth: 520,
+            boxShadow: '0 1px 2px rgba(16, 24, 40, 0.06)',
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline' }}>
@@ -1258,38 +1287,75 @@ export default function Editor() {
           ) : null}
         </div>
       ) : null}
+
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 12,
+          left: 12,
+          right: 12,
+          zIndex: 10,
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 8,
+          alignItems: 'center',
+          background: '#fff',
+          border: '1px solid #e5e7eb',
+          padding: '10px 12px',
+          borderRadius: 12,
+          boxShadow: '0 1px 2px rgba(16, 24, 40, 0.06)',
+        }}
+      >
         <button
           type="button"
           onClick={onSave}
           disabled={busy || !draft}
-          style={{ background: '#111', color: '#fff', border: '1px solid #333', padding: '6px 10px', borderRadius: 6 }}
+          title={!draft ? 'no workflow loaded' : undefined}
+          style={{ background: '#111', color: '#fff', border: '1px solid #111', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
         >
           {busy ? 'working...' : 'save'}
         </button>
+
         <button
           type="button"
           onClick={onToggleEnabled}
           disabled={busy || !workflowId || !workflow || (!workflow.enabled && !enableEligibility.ok)}
+          title={!workflow?.enabled && !enableEligibility.ok ? enableEligibility.reason || 'workflow is not valid for enabling' : undefined}
           style={{
-            background: workflow?.enabled ? '#fff' : '#fff',
+            background: '#fff',
             color: workflow?.enabled ? '#b42318' : '#157f3b',
-            border: '1px solid #ddd',
-            padding: '6px 10px',
-            borderRadius: 6,
+            border: '1px solid #e5e7eb',
+            padding: '8px 10px',
+            borderRadius: 10,
+            fontSize: 12,
           }}
         >
           {workflow?.enabled ? 'disable' : 'enable'}
         </button>
+
+        <button
+          type="button"
+          onClick={onRun}
+          disabled={busy || !workflowId || !runEligibility.ok}
+          title={!runEligibility.ok ? runEligibility.reason || 'workflow is not valid for running' : undefined}
+          style={{ background: '#0b5', color: '#fff', border: '1px solid #084', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
+        >
+          {busy ? 'working...' : 'run'}
+        </button>
+
+        <div style={{ width: 1, height: 28, background: '#e5e7eb', margin: '0 2px' }} />
+
         <select
           value={workflow?.overlapPolicy || 'skip'}
           onChange={(e) => void onSetOverlapPolicy(e.target.value as 'skip' | 'queue' | 'allow')}
           disabled={busy || !workflowId || !workflow}
-          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
+          style={{ background: '#fff', color: '#111', border: '1px solid #e5e7eb', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
         >
           <option value="skip">overlap: skip</option>
           <option value="queue">overlap: queue</option>
           <option value="allow">overlap: allow</option>
         </select>
+
         {(workflow?.overlapPolicy || 'skip') === 'queue' ? (
           <input
             type="number"
@@ -1302,133 +1368,80 @@ export default function Editor() {
               }
             }}
             disabled={busy || !workflowId || !workflow}
-            style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6, width: 160 }}
+            style={{ background: '#fff', color: '#111', border: '1px solid #e5e7eb', padding: '8px 10px', borderRadius: 10, width: 160, fontSize: 12 }}
             placeholder="max backlog"
             min={0}
             max={1000}
           />
         ) : null}
-        <button
-          type="button"
-          onClick={onRenameWorkflow}
-          disabled={busy || !workflowId || !workflow}
-          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
-        >
-          rename
-        </button>
-        <button
-          type="button"
-          onClick={onDeleteWorkflow}
-          disabled={busy || !workflowId || !workflow}
-          style={{ background: '#fff', color: '#b42318', border: '1px solid #f3c7c7', padding: '6px 10px', borderRadius: 6 }}
-        >
-          delete
-        </button>
-        <button
-          type="button"
-          onClick={() => addNode('timer_trigger')}
-          disabled={busy || !draft || hasTriggerNode}
-          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
-        >
-          add timer
-        </button>
-        <button
-          type="button"
-          onClick={() => addNode('price_trigger')}
-          disabled={busy || !draft || hasTriggerNode}
-          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
-        >
-          add price trigger
-        </button>
-        <button
-          type="button"
-          onClick={() => addNode('helius_webhook_trigger')}
-          disabled={busy || !draft || hasTriggerNode}
-          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
-        >
-          add helius webhook
-        </button>
-        <button
-          type="button"
-          onClick={() => addNode('log')}
+
+        <div style={{ width: 1, height: 28, background: '#e5e7eb', margin: '0 2px' }} />
+
+        <select
+          value={addNodeSelection}
+          onChange={(e) => {
+            const kind = e.target.value
+            if (!kind) return
+            addNode(kind as any)
+            setAddNodeSelection('')
+          }}
           disabled={busy || !draft}
-          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
+          style={{ background: '#fff', color: '#111', border: '1px solid #e5e7eb', padding: '8px 10px', borderRadius: 10, fontSize: 12, minWidth: 180 }}
         >
-          add log
-        </button>
-        <button
-          type="button"
-          onClick={() => addNode('delay')}
-          disabled={busy || !draft}
-          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
-        >
-          add delay
-        </button>
-        <button
-          type="button"
-          onClick={() => addNode('http_request')}
-          disabled={busy || !draft}
-          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
-        >
-          add http
-        </button>
-        <button
-          type="button"
-          onClick={() => addNode('solana_balance')}
-          disabled={busy || !draft}
-          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
-        >
-          add solana balance
-        </button>
-        <button
-          type="button"
-          onClick={() => addNode('jupiter_swap')}
-          disabled={busy || !draft}
-          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
-        >
-          add jupiter swap
-        </button>
-        <button
-          type="button"
-          onClick={() => addNode('market_data')}
-          disabled={busy || !draft}
-          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
-        >
-          add market data
-        </button>
-        <button
-          type="button"
-          onClick={() => addNode('paper_order')}
-          disabled={busy || !draft}
-          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
-        >
-          add paper trade
-        </button>
+          <option value="">add node…</option>
+          <option value="timer_trigger" disabled={hasTriggerNode}>
+            trigger: timer
+          </option>
+          <option value="price_trigger" disabled={hasTriggerNode}>
+            trigger: price
+          </option>
+          <option value="helius_webhook_trigger" disabled={hasTriggerNode}>
+            trigger: helius webhook
+          </option>
+          <option value="log">action: log</option>
+          <option value="delay">action: delay</option>
+          <option value="http_request">action: http request</option>
+          <option value="solana_balance">solana: balance</option>
+          <option value="jupiter_swap">solana: jupiter swap</option>
+          <option value="market_data">market: data</option>
+          <option value="paper_order">paper: trade</option>
+        </select>
+
         <button
           type="button"
           onClick={deleteSelectedNode}
           disabled={busy || !draft || !selectedNodeId}
-          style={{ background: '#fff', color: '#b42318', border: '1px solid #f3c7c7', padding: '6px 10px', borderRadius: 6 }}
+          style={{ background: '#fff', color: '#b42318', border: '1px solid #f3c7c7', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
         >
           delete node
         </button>
+
         <button
           type="button"
-          onClick={onRun}
-          disabled={busy || !workflowId || !runEligibility.ok}
-          title={!runEligibility.ok ? runEligibility.reason || 'workflow is not valid for running' : undefined}
-          style={{ background: '#0b5', color: '#fff', border: '1px solid #084', padding: '6px 10px', borderRadius: 6 }}
+          onClick={onRenameWorkflow}
+          disabled={busy || !workflowId || !workflow}
+          style={{ background: '#fff', color: '#111', border: '1px solid #e5e7eb', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
         >
-          {busy ? 'working...' : 'run'}
+          rename
         </button>
-        <span style={{ fontSize: 12, color: '#666' }}>id: {params.id}</span>
+
+        <button
+          type="button"
+          onClick={onDeleteWorkflow}
+          disabled={busy || !workflowId || !workflow}
+          style={{ background: '#fff', color: '#b42318', border: '1px solid #f3c7c7', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
+        >
+          delete
+        </button>
+
+        <span style={{ fontSize: 12, color: '#666', marginLeft: 'auto' }}>id: {params.id}</span>
       </div>
 
       {error ? (
         <div
           style={{
             position: 'absolute',
-            top: 52,
+            top: 74,
             left: 12,
             zIndex: 10,
             background: '#fee',
@@ -1447,7 +1460,7 @@ export default function Editor() {
         <div
           style={{
             position: 'absolute',
-            top: 52,
+            top: 74,
             left: 12,
             zIndex: 10,
             background: '#fff6ed',
