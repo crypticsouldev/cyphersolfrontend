@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import type { Edge, Node } from '@xyflow/react'
 import { clearAuthToken } from '../lib/auth'
@@ -113,6 +113,149 @@ export default function ExecutionDetail() {
     if (status === 'queued' || status === 'pending') return '#f3f4f6'
     if (status === 'skipped' || status === 'cancelled') return '#f9fafb'
     return '#f9fafb'
+  }
+
+  function isRecord(v: unknown): v is Record<string, unknown> {
+    return !!v && typeof v === 'object' && !Array.isArray(v)
+  }
+
+  function shorten(s: string, head = 6, tail = 6) {
+    if (s.length <= head + tail + 3) return s
+    return `${s.slice(0, head)}...${s.slice(-tail)}`
+  }
+
+  function renderNodeOutput(output: unknown): ReactNode {
+    if (isRecord(output) && output.kind === 'jupiter_swap') {
+      const signature = typeof output.signature === 'string' ? output.signature : undefined
+      const inputMint = typeof output.inputMint === 'string' ? output.inputMint : undefined
+      const outputMint = typeof output.outputMint === 'string' ? output.outputMint : undefined
+      const amount = typeof output.amount === 'number' ? output.amount : undefined
+      const slippageBps = typeof output.slippageBps === 'number' ? output.slippageBps : undefined
+
+      return (
+        <div style={{ display: 'grid', gap: 10 }}>
+          <div style={{ display: 'grid', gap: 4 }}>
+            <div style={{ fontSize: 12, color: '#666' }}>signature</div>
+            {signature ? (
+              <a
+                href={`https://explorer.solana.com/tx/${signature}`}
+                target="_blank"
+                rel="noreferrer"
+                style={{ fontFamily: 'monospace', fontSize: 13, textDecoration: 'none', color: '#175cd3' }}
+              >
+                {signature}
+              </a>
+            ) : (
+              <div style={{ fontFamily: 'monospace', fontSize: 13, color: '#666' }}>—</div>
+            )}
+          </div>
+
+          <div style={{ display: 'grid', gap: 6, gridTemplateColumns: '1fr 1fr' }}>
+            <div style={{ display: 'grid', gap: 4 }}>
+              <div style={{ fontSize: 12, color: '#666' }}>input mint</div>
+              <div style={{ fontFamily: 'monospace', fontSize: 13 }}>{inputMint || '—'}</div>
+            </div>
+            <div style={{ display: 'grid', gap: 4 }}>
+              <div style={{ fontSize: 12, color: '#666' }}>output mint</div>
+              <div style={{ fontFamily: 'monospace', fontSize: 13 }}>{outputMint || '—'}</div>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gap: 6, gridTemplateColumns: '1fr 1fr' }}>
+            <div style={{ display: 'grid', gap: 4 }}>
+              <div style={{ fontSize: 12, color: '#666' }}>amount</div>
+              <div style={{ fontFamily: 'monospace', fontSize: 13 }}>{amount !== undefined ? String(amount) : '—'}</div>
+            </div>
+            <div style={{ display: 'grid', gap: 4 }}>
+              <div style={{ fontSize: 12, color: '#666' }}>slippage</div>
+              <div style={{ fontFamily: 'monospace', fontSize: 13 }}>{slippageBps !== undefined ? `${slippageBps} bps` : '—'}</div>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
+    if (isRecord(output) && output.kind === 'solana_balance') {
+      const publicKey = typeof output.publicKey === 'string' ? output.publicKey : undefined
+      const sol = typeof output.sol === 'number' ? output.sol : undefined
+      const solLamports = typeof output.solLamports === 'number' ? output.solLamports : undefined
+      const tokens = Array.isArray(output.tokens) ? output.tokens : []
+
+      return (
+        <div style={{ display: 'grid', gap: 10 }}>
+          <div style={{ display: 'grid', gap: 4 }}>
+            <div style={{ fontSize: 12, color: '#666' }}>public key</div>
+            <div style={{ fontFamily: 'monospace', fontSize: 13 }}>{publicKey || '—'}</div>
+          </div>
+
+          <div style={{ display: 'grid', gap: 6, gridTemplateColumns: '1fr 1fr' }}>
+            <div style={{ display: 'grid', gap: 4 }}>
+              <div style={{ fontSize: 12, color: '#666' }}>sol</div>
+              <div style={{ fontFamily: 'monospace', fontSize: 13 }}>{sol !== undefined ? String(sol) : '—'}</div>
+            </div>
+            <div style={{ display: 'grid', gap: 4 }}>
+              <div style={{ fontSize: 12, color: '#666' }}>lamports</div>
+              <div style={{ fontFamily: 'monospace', fontSize: 13 }}>{solLamports !== undefined ? String(solLamports) : '—'}</div>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gap: 6 }}>
+            <div style={{ fontSize: 12, color: '#666' }}>tokens</div>
+            {tokens.length === 0 ? (
+              <div style={{ color: '#555' }}>no token accounts</div>
+            ) : (
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr>
+                      <th style={{ textAlign: 'left', fontSize: 12, color: '#666', padding: '8px 6px' }}>mint</th>
+                      <th style={{ textAlign: 'left', fontSize: 12, color: '#666', padding: '8px 6px' }}>ui</th>
+                      <th style={{ textAlign: 'left', fontSize: 12, color: '#666', padding: '8px 6px' }}>amount</th>
+                      <th style={{ textAlign: 'left', fontSize: 12, color: '#666', padding: '8px 6px' }}>decimals</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {tokens.map((t, idx) => {
+                      const tok = isRecord(t) ? t : {}
+                      const mint = typeof tok.mint === 'string' ? tok.mint : undefined
+                      const uiAmountString = typeof tok.uiAmountString === 'string' ? tok.uiAmountString : undefined
+                      const amount = typeof tok.amount === 'string' ? tok.amount : undefined
+                      const decimals = typeof tok.decimals === 'number' ? tok.decimals : undefined
+                      return (
+                        <tr key={idx} style={{ borderTop: '1px solid #eee' }}>
+                          <td style={{ padding: '10px 6px', fontFamily: 'monospace', fontSize: 13 }}>{mint ? shorten(mint, 8, 8) : '—'}</td>
+                          <td style={{ padding: '10px 6px', fontFamily: 'monospace', fontSize: 13 }}>{uiAmountString || '—'}</td>
+                          <td style={{ padding: '10px 6px', fontFamily: 'monospace', fontSize: 13 }}>{amount || '—'}</td>
+                          <td style={{ padding: '10px 6px', fontFamily: 'monospace', fontSize: 13 }}>{decimals !== undefined ? String(decimals) : '—'}</td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    return (
+      <pre
+        style={{
+          margin: 0,
+          fontSize: 12,
+          background: '#fafafa',
+          border: '1px solid #eee',
+          borderRadius: 8,
+          padding: 10,
+          overflowX: 'auto',
+          whiteSpace: 'pre-wrap',
+          wordBreak: 'break-word',
+        }}
+      >
+        {JSON.stringify(output, null, 2)}
+      </pre>
+    )
   }
 
   useEffect(() => {
@@ -281,25 +424,16 @@ export default function ExecutionDetail() {
                     <div
                       key={nodeId}
                       id={`node-output-${nodeId}`}
-                      style={{ border: '1px solid #eee', borderRadius: 10, padding: 12, background: '#fff' }}
+                      style={{
+                        border: '1px solid #eee',
+                        borderRadius: 10,
+                        padding: 12,
+                        background: '#fff',
+                        outline: highlightNodeId === nodeId ? '2px solid #175cd3' : undefined,
+                      }}
                     >
                       <div style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>node: {nodeId}</div>
-                      <pre
-                        style={{
-                          margin: 0,
-                          fontSize: 12,
-                          background: '#fafafa',
-                          border: '1px solid #eee',
-                          borderRadius: 8,
-                          padding: 10,
-                          overflowX: 'auto',
-                          whiteSpace: 'pre-wrap',
-                          wordBreak: 'break-word',
-                          outline: highlightNodeId === nodeId ? '2px solid #175cd3' : undefined,
-                        }}
-                      >
-                        {JSON.stringify(output, null, 2)}
-                      </pre>
+                      {renderNodeOutput(output)}
                     </div>
                   ))}
                 </div>
