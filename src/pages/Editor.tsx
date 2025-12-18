@@ -56,6 +56,77 @@ export default function Editor() {
     return typeof t === 'string' && t.length > 0 ? t : 'log'
   }, [selectedNodeData.type])
 
+  function isTemplateString(v: unknown): boolean {
+    return typeof v === 'string' && v.includes('{{') && v.includes('}}')
+  }
+
+  function parseFiniteNumber(v: unknown): number | undefined {
+    if (typeof v === 'number' && Number.isFinite(v)) return v
+    if (typeof v === 'string') {
+      const trimmed = v.trim()
+      if (!trimmed) return undefined
+      const n = Number(trimmed)
+      if (Number.isFinite(n)) return n
+    }
+    return undefined
+  }
+
+  const solanaValidationIssues = useMemo(() => {
+    const issues: string[] = []
+    if (!draft) return issues
+
+    const maxAmount = meta?.jupiterSwapMaxAmount ?? 10
+    const maxSlippageBps = meta?.jupiterSwapMaxSlippageBps ?? 2000
+
+    for (const n of draft.nodes) {
+      const data = (n.data as any) || {}
+      const kind = String(data?.type || (n as any)?.type || '')
+      if (kind !== 'solana_balance' && kind !== 'jupiter_swap') continue
+
+      const credentialId = data.credentialId
+      if (typeof credentialId !== 'string' || !credentialId.trim()) {
+        issues.push(`${kind} (${n.id}) requires a wallet credential`)
+      }
+
+      if (kind !== 'jupiter_swap') continue
+
+      const inputMint = data.inputMint
+      if (typeof inputMint !== 'string' || !inputMint.trim()) {
+        issues.push(`jupiter_swap (${n.id}) requires input mint`)
+      }
+      const outputMint = data.outputMint
+      if (typeof outputMint !== 'string' || !outputMint.trim()) {
+        issues.push(`jupiter_swap (${n.id}) requires output mint`)
+      }
+
+      const amountRaw = data.amount
+      if (amountRaw === undefined || amountRaw === null || amountRaw === '') {
+        issues.push(`jupiter_swap (${n.id}) requires amount`)
+      } else if (!isTemplateString(amountRaw)) {
+        const amount = parseFiniteNumber(amountRaw)
+        if (amount === undefined || amount <= 0) {
+          issues.push(`jupiter_swap (${n.id}) amount must be > 0`)
+        } else if (amount > maxAmount) {
+          issues.push(`jupiter_swap (${n.id}) amount exceeds max (${maxAmount})`)
+        }
+      }
+
+      const slippageRaw = data.slippageBps
+      if (slippageRaw !== undefined && slippageRaw !== null && slippageRaw !== '') {
+        if (!isTemplateString(slippageRaw)) {
+          const slippage = parseFiniteNumber(slippageRaw)
+          if (slippage === undefined || slippage <= 0) {
+            issues.push(`jupiter_swap (${n.id}) slippage must be > 0`)
+          } else if (slippage > maxSlippageBps) {
+            issues.push(`jupiter_swap (${n.id}) slippage exceeds max (${maxSlippageBps} bps)`)
+          }
+        }
+      }
+    }
+
+    return issues
+  }, [draft, meta?.jupiterSwapMaxAmount, meta?.jupiterSwapMaxSlippageBps])
+
   const enableEligibility = useMemo((): { ok: boolean; reason?: string } => {
     if (!draft) return { ok: false, reason: 'no workflow loaded' }
 
@@ -103,8 +174,20 @@ export default function Editor() {
       }
     }
 
+    if (solanaValidationIssues.length > 0) {
+      return { ok: false, reason: solanaValidationIssues[0] }
+    }
+
     return { ok: true, reason: undefined }
-  }, [draft])
+  }, [draft, solanaValidationIssues])
+
+  const runEligibility = useMemo((): { ok: boolean; reason?: string } => {
+    if (!draft) return { ok: false, reason: 'no workflow loaded' }
+    if (solanaValidationIssues.length > 0) {
+      return { ok: false, reason: solanaValidationIssues[0] }
+    }
+    return { ok: true, reason: undefined }
+  }, [draft, solanaValidationIssues])
 
   const hasTriggerNode = useMemo(() => {
     if (!draft) return false
@@ -445,6 +528,12 @@ export default function Editor() {
 
   async function onRun() {
     if (!workflowId) return
+
+    if (!runEligibility.ok) {
+      setError(runEligibility.reason || 'workflow is not valid for running')
+      return
+    }
+
     setBusy(true)
     setError(undefined)
     try {
@@ -1326,7 +1415,8 @@ export default function Editor() {
         <button
           type="button"
           onClick={onRun}
-          disabled={busy || !workflowId}
+          disabled={busy || !workflowId || !runEligibility.ok}
+          title={!runEligibility.ok ? runEligibility.reason || 'workflow is not valid for running' : undefined}
           style={{ background: '#0b5', color: '#fff', border: '1px solid #084', padding: '6px 10px', borderRadius: 6 }}
         >
           {busy ? 'working...' : 'run'}
@@ -1350,6 +1440,36 @@ export default function Editor() {
           }}
         >
           {error}
+        </div>
+      ) : null}
+
+      {!error && solanaValidationIssues.length > 0 ? (
+        <div
+          style={{
+            position: 'absolute',
+            top: 52,
+            left: 12,
+            zIndex: 10,
+            background: '#fff6ed',
+            color: '#7a2e0e',
+            padding: '10px 12px',
+            borderRadius: 10,
+            border: '1px solid #f9dbaf',
+            maxWidth: 520,
+          }}
+        >
+          <details>
+            <summary style={{ cursor: 'pointer', fontSize: 12 }}>
+              workflow has {solanaValidationIssues.length} solana issue{solanaValidationIssues.length === 1 ? '' : 's'}
+            </summary>
+            <div style={{ marginTop: 8, display: 'grid', gap: 6 }}>
+              {solanaValidationIssues.map((msg) => (
+                <div key={msg} style={{ fontSize: 12 }}>
+                  {msg}
+                </div>
+              ))}
+            </div>
+          </details>
         </div>
       ) : null}
 
