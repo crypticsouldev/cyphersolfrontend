@@ -29,6 +29,7 @@ export default function Editor() {
 
   const flowRef = useRef<CreateWorkFlowHandle | null>(null)
   const [credentials, setCredentials] = useState<CredentialSummary[]>([])
+  const solanaWalletCredentials = useMemo(() => credentials.filter((c) => c.provider === 'solana_wallet'), [credentials])
   const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>()
   const [selectedCredentialId, setSelectedCredentialId] = useState<string>('')
   const [maxBacklogDraft, setMaxBacklogDraft] = useState('')
@@ -202,6 +203,8 @@ export default function Editor() {
       | 'log'
       | 'delay'
       | 'http_request'
+      | 'solana_balance'
+      | 'jupiter_swap'
       | 'timer_trigger'
       | 'price_trigger'
       | 'helius_webhook_trigger'
@@ -243,6 +246,17 @@ export default function Editor() {
     if (kind === 'http_request') {
       baseData.url = 'https://example.com'
       baseData.method = 'GET'
+    }
+
+    if (kind === 'solana_balance') {
+      baseData.commitment = 'confirmed'
+    }
+
+    if (kind === 'jupiter_swap') {
+      baseData.inputMint = 'So11111111111111111111111111111111111111112'
+      baseData.outputMint = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
+      baseData.amount = 0.01
+      baseData.slippageBps = 300
     }
 
     if (kind === 'market_data') {
@@ -592,6 +606,22 @@ export default function Editor() {
                   return
                 }
 
+                if (nextType === 'solana_balance') {
+                  patchSelectedNode({ type: nextType, commitment: (selectedNodeData as any).commitment || 'confirmed' })
+                  return
+                }
+
+                if (nextType === 'jupiter_swap') {
+                  patchSelectedNode({
+                    type: nextType,
+                    inputMint: (selectedNodeData as any).inputMint || 'So11111111111111111111111111111111111111112',
+                    outputMint: (selectedNodeData as any).outputMint || 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v',
+                    amount: (selectedNodeData as any).amount ?? 0.01,
+                    slippageBps: (selectedNodeData as any).slippageBps ?? 300,
+                  })
+                  return
+                }
+
                 patchSelectedNode({ type: nextType })
               }}
               disabled={busy}
@@ -603,6 +633,8 @@ export default function Editor() {
               <option value="log">log</option>
               <option value="delay">delay</option>
               <option value="http_request">http_request</option>
+              <option value="solana_balance">solana_balance</option>
+              <option value="jupiter_swap">jupiter_swap</option>
               <option value="market_data">market_data</option>
               <option value="paper_order">paper_order</option>
             </select>
@@ -618,6 +650,170 @@ export default function Editor() {
                 style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
                 placeholder="message"
               />
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'solana_balance' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <select
+                    value={selectedCredentialId}
+                    onChange={(e) => onAttachCredential(e.target.value)}
+                    disabled={busy}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                  >
+                    <option value="">select solana_wallet credential</option>
+                    {solanaWalletCredentials.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.provider} · {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Link
+                    to="/credentials"
+                    style={{
+                      padding: '6px 8px',
+                      borderRadius: 6,
+                      border: '1px solid #ddd',
+                      background: '#fff',
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      fontSize: 12,
+                    }}
+                  >
+                    manage
+                  </Link>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>commitment</div>
+                <select
+                  value={typeof selectedNodeData.commitment === 'string' ? selectedNodeData.commitment : 'confirmed'}
+                  onChange={(e) => patchSelectedNode({ commitment: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                >
+                  <option value="processed">processed</option>
+                  <option value="confirmed">confirmed</option>
+                  <option value="finalized">finalized</option>
+                </select>
+              </div>
+
+              <div style={{ fontSize: 12, color: '#666' }}>
+                requires backend rpc via <span style={{ fontFamily: 'monospace' }}>SOLANA_RPC_URL</span>
+              </div>
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'jupiter_swap' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <select
+                    value={selectedCredentialId}
+                    onChange={(e) => onAttachCredential(e.target.value)}
+                    disabled={busy}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                  >
+                    <option value="">select solana_wallet credential</option>
+                    {solanaWalletCredentials.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.provider} · {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Link
+                    to="/credentials"
+                    style={{
+                      padding: '6px 8px',
+                      borderRadius: 6,
+                      border: '1px solid #ddd',
+                      background: '#fff',
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      fontSize: 12,
+                    }}
+                  >
+                    manage
+                  </Link>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>input mint</div>
+                <input
+                  value={typeof selectedNodeData.inputMint === 'string' ? selectedNodeData.inputMint : ''}
+                  onChange={(e) => patchSelectedNode({ inputMint: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  placeholder="So11111111111111111111111111111111111111112"
+                />
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>output mint</div>
+                <input
+                  value={typeof selectedNodeData.outputMint === 'string' ? selectedNodeData.outputMint : ''}
+                  onChange={(e) => patchSelectedNode({ outputMint: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  placeholder="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
+                />
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>amount (token units)</div>
+                <input
+                  type="number"
+                  value={
+                    typeof selectedNodeData.amount === 'number'
+                      ? selectedNodeData.amount
+                      : typeof selectedNodeData.amount === 'string'
+                        ? selectedNodeData.amount
+                        : ''
+                  }
+                  onChange={(e) => {
+                    const val = e.target.value
+                    patchSelectedNode({ amount: val === '' ? undefined : Number(val) })
+                  }}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="0.01"
+                  min={0}
+                  step={0.000001}
+                />
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>slippage bps</div>
+                <input
+                  type="number"
+                  value={
+                    typeof selectedNodeData.slippageBps === 'number'
+                      ? selectedNodeData.slippageBps
+                      : typeof selectedNodeData.slippageBps === 'string'
+                        ? selectedNodeData.slippageBps
+                        : ''
+                  }
+                  onChange={(e) => {
+                    const val = e.target.value
+                    patchSelectedNode({ slippageBps: val === '' ? undefined : Number(val) })
+                  }}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="300"
+                  min={1}
+                  max={10_000}
+                />
+              </div>
+
+              <div style={{ fontSize: 12, color: '#666' }}>
+                requires backend rpc via <span style={{ fontFamily: 'monospace' }}>SOLANA_RPC_URL</span>
+              </div>
             </div>
           ) : null}
 
@@ -1054,6 +1250,22 @@ export default function Editor() {
           style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
         >
           add http
+        </button>
+        <button
+          type="button"
+          onClick={() => addNode('solana_balance')}
+          disabled={busy || !draft}
+          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
+        >
+          add solana balance
+        </button>
+        <button
+          type="button"
+          onClick={() => addNode('jupiter_swap')}
+          disabled={busy || !draft}
+          style={{ background: '#fff', color: '#111', border: '1px solid #ddd', padding: '6px 10px', borderRadius: 6 }}
+        >
+          add jupiter swap
         </button>
         <button
           type="button"
