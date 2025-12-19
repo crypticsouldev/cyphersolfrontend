@@ -317,6 +317,8 @@ export default function Editor() {
       | 'solana_restake'
       | 'close_empty_token_accounts'
       | 'jupiter_swap'
+      | 'helius_parse_tx'
+      | 'cooldown'
       | 'timer_trigger'
       | 'price_trigger'
       | 'helius_webhook_trigger'
@@ -406,6 +408,15 @@ export default function Editor() {
       baseData.outputMint = 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v'
       baseData.amount = 0.01
       baseData.slippageBps = 300
+    }
+
+    if (kind === 'helius_parse_tx') {
+      baseData.signature = ''
+    }
+
+    if (kind === 'cooldown') {
+      baseData.key = 'my-cooldown'
+      baseData.ttlSeconds = 60
     }
 
     if (kind === 'market_data') {
@@ -886,6 +897,23 @@ export default function Editor() {
                   return
                 }
 
+                if (nextType === 'helius_parse_tx') {
+                  patchSelectedNode({
+                    type: nextType,
+                    signature: (selectedNodeData as any).signature || '',
+                  })
+                  return
+                }
+
+                if (nextType === 'cooldown') {
+                  patchSelectedNode({
+                    type: nextType,
+                    key: (selectedNodeData as any).key || 'my-cooldown',
+                    ttlSeconds: (selectedNodeData as any).ttlSeconds ?? 60,
+                  })
+                  return
+                }
+
                 patchSelectedNode({ type: nextType })
               }}
               disabled={busy}
@@ -909,6 +937,8 @@ export default function Editor() {
               <option value="solana_restake">solana_restake</option>
               <option value="close_empty_token_accounts">close_empty_token_accounts</option>
               <option value="jupiter_swap">jupiter_swap</option>
+              <option value="helius_parse_tx">helius_parse_tx</option>
+              <option value="cooldown">cooldown</option>
               <option value="market_data">market_data</option>
               <option value="paper_order">paper_order</option>
             </select>
@@ -1170,6 +1200,59 @@ export default function Editor() {
               />
               <div style={{ fontSize: 12, color: '#666' }}>
                 fetched from <span style={{ fontFamily: 'monospace' }}>api.dexscreener.com</span>
+              </div>
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'helius_parse_tx' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>transaction signature</div>
+                <input
+                  value={typeof selectedNodeData.signature === 'string' ? selectedNodeData.signature : ''}
+                  onChange={(e) => patchSelectedNode({ signature: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  placeholder="5abc123... or {{node.signature}}"
+                />
+              </div>
+              <div style={{ fontSize: 12, color: '#666' }}>
+                parses transaction via helius enhanced transactions api. requires backend{' '}
+                <span style={{ fontFamily: 'monospace' }}>HELIUS_API_KEY</span>
+              </div>
+              <div style={{ fontSize: 12, color: '#666' }}>
+                returns: type, source, description, transfers, events
+              </div>
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'cooldown' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>cooldown key</div>
+                <input
+                  value={typeof selectedNodeData.key === 'string' ? selectedNodeData.key : ''}
+                  onChange={(e) => patchSelectedNode({ key: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  placeholder="my-cooldown or {{trigger.feePayer}}"
+                />
+              </div>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>ttl (seconds)</div>
+                <input
+                  type="number"
+                  value={selectedNodeData.ttlSeconds === undefined || selectedNodeData.ttlSeconds === null ? '' : String(selectedNodeData.ttlSeconds)}
+                  onChange={(e) => patchSelectedNode({ ttlSeconds: e.target.value ? Number(e.target.value) : undefined })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="60"
+                  min={1}
+                  max={604800}
+                />
+              </div>
+              <div style={{ fontSize: 12, color: '#666' }}>
+                gates downstream nodes. if cooldown is active (key seen within ttl), downstream nodes are skipped.
               </div>
             </div>
           ) : null}
@@ -1960,6 +2043,8 @@ export default function Editor() {
           <option value="solana_restake">solana: restake</option>
           <option value="close_empty_token_accounts">solana: close empty token accounts</option>
           <option value="jupiter_swap">solana: jupiter swap</option>
+          <option value="helius_parse_tx">data: helius parse tx</option>
+          <option value="cooldown">logic: cooldown</option>
           <option value="market_data">market: data</option>
           <option value="paper_order">paper: trade</option>
         </select>
