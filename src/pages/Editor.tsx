@@ -300,6 +300,7 @@ export default function Editor() {
     kind:
       | 'log'
       | 'transform'
+      | 'if'
       | 'delay'
       | 'http_request'
       | 'solana_balance'
@@ -342,6 +343,11 @@ export default function Editor() {
       baseData.value = {
         ok: true,
       }
+    }
+
+    if (kind === 'if') {
+      baseData.op = 'truthy'
+      baseData.left = true
     }
 
     if (kind === 'delay') {
@@ -769,6 +775,16 @@ export default function Editor() {
                   return
                 }
 
+                if (nextType === 'if') {
+                  patchSelectedNode({
+                    type: nextType,
+                    op: (selectedNodeData as any).op || 'truthy',
+                    left: (selectedNodeData as any).left ?? true,
+                    right: (selectedNodeData as any).right,
+                  })
+                  return
+                }
+
                 patchSelectedNode({ type: nextType })
               }}
               disabled={busy}
@@ -779,6 +795,7 @@ export default function Editor() {
               <option value="helius_webhook_trigger">helius_webhook_trigger</option>
               <option value="log">log</option>
               <option value="transform">transform</option>
+              <option value="if">if</option>
               <option value="delay">delay</option>
               <option value="http_request">http_request</option>
               <option value="solana_balance">solana_balance</option>
@@ -798,6 +815,52 @@ export default function Editor() {
                 style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
                 placeholder="message"
               />
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'if' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>op</div>
+                <select
+                  value={typeof selectedNodeData.op === 'string' ? selectedNodeData.op : 'truthy'}
+                  onChange={(e) => patchSelectedNode({ op: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                >
+                  <option value="truthy">truthy</option>
+                  <option value="eq">eq</option>
+                  <option value="neq">neq</option>
+                  <option value="gt">gt</option>
+                  <option value="gte">gte</option>
+                  <option value="lt">lt</option>
+                  <option value="lte">lte</option>
+                </select>
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>left</div>
+                <input
+                  value={selectedNodeData.left === undefined || selectedNodeData.left === null ? '' : String(selectedNodeData.left)}
+                  onChange={(e) => patchSelectedNode({ left: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  placeholder="{{nodes.n1.output.value}}"
+                />
+              </div>
+
+              {typeof selectedNodeData.op === 'string' && selectedNodeData.op !== 'truthy' ? (
+                <div style={{ display: 'grid', gap: 6 }}>
+                  <div style={{ fontSize: 12, color: '#666' }}>right</div>
+                  <input
+                    value={selectedNodeData.right === undefined || selectedNodeData.right === null ? '' : String(selectedNodeData.right)}
+                    onChange={(e) => patchSelectedNode({ right: e.target.value })}
+                    disabled={busy}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                    placeholder="100"
+                  />
+                </div>
+              ) : null}
             </div>
           ) : null}
 
@@ -1453,6 +1516,7 @@ export default function Editor() {
           </option>
           <option value="log">action: log</option>
           <option value="transform">action: transform</option>
+          <option value="if">logic: if</option>
           <option value="delay">action: delay</option>
           <option value="http_request">action: http request</option>
           <option value="solana_balance">solana: balance</option>
