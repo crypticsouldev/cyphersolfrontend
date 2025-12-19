@@ -306,6 +306,7 @@ export default function Editor() {
       | 'transform'
       | 'if'
       | 'discord_webhook'
+      | 'dexscreener_price'
       | 'delay'
       | 'http_request'
       | 'solana_balance'
@@ -358,6 +359,10 @@ export default function Editor() {
     if (kind === 'discord_webhook') {
       baseData.content = 'hello from cyphersol'
       baseData.username = 'cyphersol'
+    }
+
+    if (kind === 'dexscreener_price') {
+      baseData.pairAddress = ''
     }
 
     if (kind === 'delay') {
@@ -806,6 +811,14 @@ export default function Editor() {
                   return
                 }
 
+                if (nextType === 'dexscreener_price') {
+                  patchSelectedNode({
+                    type: nextType,
+                    pairAddress: (selectedNodeData as any).pairAddress || '',
+                  })
+                  return
+                }
+
                 patchSelectedNode({ type: nextType })
               }}
               disabled={busy}
@@ -818,6 +831,7 @@ export default function Editor() {
               <option value="transform">transform</option>
               <option value="if">if</option>
               <option value="discord_webhook">discord_webhook</option>
+              <option value="dexscreener_price">dexscreener_price</option>
               <option value="delay">delay</option>
               <option value="http_request">http_request</option>
               <option value="solana_balance">solana_balance</option>
@@ -837,6 +851,22 @@ export default function Editor() {
                 style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
                 placeholder="message"
               />
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'dexscreener_price' ? (
+            <div style={{ display: 'grid', gap: 6 }}>
+              <div style={{ fontSize: 12, color: '#666' }}>pair address (solana)</div>
+              <input
+                value={typeof selectedNodeData.pairAddress === 'string' ? selectedNodeData.pairAddress : ''}
+                onChange={(e) => patchSelectedNode({ pairAddress: e.target.value })}
+                disabled={busy}
+                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                placeholder="pair address"
+              />
+              <div style={{ fontSize: 12, color: '#666' }}>
+                fetched from <span style={{ fontFamily: 'monospace' }}>api.dexscreener.com</span>
+              </div>
             </div>
           ) : null}
 
@@ -1615,6 +1645,7 @@ export default function Editor() {
           <option value="transform">action: transform</option>
           <option value="if">logic: if</option>
           <option value="discord_webhook">notify: discord</option>
+          <option value="dexscreener_price">market: dexscreener price</option>
           <option value="delay">action: delay</option>
           <option value="http_request">action: http request</option>
           <option value="solana_balance">solana: balance</option>
