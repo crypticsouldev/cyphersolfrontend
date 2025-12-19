@@ -34,6 +34,10 @@ export default function Editor() {
   const flowRef = useRef<CreateWorkFlowHandle | null>(null)
   const [credentials, setCredentials] = useState<CredentialSummary[]>([])
   const solanaWalletCredentials = useMemo(() => credentials.filter((c) => c.provider === 'solana_wallet'), [credentials])
+  const discordWebhookCredentials = useMemo(
+    () => credentials.filter((c) => c.provider === 'discord_webhook'),
+    [credentials],
+  )
   const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>()
   const [selectedCredentialId, setSelectedCredentialId] = useState<string>('')
   const [maxBacklogDraft, setMaxBacklogDraft] = useState('')
@@ -301,6 +305,7 @@ export default function Editor() {
       | 'log'
       | 'transform'
       | 'if'
+      | 'discord_webhook'
       | 'delay'
       | 'http_request'
       | 'solana_balance'
@@ -348,6 +353,11 @@ export default function Editor() {
     if (kind === 'if') {
       baseData.op = 'truthy'
       baseData.left = true
+    }
+
+    if (kind === 'discord_webhook') {
+      baseData.content = 'hello from cyphersol'
+      baseData.username = 'cyphersol'
     }
 
     if (kind === 'delay') {
@@ -785,6 +795,17 @@ export default function Editor() {
                   return
                 }
 
+                if (nextType === 'discord_webhook') {
+                  patchSelectedNode({
+                    type: nextType,
+                    webhookUrl: (selectedNodeData as any).webhookUrl,
+                    credentialId: (selectedNodeData as any).credentialId,
+                    content: (selectedNodeData as any).content || 'hello from cyphersol',
+                    username: (selectedNodeData as any).username || 'cyphersol',
+                  })
+                  return
+                }
+
                 patchSelectedNode({ type: nextType })
               }}
               disabled={busy}
@@ -796,6 +817,7 @@ export default function Editor() {
               <option value="log">log</option>
               <option value="transform">transform</option>
               <option value="if">if</option>
+              <option value="discord_webhook">discord_webhook</option>
               <option value="delay">delay</option>
               <option value="http_request">http_request</option>
               <option value="solana_balance">solana_balance</option>
@@ -815,6 +837,81 @@ export default function Editor() {
                 style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
                 placeholder="message"
               />
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'discord_webhook' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ fontSize: 12, color: '#666' }}>
+                provide either a stored credential or a direct webhook url
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>credential (recommended)</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <select
+                    value={selectedCredentialId}
+                    onChange={(e) => onAttachCredential(e.target.value)}
+                    disabled={busy}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                  >
+                    <option value="">select discord_webhook credential</option>
+                    {discordWebhookCredentials.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.provider} · {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Link
+                    to="/credentials"
+                    style={{
+                      padding: '6px 8px',
+                      borderRadius: 6,
+                      border: '1px solid #ddd',
+                      background: '#fff',
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      fontSize: 12,
+                    }}
+                  >
+                    manage
+                  </Link>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>webhook url (optional)</div>
+                <input
+                  value={typeof selectedNodeData.webhookUrl === 'string' ? selectedNodeData.webhookUrl : ''}
+                  onChange={(e) => patchSelectedNode({ webhookUrl: e.target.value || undefined })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  placeholder="https://discord.com/api/webhooks/..."
+                />
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>content</div>
+                <textarea
+                  value={typeof selectedNodeData.content === 'string' ? selectedNodeData.content : ''}
+                  onChange={(e) => patchSelectedNode({ content: e.target.value })}
+                  disabled={busy}
+                  rows={4}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="message"
+                />
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>username (optional)</div>
+                <input
+                  value={typeof selectedNodeData.username === 'string' ? selectedNodeData.username : ''}
+                  onChange={(e) => patchSelectedNode({ username: e.target.value || undefined })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="cyphersol"
+                />
+              </div>
             </div>
           ) : null}
 
@@ -1517,6 +1614,7 @@ export default function Editor() {
           <option value="log">action: log</option>
           <option value="transform">action: transform</option>
           <option value="if">logic: if</option>
+          <option value="discord_webhook">notify: discord</option>
           <option value="delay">action: delay</option>
           <option value="http_request">action: http request</option>
           <option value="solana_balance">solana: balance</option>
