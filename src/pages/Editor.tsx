@@ -6,15 +6,12 @@ import {
   type ApiError,
   deleteWorkflow,
   getWorkflow,
-  getMeta,
-  listCredentials,
   runWorkflow,
   updateWorkflow,
-  type CredentialSummary,
-  type MetaResponse,
   type Workflow,
 } from '../lib/api'
 import { clearAuthToken } from '../lib/auth'
+import { useCredentials, useMeta, invalidateWorkflow } from '../lib/hooks'
 
 export default function Editor() {
   const params = useParams()
@@ -29,10 +26,10 @@ export default function Editor() {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | undefined>()
 
-  const [meta, setMeta] = useState<MetaResponse | undefined>()
+  const { meta } = useMeta()
+  const { credentials } = useCredentials()
 
   const flowRef = useRef<CreateWorkFlowHandle | null>(null)
-  const [credentials, setCredentials] = useState<CredentialSummary[]>([])
   const solanaWalletCredentials = useMemo(() => credentials.filter((c) => c.provider === 'solana_wallet'), [credentials])
   const discordWebhookCredentials = useMemo(
     () => credentials.filter((c) => c.provider === 'discord_webhook'),
@@ -241,37 +238,6 @@ export default function Editor() {
 
     void load()
   }, [workflowId])
-
-  useEffect(() => {
-    async function loadCreds() {
-      setError(undefined)
-      try {
-        const res = await listCredentials()
-        setCredentials(res.credentials)
-      } catch (err) {
-        const apiErr = err as ApiError
-        if (apiErr.status === 401) {
-          clearAuthToken()
-          navigate('/login', { replace: true })
-          return
-        }
-        const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
-        setError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
-      }
-    }
-
-    void loadCreds()
-  }, [])
-
-  useEffect(() => {
-    async function loadMeta() {
-      await getMeta()
-        .then((res) => setMeta(res))
-        .catch(() => undefined)
-    }
-
-    void loadMeta()
-  }, [])
 
   useEffect(() => {
     if (!selectedNodeId) {

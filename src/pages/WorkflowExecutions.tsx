@@ -1,130 +1,118 @@
-import { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
-import { clearAuthToken } from '../lib/auth'
-import {
-  type ApiError,
-  getWorkflow,
-  listWorkflowExecutions,
-  type ExecutionSummary,
-  type Workflow,
-} from '../lib/api'
+import { useMemo } from 'react'
+import { Link, useParams } from 'react-router-dom'
+import { useWorkflow, useWorkflowExecutions } from '../lib/hooks'
+import type { ExecutionStatus } from '../lib/api'
+
+function ExecutionSkeleton() {
+  return (
+    <div className="list-item">
+      <div className="list-item-content">
+        <div className="skeleton" style={{ width: 80, height: 16, marginBottom: 6 }} />
+        <div className="skeleton" style={{ width: 140, height: 14 }} />
+      </div>
+      <div className="skeleton" style={{ width: 100, height: 14 }} />
+    </div>
+  )
+}
+
+function getStatusBadge(status: ExecutionStatus) {
+  switch (status) {
+    case 'success':
+      return <span className="badge badge-success"><span className="status-dot status-dot-success" style={{ marginRight: 6 }} />Success</span>
+    case 'failed':
+      return <span className="badge badge-error"><span className="status-dot status-dot-error" style={{ marginRight: 6 }} />Failed</span>
+    case 'running':
+      return <span className="badge badge-primary"><span className="status-dot status-dot-running" style={{ marginRight: 6 }} />Running</span>
+    case 'queued':
+      return <span className="badge badge-warning"><span className="status-dot status-dot-warning" style={{ marginRight: 6 }} />Queued</span>
+    case 'cancelled':
+      return <span className="badge badge-neutral"><span className="status-dot status-dot-neutral" style={{ marginRight: 6 }} />Cancelled</span>
+    default:
+      return <span className="badge badge-neutral">{status}</span>
+  }
+}
+
+function formatDuration(start: string, end?: string): string {
+  const startDate = new Date(start)
+  const endDate = end ? new Date(end) : new Date()
+  const diffMs = endDate.getTime() - startDate.getTime()
+  
+  if (diffMs < 1000) return `${diffMs}ms`
+  if (diffMs < 60000) return `${(diffMs / 1000).toFixed(1)}s`
+  return `${Math.floor(diffMs / 60000)}m ${Math.floor((diffMs % 60000) / 1000)}s`
+}
 
 export default function WorkflowExecutions() {
   const params = useParams()
-  const navigate = useNavigate()
-
   const workflowId = params.id
 
-  const [workflow, setWorkflow] = useState<Workflow | undefined>()
-  const [executions, setExecutions] = useState<ExecutionSummary[]>([])
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState<string | undefined>()
+  const { workflow } = useWorkflow(workflowId)
+  const { executions, isLoading, error } = useWorkflowExecutions(workflowId)
 
-  const title = useMemo(() => workflow?.name || 'executions', [workflow?.name])
-
-  async function fetchExecutions(options?: { silent?: boolean }) {
-    if (!workflowId) return
-
-    if (!options?.silent) {
-      setBusy(true)
-      setError(undefined)
-    }
-
-    try {
-      const wfRes = await getWorkflow(workflowId)
-      setWorkflow(wfRes.workflow)
-
-      const exRes = await listWorkflowExecutions(workflowId)
-      setExecutions(exRes.executions)
-    } catch (err) {
-      const apiErr = err as ApiError
-      if (apiErr.status === 401) {
-        clearAuthToken()
-        navigate('/login', { replace: true })
-        return
-      }
-      const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
-      setError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
-    } finally {
-      if (!options?.silent) {
-        setBusy(false)
-      }
-    }
-  }
-
-  useEffect(() => {
-    void fetchExecutions()
-  }, [workflowId])
-
-  useEffect(() => {
-    if (!workflowId) return
-    const t = window.setInterval(() => {
-      void fetchExecutions({ silent: true })
-    }, 2000)
-
-    return () => {
-      window.clearInterval(t)
-    }
-  }, [workflowId])
+  const title = useMemo(() => workflow?.name || 'Executions', [workflow?.name])
 
   return (
-    <div style={{ maxWidth: 900, margin: '40px auto', padding: 16 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
-        <div style={{ display: 'grid', gap: 4 }}>
-          <div style={{ fontSize: 12, color: '#666' }}>Workflow executions</div>
-          <h1 style={{ margin: 0 }}>{title}</h1>
+    <div className="container-narrow" style={{ paddingTop: 40, paddingBottom: 40 }}>
+      <div className="page-header">
+        <div>
+          <div className="text-sm text-muted" style={{ marginBottom: 4 }}>Execution History</div>
+          <h1 className="page-title">{title}</h1>
         </div>
-
-        <div style={{ display: 'flex', gap: 8 }}>
-          <Link
-            to={`/editor/${workflowId}`}
-            style={{
-              padding: '8px 12px',
-              borderRadius: 6,
-              border: '1px solid #ddd',
-              textDecoration: 'none',
-              color: 'inherit',
-              background: '#fff',
-            }}
-          >
-            back to editor
+        <div className="flex gap-2">
+          <Link to={`/editor/${workflowId}`} className="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m15 18-6-6 6-6"/>
+            </svg>
+            Back to Editor
           </Link>
         </div>
       </div>
 
-      {error ? (
-        <div style={{ background: '#fee', color: '#700', padding: 10, borderRadius: 6, marginTop: 12 }}>{error}</div>
-      ) : null}
+      {error && (
+        <div className="alert alert-error" style={{ marginBottom: 16 }}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <span>Failed to load executions</span>
+        </div>
+      )}
 
-      <div style={{ marginTop: 16, border: '1px solid #eee', borderRadius: 10 }}>
-        {busy ? (
-          <div style={{ padding: 16, color: '#555' }}>loading...</div>
+      <div className="card">
+        {isLoading ? (
+          <>
+            <ExecutionSkeleton />
+            <ExecutionSkeleton />
+            <ExecutionSkeleton />
+          </>
         ) : executions.length === 0 ? (
-          <div style={{ padding: 16, color: '#555' }}>No executions yet.</div>
-        ) : (
-          <div style={{ display: 'grid' }}>
-            {executions.map((e) => (
-              <Link
-                key={e.id}
-                to={`/executions/${e.id}`}
-                style={{
-                  padding: 14,
-                  borderBottom: '1px solid #eee',
-                  textDecoration: 'none',
-                  color: 'inherit',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  gap: 12,
-                }}
-              >
-                <div style={{ display: 'grid', gap: 2 }}>
-                  <div style={{ fontWeight: 600 }}>{e.status}</div>
-                  <div style={{ fontSize: 12, color: '#666' }}>{new Date(e.createdAt).toLocaleString()}</div>
-                </div>
-                <div style={{ fontSize: 12, color: '#666' }}>{e.finishedAt ? `finished: ${new Date(e.finishedAt).toLocaleTimeString()}` : ''}</div>
-              </Link>
-            ))}
+          <div className="empty-state">
+            <svg className="empty-state-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <p>No executions yet</p>
+            <p className="text-sm text-muted">Run your workflow to see execution history here</p>
           </div>
+        ) : (
+          executions.map((e) => (
+            <Link key={e.id} to={`/executions/${e.id}`} className="list-item" style={{ textDecoration: 'none', color: 'inherit' }}>
+              <div className="list-item-content">
+                <div className="flex items-center gap-2">
+                  {getStatusBadge(e.status)}
+                </div>
+                <div className="list-item-subtitle">
+                  Started {new Date(e.createdAt).toLocaleString()}
+                </div>
+              </div>
+              <div className="text-sm text-muted">
+                {e.startedAt && (
+                  <span>{formatDuration(e.startedAt, e.finishedAt ?? undefined)}</span>
+                )}
+              </div>
+            </Link>
+          ))
         )}
       </div>
     </div>
