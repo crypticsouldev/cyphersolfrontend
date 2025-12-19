@@ -307,9 +307,15 @@ export default function Editor() {
       | 'if'
       | 'discord_webhook'
       | 'dexscreener_price'
+      | 'pyth_price_feed_id'
+      | 'pyth_price'
       | 'delay'
       | 'http_request'
       | 'solana_balance'
+      | 'solana_transfer'
+      | 'solana_stake'
+      | 'solana_restake'
+      | 'close_empty_token_accounts'
       | 'jupiter_swap'
       | 'timer_trigger'
       | 'price_trigger'
@@ -365,6 +371,14 @@ export default function Editor() {
       baseData.pairAddress = ''
     }
 
+    if (kind === 'pyth_price_feed_id') {
+      baseData.tokenSymbol = 'SOL'
+    }
+
+    if (kind === 'pyth_price') {
+      baseData.priceFeedId = ''
+    }
+
     if (kind === 'delay') {
       baseData.ms = 1000
     }
@@ -376,6 +390,15 @@ export default function Editor() {
 
     if (kind === 'solana_balance') {
       baseData.commitment = 'confirmed'
+    }
+
+    if (kind === 'solana_transfer') {
+      baseData.to = ''
+      baseData.amount = 0.01
+    }
+
+    if (kind === 'solana_stake' || kind === 'solana_restake') {
+      baseData.amount = 0.1
     }
 
     if (kind === 'jupiter_swap') {
@@ -819,6 +842,50 @@ export default function Editor() {
                   return
                 }
 
+                if (nextType === 'pyth_price_feed_id') {
+                  patchSelectedNode({
+                    type: nextType,
+                    tokenSymbol: (selectedNodeData as any).tokenSymbol || 'SOL',
+                  })
+                  return
+                }
+
+                if (nextType === 'pyth_price') {
+                  patchSelectedNode({
+                    type: nextType,
+                    priceFeedId: (selectedNodeData as any).priceFeedId || '',
+                  })
+                  return
+                }
+
+                if (nextType === 'solana_transfer') {
+                  patchSelectedNode({
+                    type: nextType,
+                    credentialId: (selectedNodeData as any).credentialId,
+                    to: (selectedNodeData as any).to || '',
+                    mint: (selectedNodeData as any).mint,
+                    amount: (selectedNodeData as any).amount ?? 0.01,
+                  })
+                  return
+                }
+
+                if (nextType === 'solana_stake' || nextType === 'solana_restake') {
+                  patchSelectedNode({
+                    type: nextType,
+                    credentialId: (selectedNodeData as any).credentialId,
+                    amount: (selectedNodeData as any).amount ?? 0.1,
+                  })
+                  return
+                }
+
+                if (nextType === 'close_empty_token_accounts') {
+                  patchSelectedNode({
+                    type: nextType,
+                    credentialId: (selectedNodeData as any).credentialId,
+                  })
+                  return
+                }
+
                 patchSelectedNode({ type: nextType })
               }}
               disabled={busy}
@@ -832,9 +899,15 @@ export default function Editor() {
               <option value="if">if</option>
               <option value="discord_webhook">discord_webhook</option>
               <option value="dexscreener_price">dexscreener_price</option>
+              <option value="pyth_price_feed_id">pyth_price_feed_id</option>
+              <option value="pyth_price">pyth_price</option>
               <option value="delay">delay</option>
               <option value="http_request">http_request</option>
               <option value="solana_balance">solana_balance</option>
+              <option value="solana_transfer">solana_transfer</option>
+              <option value="solana_stake">solana_stake</option>
+              <option value="solana_restake">solana_restake</option>
+              <option value="close_empty_token_accounts">close_empty_token_accounts</option>
               <option value="jupiter_swap">jupiter_swap</option>
               <option value="market_data">market_data</option>
               <option value="paper_order">paper_order</option>
@@ -851,6 +924,237 @@ export default function Editor() {
                 style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
                 placeholder="message"
               />
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'pyth_price_feed_id' ? (
+            <div style={{ display: 'grid', gap: 6 }}>
+              <div style={{ fontSize: 12, color: '#666' }}>token symbol</div>
+              <input
+                value={typeof (selectedNodeData as any).tokenSymbol === 'string' ? (selectedNodeData as any).tokenSymbol : ''}
+                onChange={(e) => patchSelectedNode({ tokenSymbol: e.target.value })}
+                disabled={busy}
+                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                placeholder="SOL"
+              />
+              <div style={{ fontSize: 12, color: '#666' }}>
+                fetched from <span style={{ fontFamily: 'monospace' }}>hermes.pyth.network</span>
+              </div>
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'pyth_price' ? (
+            <div style={{ display: 'grid', gap: 6 }}>
+              <div style={{ fontSize: 12, color: '#666' }}>price feed id</div>
+              <input
+                value={typeof (selectedNodeData as any).priceFeedId === 'string' ? (selectedNodeData as any).priceFeedId : ''}
+                onChange={(e) => patchSelectedNode({ priceFeedId: e.target.value })}
+                disabled={busy}
+                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                placeholder="feed id"
+              />
+              <div style={{ fontSize: 12, color: '#666' }}>
+                fetched from <span style={{ fontFamily: 'monospace' }}>hermes.pyth.network</span>
+              </div>
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'close_empty_token_accounts' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <select
+                    value={selectedCredentialId}
+                    onChange={(e) => onAttachCredential(e.target.value)}
+                    disabled={busy}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                  >
+                    <option value="">select solana_wallet credential</option>
+                    {solanaWalletCredentials.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.provider} · {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Link
+                    to="/credentials"
+                    style={{
+                      padding: '6px 8px',
+                      borderRadius: 6,
+                      border: '1px solid #ddd',
+                      background: '#fff',
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      fontSize: 12,
+                    }}
+                  >
+                    manage
+                  </Link>
+                </div>
+              </div>
+
+              <div style={{ fontSize: 12, color: '#666' }}>
+                requires backend rpc via <span style={{ fontFamily: 'monospace' }}>SOLANA_RPC_URL</span>
+              </div>
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'solana_stake' || selectedNodeType === 'solana_restake' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <select
+                    value={selectedCredentialId}
+                    onChange={(e) => onAttachCredential(e.target.value)}
+                    disabled={busy}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                  >
+                    <option value="">select solana_wallet credential</option>
+                    {solanaWalletCredentials.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.provider} · {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Link
+                    to="/credentials"
+                    style={{
+                      padding: '6px 8px',
+                      borderRadius: 6,
+                      border: '1px solid #ddd',
+                      background: '#fff',
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      fontSize: 12,
+                    }}
+                  >
+                    manage
+                  </Link>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>amount (sol)</div>
+                <input
+                  value={selectedNodeData.amount === undefined || selectedNodeData.amount === null ? '' : String(selectedNodeData.amount)}
+                  onChange={(e) => patchSelectedNode({ amount: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="0.1"
+                />
+                {meta && Number.isFinite(Number((selectedNodeData as any).amount)) ? (
+                  selectedNodeType === 'solana_stake'
+                    ? Number((selectedNodeData as any).amount) > meta.solanaStakeMaxSol
+                      ? (
+                          <div style={{ fontSize: 12, color: '#b42318' }}>amount exceeds max</div>
+                        )
+                      : null
+                    : Number((selectedNodeData as any).amount) > meta.solanaRestakeMaxSol
+                      ? (
+                          <div style={{ fontSize: 12, color: '#b42318' }}>amount exceeds max</div>
+                        )
+                      : null
+                ) : null}
+              </div>
+
+              {meta ? (
+                <div style={{ fontSize: 12, color: '#666' }}>
+                  safety caps: stake max {meta.solanaStakeMaxSol} · restake max {meta.solanaRestakeMaxSol}
+                </div>
+              ) : null}
+
+              <div style={{ fontSize: 12, color: '#666' }}>
+                requires backend rpc via <span style={{ fontFamily: 'monospace' }}>SOLANA_RPC_URL</span>
+              </div>
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'solana_transfer' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <select
+                    value={selectedCredentialId}
+                    onChange={(e) => onAttachCredential(e.target.value)}
+                    disabled={busy}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                  >
+                    <option value="">select solana_wallet credential</option>
+                    {solanaWalletCredentials.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.provider} · {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Link
+                    to="/credentials"
+                    style={{
+                      padding: '6px 8px',
+                      borderRadius: 6,
+                      border: '1px solid #ddd',
+                      background: '#fff',
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      fontSize: 12,
+                    }}
+                  >
+                    manage
+                  </Link>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>to</div>
+                <input
+                  value={typeof selectedNodeData.to === 'string' ? selectedNodeData.to : ''}
+                  onChange={(e) => patchSelectedNode({ to: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  placeholder="recipient public key"
+                />
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>mint (optional)</div>
+                <input
+                  value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
+                  onChange={(e) => patchSelectedNode({ mint: e.target.value || undefined })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  placeholder="leave empty for SOL"
+                />
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>amount (token units)</div>
+                <input
+                  value={selectedNodeData.amount === undefined || selectedNodeData.amount === null ? '' : String(selectedNodeData.amount)}
+                  onChange={(e) => patchSelectedNode({ amount: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="0.01"
+                />
+                {meta && Number.isFinite(Number((selectedNodeData as any).amount)) ? (
+                  (typeof (selectedNodeData as any).mint === 'string' && (selectedNodeData as any).mint.trim().length > 0
+                    ? Number((selectedNodeData as any).amount) > meta.solanaTransferMaxTokenAmount
+                    : Number((selectedNodeData as any).amount) > meta.solanaTransferMaxSol) ? (
+                    <div style={{ fontSize: 12, color: '#b42318' }}>amount exceeds max</div>
+                  ) : null
+                ) : null}
+              </div>
+
+              {meta ? (
+                <div style={{ fontSize: 12, color: '#666' }}>
+                  safety caps: max sol {meta.solanaTransferMaxSol} · max token amount {meta.solanaTransferMaxTokenAmount}
+                </div>
+              ) : null}
+
+              <div style={{ fontSize: 12, color: '#666' }}>
+                requires backend rpc via <span style={{ fontFamily: 'monospace' }}>SOLANA_RPC_URL</span>
+              </div>
             </div>
           ) : null}
 
@@ -1646,9 +1950,15 @@ export default function Editor() {
           <option value="if">logic: if</option>
           <option value="discord_webhook">notify: discord</option>
           <option value="dexscreener_price">market: dexscreener price</option>
+          <option value="pyth_price_feed_id">market: pyth feed id</option>
+          <option value="pyth_price">market: pyth price</option>
           <option value="delay">action: delay</option>
           <option value="http_request">action: http request</option>
           <option value="solana_balance">solana: balance</option>
+          <option value="solana_transfer">solana: transfer</option>
+          <option value="solana_stake">solana: stake</option>
+          <option value="solana_restake">solana: restake</option>
+          <option value="close_empty_token_accounts">solana: close empty token accounts</option>
           <option value="jupiter_swap">solana: jupiter swap</option>
           <option value="market_data">market: data</option>
           <option value="paper_order">paper: trade</option>

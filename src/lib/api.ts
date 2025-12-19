@@ -73,6 +73,10 @@ export type MeResponse = {
 export type MetaResponse = {
   jupiterSwapMaxAmount: number
   jupiterSwapMaxSlippageBps: number
+  solanaTransferMaxSol: number
+  solanaTransferMaxTokenAmount: number
+  solanaStakeMaxSol: number
+  solanaRestakeMaxSol: number
 }
 
 export type Workflow = {
