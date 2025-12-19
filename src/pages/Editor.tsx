@@ -334,6 +334,16 @@ export default function Editor() {
       | 'transaction_log'
       | 'retry'
       | 'split_order'
+      | 'birdeye_price'
+      | 'token_holders'
+      | 'whale_alert'
+      | 'portfolio_value'
+      | 'stop_loss'
+      | 'take_profit'
+      | 'token_supply'
+      | 'wallet_transactions'
+      | 'price_change_trigger'
+      | 'copy_trade'
       | 'timer_trigger'
       | 'price_trigger'
       | 'helius_webhook_trigger'
@@ -513,6 +523,56 @@ export default function Editor() {
       baseData.totalAmount = 1
       baseData.chunks = 5
       baseData.delayBetweenMs = 5000
+    }
+
+    if (kind === 'birdeye_price') {
+      baseData.mint = ''
+    }
+
+    if (kind === 'token_holders') {
+      baseData.mint = ''
+      baseData.limit = 20
+    }
+
+    if (kind === 'whale_alert') {
+      baseData.mint = ''
+      baseData.minAmount = 10000
+    }
+
+    if (kind === 'portfolio_value') {
+      // just needs credentialId
+    }
+
+    if (kind === 'stop_loss') {
+      baseData.mint = ''
+      baseData.triggerPriceUsd = 0
+      baseData.sellPercentage = 100
+    }
+
+    if (kind === 'take_profit') {
+      baseData.mint = ''
+      baseData.triggerPriceUsd = 0
+      baseData.sellPercentage = 100
+    }
+
+    if (kind === 'token_supply') {
+      baseData.mint = ''
+    }
+
+    if (kind === 'wallet_transactions') {
+      baseData.limit = 10
+    }
+
+    if (kind === 'price_change_trigger') {
+      baseData.mint = ''
+      baseData.changePercentage = 5
+      baseData.direction = 'any'
+      baseData.timeframeMinutes = 60
+    }
+
+    if (kind === 'copy_trade') {
+      baseData.targetWallet = ''
+      baseData.slippageBps = 300
     }
 
     if (kind === 'market_data') {
@@ -1160,6 +1220,73 @@ export default function Editor() {
                   return
                 }
 
+                if (nextType === 'birdeye_price' || nextType === 'token_supply') {
+                  patchSelectedNode({
+                    type: nextType,
+                    mint: (selectedNodeData as any).mint || '',
+                  })
+                  return
+                }
+
+                if (nextType === 'token_holders') {
+                  patchSelectedNode({
+                    type: nextType,
+                    mint: (selectedNodeData as any).mint || '',
+                    limit: (selectedNodeData as any).limit ?? 20,
+                  })
+                  return
+                }
+
+                if (nextType === 'whale_alert') {
+                  patchSelectedNode({
+                    type: nextType,
+                    mint: (selectedNodeData as any).mint || '',
+                    minAmount: (selectedNodeData as any).minAmount ?? 10000,
+                  })
+                  return
+                }
+
+                if (nextType === 'portfolio_value' || nextType === 'wallet_transactions') {
+                  patchSelectedNode({
+                    type: nextType,
+                    credentialId: (selectedNodeData as any).credentialId,
+                    limit: (selectedNodeData as any).limit ?? 10,
+                  })
+                  return
+                }
+
+                if (nextType === 'stop_loss' || nextType === 'take_profit') {
+                  patchSelectedNode({
+                    type: nextType,
+                    credentialId: (selectedNodeData as any).credentialId,
+                    mint: (selectedNodeData as any).mint || '',
+                    triggerPriceUsd: (selectedNodeData as any).triggerPriceUsd ?? 0,
+                    sellPercentage: (selectedNodeData as any).sellPercentage ?? 100,
+                  })
+                  return
+                }
+
+                if (nextType === 'price_change_trigger') {
+                  patchSelectedNode({
+                    type: nextType,
+                    mint: (selectedNodeData as any).mint || '',
+                    changePercentage: (selectedNodeData as any).changePercentage ?? 5,
+                    direction: (selectedNodeData as any).direction || 'any',
+                    timeframeMinutes: (selectedNodeData as any).timeframeMinutes ?? 60,
+                  })
+                  return
+                }
+
+                if (nextType === 'copy_trade') {
+                  patchSelectedNode({
+                    type: nextType,
+                    credentialId: (selectedNodeData as any).credentialId,
+                    targetWallet: (selectedNodeData as any).targetWallet || '',
+                    slippageBps: (selectedNodeData as any).slippageBps ?? 300,
+                  })
+                  return
+                }
+
                 patchSelectedNode({ type: nextType })
               }}
               disabled={busy}
@@ -1200,6 +1327,16 @@ export default function Editor() {
               <option value="transaction_log">transaction_log</option>
               <option value="retry">retry</option>
               <option value="split_order">split_order</option>
+              <option value="birdeye_price">birdeye_price</option>
+              <option value="token_holders">token_holders</option>
+              <option value="whale_alert">whale_alert</option>
+              <option value="portfolio_value">portfolio_value</option>
+              <option value="stop_loss">stop_loss</option>
+              <option value="take_profit">take_profit</option>
+              <option value="token_supply">token_supply</option>
+              <option value="wallet_transactions">wallet_transactions</option>
+              <option value="price_change_trigger">price_change_trigger</option>
+              <option value="copy_trade">copy_trade</option>
               <option value="market_data">market_data</option>
               <option value="paper_order">paper_order</option>
             </select>
@@ -2177,6 +2314,328 @@ export default function Editor() {
             </div>
           ) : null}
 
+          {selectedNodeType === 'birdeye_price' || selectedNodeType === 'token_supply' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>token mint</div>
+                <input
+                  value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
+                  onChange={(e) => patchSelectedNode({ mint: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  placeholder="EPjFWdd5... or {{node.mint}}"
+                />
+              </div>
+              <div style={{ fontSize: 12, color: '#666' }}>
+                {selectedNodeType === 'birdeye_price' ? 'fetches token price from birdeye api' : 'fetches token supply info'}
+              </div>
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'token_holders' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>token mint</div>
+                <input
+                  value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
+                  onChange={(e) => patchSelectedNode({ mint: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  placeholder="EPjFWdd5..."
+                />
+              </div>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>limit</div>
+                <input
+                  type="number"
+                  value={(selectedNodeData as any).limit === undefined ? '' : String((selectedNodeData as any).limit)}
+                  onChange={(e) => patchSelectedNode({ limit: e.target.value ? Number(e.target.value) : undefined })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="20"
+                  min={1}
+                  max={100}
+                />
+              </div>
+              <div style={{ fontSize: 12, color: '#666' }}>fetches token metadata via helius</div>
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'whale_alert' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>token mint</div>
+                <input
+                  value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
+                  onChange={(e) => patchSelectedNode({ mint: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  placeholder="EPjFWdd5..."
+                />
+              </div>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>minimum amount</div>
+                <input
+                  value={(selectedNodeData as any).minAmount === undefined ? '' : String((selectedNodeData as any).minAmount)}
+                  onChange={(e) => patchSelectedNode({ minAmount: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="10000"
+                />
+              </div>
+              <div style={{ fontSize: 12, color: '#666' }}>gates downstream if transfer is below threshold</div>
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'portfolio_value' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <select
+                    value={selectedCredentialId}
+                    onChange={(e) => onAttachCredential(e.target.value)}
+                    disabled={busy}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                  >
+                    <option value="">select solana_wallet credential</option>
+                    {solanaWalletCredentials.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.provider} · {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Link
+                    to="/credentials"
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                  >
+                    manage
+                  </Link>
+                </div>
+              </div>
+              <div style={{ fontSize: 12, color: '#666' }}>returns: sol balance, token holdings</div>
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'stop_loss' || selectedNodeType === 'take_profit' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <select
+                    value={selectedCredentialId}
+                    onChange={(e) => onAttachCredential(e.target.value)}
+                    disabled={busy}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                  >
+                    <option value="">select solana_wallet credential</option>
+                    {solanaWalletCredentials.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.provider} · {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Link
+                    to="/credentials"
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                  >
+                    manage
+                  </Link>
+                </div>
+              </div>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>token mint</div>
+                <input
+                  value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
+                  onChange={(e) => patchSelectedNode({ mint: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  placeholder="EPjFWdd5..."
+                />
+              </div>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>trigger price (USD)</div>
+                <input
+                  value={(selectedNodeData as any).triggerPriceUsd === undefined ? '' : String((selectedNodeData as any).triggerPriceUsd)}
+                  onChange={(e) => patchSelectedNode({ triggerPriceUsd: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="0.001"
+                />
+              </div>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>sell percentage</div>
+                <input
+                  type="number"
+                  value={(selectedNodeData as any).sellPercentage === undefined ? '' : String((selectedNodeData as any).sellPercentage)}
+                  onChange={(e) => patchSelectedNode({ sellPercentage: e.target.value ? Number(e.target.value) : undefined })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="100"
+                  min={1}
+                  max={100}
+                />
+              </div>
+              <div style={{ fontSize: 12, color: '#666' }}>
+                {selectedNodeType === 'stop_loss' ? 'triggers when price drops to threshold' : 'triggers when price rises to threshold'}
+              </div>
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'wallet_transactions' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <select
+                    value={selectedCredentialId}
+                    onChange={(e) => onAttachCredential(e.target.value)}
+                    disabled={busy}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                  >
+                    <option value="">select solana_wallet credential</option>
+                    {solanaWalletCredentials.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.provider} · {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Link
+                    to="/credentials"
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                  >
+                    manage
+                  </Link>
+                </div>
+              </div>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>limit</div>
+                <input
+                  type="number"
+                  value={(selectedNodeData as any).limit === undefined ? '' : String((selectedNodeData as any).limit)}
+                  onChange={(e) => patchSelectedNode({ limit: e.target.value ? Number(e.target.value) : undefined })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="10"
+                  min={1}
+                  max={100}
+                />
+              </div>
+              <div style={{ fontSize: 12, color: '#666' }}>fetches recent wallet transactions</div>
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'price_change_trigger' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>token mint</div>
+                <input
+                  value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
+                  onChange={(e) => patchSelectedNode({ mint: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  placeholder="EPjFWdd5..."
+                />
+              </div>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>change percentage</div>
+                <input
+                  value={(selectedNodeData as any).changePercentage === undefined ? '' : String((selectedNodeData as any).changePercentage)}
+                  onChange={(e) => patchSelectedNode({ changePercentage: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="5"
+                />
+              </div>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>direction</div>
+                <select
+                  value={typeof (selectedNodeData as any).direction === 'string' ? (selectedNodeData as any).direction : 'any'}
+                  onChange={(e) => patchSelectedNode({ direction: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                >
+                  <option value="any">any</option>
+                  <option value="up">up</option>
+                  <option value="down">down</option>
+                </select>
+              </div>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>timeframe (minutes)</div>
+                <input
+                  type="number"
+                  value={(selectedNodeData as any).timeframeMinutes === undefined ? '' : String((selectedNodeData as any).timeframeMinutes)}
+                  onChange={(e) => patchSelectedNode({ timeframeMinutes: e.target.value ? Number(e.target.value) : undefined })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="60"
+                />
+              </div>
+              <div style={{ fontSize: 12, color: '#666' }}>gates downstream if price change not met</div>
+            </div>
+          ) : null}
+
+          {selectedNodeType === 'copy_trade' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>your wallet credential</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <select
+                    value={selectedCredentialId}
+                    onChange={(e) => onAttachCredential(e.target.value)}
+                    disabled={busy}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                  >
+                    <option value="">select solana_wallet credential</option>
+                    {solanaWalletCredentials.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.provider} · {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Link
+                    to="/credentials"
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                  >
+                    manage
+                  </Link>
+                </div>
+              </div>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>target wallet to copy</div>
+                <input
+                  value={typeof (selectedNodeData as any).targetWallet === 'string' ? (selectedNodeData as any).targetWallet : ''}
+                  onChange={(e) => patchSelectedNode({ targetWallet: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  placeholder="wallet address..."
+                />
+              </div>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>max amount per trade</div>
+                <input
+                  value={(selectedNodeData as any).maxAmountPerTrade === undefined ? '' : String((selectedNodeData as any).maxAmountPerTrade)}
+                  onChange={(e) => patchSelectedNode({ maxAmountPerTrade: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="optional limit"
+                />
+              </div>
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>slippage (bps)</div>
+                <input
+                  type="number"
+                  value={(selectedNodeData as any).slippageBps === undefined ? '' : String((selectedNodeData as any).slippageBps)}
+                  onChange={(e) => patchSelectedNode({ slippageBps: e.target.value ? Number(e.target.value) : undefined })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="300"
+                />
+              </div>
+              <div style={{ fontSize: 12, color: '#666' }}>detects swaps from target wallet via helius webhook</div>
+            </div>
+          ) : null}
+
           {selectedNodeType === 'discord_webhook' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ fontSize: 12, color: '#666' }}>
@@ -2980,6 +3439,16 @@ export default function Editor() {
           <option value="split_order">logic: split order (dca)</option>
           <option value="telegram_notify">notify: telegram</option>
           <option value="transaction_log">data: transaction log</option>
+          <option value="birdeye_price">data: birdeye price</option>
+          <option value="token_holders">data: token holders</option>
+          <option value="token_supply">data: token supply</option>
+          <option value="portfolio_value">data: portfolio value</option>
+          <option value="wallet_transactions">data: wallet transactions</option>
+          <option value="whale_alert">logic: whale alert</option>
+          <option value="stop_loss">logic: stop loss</option>
+          <option value="take_profit">logic: take profit</option>
+          <option value="price_change_trigger">logic: price change trigger</option>
+          <option value="copy_trade">logic: copy trade</option>
           <option value="market_data">market: data</option>
           <option value="paper_order">paper: trade</option>
         </select>
