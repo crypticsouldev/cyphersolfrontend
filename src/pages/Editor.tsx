@@ -299,6 +299,7 @@ export default function Editor() {
   function addNode(
     kind:
       | 'log'
+      | 'transform'
       | 'delay'
       | 'http_request'
       | 'solana_balance'
@@ -335,6 +336,12 @@ export default function Editor() {
 
     if (kind === 'log') {
       baseData.message = 'hello'
+    }
+
+    if (kind === 'transform') {
+      baseData.value = {
+        ok: true,
+      }
     }
 
     if (kind === 'delay') {
@@ -754,6 +761,14 @@ export default function Editor() {
                   return
                 }
 
+                if (nextType === 'transform') {
+                  patchSelectedNode({
+                    type: nextType,
+                    value: (selectedNodeData as any).value ?? { ok: true },
+                  })
+                  return
+                }
+
                 patchSelectedNode({ type: nextType })
               }}
               disabled={busy}
@@ -763,6 +778,7 @@ export default function Editor() {
               <option value="price_trigger">price_trigger</option>
               <option value="helius_webhook_trigger">helius_webhook_trigger</option>
               <option value="log">log</option>
+              <option value="transform">transform</option>
               <option value="delay">delay</option>
               <option value="http_request">http_request</option>
               <option value="solana_balance">solana_balance</option>
@@ -1118,6 +1134,43 @@ export default function Editor() {
             </div>
           ) : null}
 
+          {selectedNodeType === 'transform' ? (
+            <div style={{ display: 'grid', gap: 6 }}>
+              <div style={{ fontSize: 12, color: '#666' }}>value (json or template)</div>
+              <textarea
+                value={
+                  typeof selectedNodeData.value === 'string'
+                    ? selectedNodeData.value
+                    : (() => {
+                        try {
+                          return JSON.stringify(selectedNodeData.value ?? null, null, 2)
+                        } catch {
+                          return ''
+                        }
+                      })()
+                }
+                onChange={(e) => patchSelectedNode({ value: e.target.value })}
+                onBlur={(e) => {
+                  const raw = e.target.value
+                  const trimmed = raw.trim()
+                  if (!trimmed) {
+                    patchSelectedNode({ value: undefined })
+                    return
+                  }
+                  try {
+                    patchSelectedNode({ value: JSON.parse(raw) })
+                  } catch {
+                    patchSelectedNode({ value: raw })
+                  }
+                }}
+                disabled={busy}
+                rows={6}
+                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                placeholder={'{"amount": "{{nodes.n1.output.sol}}"}'}
+              />
+            </div>
+          ) : null}
+
           {selectedNodeType === 'http_request' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
@@ -1399,6 +1452,7 @@ export default function Editor() {
             trigger: helius webhook
           </option>
           <option value="log">action: log</option>
+          <option value="transform">action: transform</option>
           <option value="delay">action: delay</option>
           <option value="http_request">action: http request</option>
           <option value="solana_balance">solana: balance</option>
