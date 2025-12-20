@@ -10,6 +10,8 @@ import {
 } from '../lib/api'
 import { clearAuthToken } from '../lib/auth'
 import { useWorkflows, invalidateWorkflows } from '../lib/hooks'
+import TemplateLibrary from '../components/TemplateLibrary'
+import type { WorkflowTemplate } from '../lib/templates'
 
 function formatRelativeTime(date: Date): string {
   const now = new Date()
@@ -46,28 +48,34 @@ export default function Dashboard() {
 
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | undefined>()
+  const [showTemplates, setShowTemplates] = useState(false)
 
   const displayError = error || (fetchError ? 'Failed to load workflows' : undefined)
 
-  async function onCreate() {
+  async function onCreate(template?: WorkflowTemplate) {
     setBusy(true)
     setError(undefined)
+    setShowTemplates(false)
     try {
-      const res = await createWorkflow('untitled workflow', {
-        nodes: [
-          {
-            id: 'n1',
-            position: { x: 0, y: 0 },
-            data: { label: 'timer_trigger', type: 'timer_trigger', intervalSeconds: 60 },
-          },
-          {
-            id: 'n2',
-            position: { x: 260, y: 120 },
-            data: { label: 'log', type: 'log', message: 'hello' },
-          },
-        ],
-        edges: [{ id: 'n1-n2', source: 'n1', target: 'n2' }],
-      })
+      const definition = template
+        ? { nodes: template.nodes, edges: template.edges }
+        : {
+            nodes: [
+              {
+                id: 'n1',
+                position: { x: 0, y: 0 },
+                data: { label: 'timer_trigger', type: 'timer_trigger', intervalSeconds: 60 },
+              },
+              {
+                id: 'n2',
+                position: { x: 260, y: 120 },
+                data: { label: 'log', type: 'log', message: 'hello' },
+              },
+            ],
+            edges: [{ id: 'n1-n2', source: 'n1', target: 'n2' }],
+          }
+      const name = template?.name || 'untitled workflow'
+      const res = await createWorkflow(name, definition)
       navigate(`/editor/${res.workflow.id}`)
     } catch (err) {
       const apiErr = err as ApiError
@@ -157,7 +165,13 @@ export default function Dashboard() {
             </svg>
             Paper Trades
           </Link>
-          <button type="button" onClick={onCreate} disabled={busy} className="btn btn-primary">
+          <button type="button" onClick={() => setShowTemplates(true)} disabled={busy} className="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+            </svg>
+            Templates
+          </button>
+          <button type="button" onClick={() => onCreate()} disabled={busy} className="btn btn-primary">
             {busy ? (
               <span className="spinner" style={{ width: 14, height: 14 }} />
             ) : (
@@ -208,9 +222,17 @@ export default function Dashboard() {
               <polyline points="14 2 14 8 20 8"/>
             </svg>
             <p style={{ marginBottom: 16 }}>No workflows yet</p>
-            <button onClick={onCreate} disabled={busy} className="btn btn-primary">
-              Create your first workflow
-            </button>
+            <div className="flex gap-2" style={{ justifyContent: 'center' }}>
+              <button onClick={() => setShowTemplates(true)} disabled={busy} className="btn btn-secondary">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                </svg>
+                Browse Templates
+              </button>
+              <button onClick={() => onCreate()} disabled={busy} className="btn btn-primary">
+                Start from Scratch
+              </button>
+            </div>
           </div>
         ) : (
           workflows.map((wf) => (
@@ -247,6 +269,13 @@ export default function Dashboard() {
           ))
         )}
       </div>
+
+      {showTemplates && (
+        <TemplateLibrary
+          onSelect={(template) => onCreate(template)}
+          onClose={() => setShowTemplates(false)}
+        />
+      )}
     </div>
   )
 }
