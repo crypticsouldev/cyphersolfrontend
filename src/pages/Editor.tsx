@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useBlocker } from 'react-router-dom'
 import type { Edge, Node } from '@xyflow/react'
 import CreateWorkFlow, { type CreateWorkFlowHandle } from '../components/CreateWorkFlow'
 import {
@@ -52,6 +52,34 @@ export default function Editor() {
     const currentDraftStr = JSON.stringify({ nodes: draft.nodes, edges: draft.edges })
     return currentDraftStr !== lastSavedDraft
   }, [draft, lastSavedDraft])
+
+  // Block navigation when there are unsaved changes
+  const blocker = useBlocker(hasUnsavedChanges)
+
+  useEffect(() => {
+    if (blocker.state === 'blocked') {
+      const shouldLeave = window.confirm(
+        'You have unsaved changes.\n\nClick OK to leave without saving, or Cancel to stay.'
+      )
+      if (shouldLeave) {
+        blocker.proceed()
+      } else {
+        blocker.reset()
+      }
+    }
+  }, [blocker])
+
+  // Warn on browser close/refresh with unsaved changes
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault()
+        e.returnValue = ''
+      }
+    }
+    window.addEventListener('beforeunload', handleBeforeUnload)
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload)
+  }, [hasUnsavedChanges])
 
   const handleDefinitionChange = useCallback((definition: { nodes: Node[]; edges: Edge[] }) => {
     setDraft(definition)
@@ -801,13 +829,15 @@ export default function Editor() {
     // Check for unsaved changes
     if (hasUnsavedChanges) {
       const choice = window.confirm(
-        'You have unsaved changes.\n\nClick OK to save and run, or Cancel to discard changes and run.'
+        'You have unsaved changes.\n\nClick OK to save and run, or Cancel to go back to editor.'
       )
       if (choice) {
         // Save first, then run
         await onSave()
+      } else {
+        // User cancelled - go back to editor without running
+        return
       }
-      // If cancelled, just run with saved version (discarding changes)
     }
 
     setBusy(true)
@@ -4306,33 +4336,6 @@ export default function Editor() {
         initialEdges={initialEdges}
         onDefinitionChange={handleDefinitionChange}
         onNodeSelect={(nodeId) => setSelectedNodeId(nodeId)}
-        onAddNodeOnEdge={(edgeId, nodeType) => {
-          if (!draft) return
-          // Find the edge
-          const edge = draft.edges.find((e) => e.id === edgeId)
-          if (!edge) return
-          
-          // Find source and target nodes to calculate position
-          const sourceNode = draft.nodes.find((n) => n.id === edge.source)
-          const targetNode = draft.nodes.find((n) => n.id === edge.target)
-          if (!sourceNode || !targetNode) return
-          
-          // Calculate midpoint position
-          const midX = (sourceNode.position.x + targetNode.position.x) / 2
-          const midY = (sourceNode.position.y + targetNode.position.y) / 2
-          
-          // Create the new node
-          const newNodeId = `n${Date.now()}`
-          addNode(nodeType as any)
-          
-          // The addNode function already handles node creation, but we need to insert it into the edge
-          // Update edges to connect through the new node
-          setTimeout(() => {
-            if (!flowRef.current) return
-            // Select the new node
-            setSelectedNodeId(newNodeId)
-          }, 100)
-        }}
         onAddNodeAfterLast={(nodeType) => {
           addNode(nodeType as any)
         }}

@@ -13,7 +13,6 @@ import {
   type OnConnect,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
-import AddNodeEdge from './AddNodeEdge'
 import AddNodeAfterLast from './AddNodeAfterLast'
 
 const defaultNodes: Node[] = []
@@ -25,15 +24,10 @@ type Props = {
   initialEdges?: Edge[]
   onDefinitionChange?: (definition: { nodes: Node[]; edges: Edge[] }) => void
   onNodeSelect?: (nodeId: string | undefined) => void
-  onAddNodeOnEdge?: (edgeId: string, nodeType: string) => void
   onAddNodeAfterLast?: (nodeType: string) => void
   containerStyle?: CSSProperties
   readOnly?: boolean
   syncFromProps?: boolean
-}
-
-const edgeTypes = {
-  addNode: AddNodeEdge,
 }
 
 export type CreateWorkFlowHandle = {
@@ -43,22 +37,10 @@ export type CreateWorkFlowHandle = {
 }
 
 const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
-  ({ initialNodes, initialEdges, onDefinitionChange, onNodeSelect, onAddNodeOnEdge, onAddNodeAfterLast, containerStyle, readOnly, syncFromProps }, ref) => {
+  ({ initialNodes, initialEdges, onDefinitionChange, onNodeSelect, onAddNodeAfterLast, containerStyle, readOnly, syncFromProps }, ref) => {
   const [nodes, setNodes] = useState<Node[]>(initialNodes ?? defaultNodes)
   const [edges, setEdges] = useState<Edge[]>(initialEdges ?? defaultEdges)
-
-  // Add edge data with onAddNode handler
-  const edgesWithHandlers = useMemo(() => {
-    if (readOnly) return edges
-    return edges.map((edge) => ({
-      ...edge,
-      type: 'addNode',
-      data: {
-        ...edge.data,
-        onAddNode: onAddNodeOnEdge,
-      },
-    }))
-  }, [edges, onAddNodeOnEdge, readOnly])
+  const [popupOpen, setPopupOpen] = useState(false)
 
   // Find terminal nodes (nodes with no outgoing edges)
   const terminalNodes = useMemo(() => {
@@ -126,8 +108,7 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
     <div style={{ width: '100vw', height: '100vh', ...containerStyle }}>
       <ReactFlow
         nodes={nodes}
-        edges={edgesWithHandlers}
-        edgeTypes={edgeTypes}
+        edges={edges}
         onNodesChange={readOnly ? undefined : onNodesChange}
         onEdgesChange={readOnly ? undefined : onEdgesChange}
         onConnect={readOnly ? undefined : onConnect}
@@ -136,8 +117,15 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
         edgesReconnectable={!readOnly}
         deleteKeyCode={readOnly ? null : ['Backspace', 'Delete']}
         onNodeClick={(_evt, node) => onNodeSelect?.(node.id)}
-        onPaneClick={() => onNodeSelect?.(undefined)}
+        onPaneClick={() => {
+          onNodeSelect?.(undefined)
+          setPopupOpen(false)
+        }}
         fitView
+        zoomOnScroll={!popupOpen}
+        zoomOnPinch={!popupOpen}
+        zoomOnDoubleClick={!popupOpen}
+        panOnScroll={!popupOpen}
         style={{
           // Custom node styling for dark mode
           ['--xy-node-background-color' as any]: 'var(--color-surface, #fff)',
@@ -146,18 +134,23 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
         }}
       >
         <Background color="var(--color-border)" gap={20} />
-        <Controls />
-        {/* Plus icon after terminal nodes */}
-        {terminalNodes.map((node) => (
+        <Controls showInteractive={false} />
+        {/* Plus icon after terminal nodes - only show for the last one */}
+        {terminalNodes.length > 0 && (
           <AddNodeAfterLast
-            key={`add-after-${node.id}`}
+            key={`add-after-${terminalNodes[terminalNodes.length - 1].id}`}
             position={{ 
-              x: node.position.x + 75, // Center below node (assuming ~150px node width)
-              y: node.position.y + 60  // Below the node
+              x: terminalNodes[terminalNodes.length - 1].position.x + 75,
+              y: terminalNodes[terminalNodes.length - 1].position.y + 60
             }}
-            onAddNode={(nodeType) => onAddNodeAfterLast?.(nodeType)}
+            onAddNode={(nodeType) => {
+              setPopupOpen(false)
+              onAddNodeAfterLast?.(nodeType)
+            }}
+            onPopupOpen={() => setPopupOpen(true)}
+            onPopupClose={() => setPopupOpen(false)}
           />
-        ))}
+        )}
       </ReactFlow>
     </div>
   )

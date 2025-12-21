@@ -40,11 +40,22 @@ const nodeOptions: { value: string; label: string; category: NodeCategory; descr
 type Props = {
   position: { x: number; y: number }
   onAddNode: (nodeType: string) => void
+  onPopupOpen?: () => void
+  onPopupClose?: () => void
 }
 
-export default function AddNodeAfterLast({ position, onAddNode }: Props) {
+export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onPopupClose }: Props) {
   const [showMenu, setShowMenu] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<NodeCategory | null>(null)
+
+  // Notify parent when popup opens/closes
+  useEffect(() => {
+    if (showMenu) {
+      onPopupOpen?.()
+    } else {
+      onPopupClose?.()
+    }
+  }, [showMenu, onPopupOpen, onPopupClose])
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -90,36 +101,41 @@ export default function AddNodeAfterLast({ position, onAddNode }: Props) {
       className="nodrag nopan"
     >
       {!showMenu ? (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-          <div style={{ width: 2, height: 30, background: 'var(--color-border, #e5e7eb)' }} />
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          {/* Connecting line */}
+          <div style={{ 
+            width: 2, 
+            height: 24, 
+            background: 'var(--color-border, #555)',
+          }} />
+          {/* Dark rounded square button matching screenshot */}
           <button
             onClick={() => setShowMenu(true)}
             style={{
-              width: 28,
-              height: 28,
-              borderRadius: '50%',
-              background: 'var(--color-surface, #fff)',
-              border: '2px dashed var(--color-border, #e5e7eb)',
+              width: 36,
+              height: 36,
+              borderRadius: 8,
+              background: '#1a1a1a',
+              border: '1px solid #333',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontSize: 16,
-              fontWeight: 'bold',
-              color: 'var(--color-text-muted, #666)',
+              fontSize: 20,
+              fontWeight: 300,
+              color: '#888',
               transition: 'all 0.15s ease',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'var(--color-primary, #3b82f6)'
+              e.currentTarget.style.background = '#2a2a2a'
               e.currentTarget.style.color = '#fff'
-              e.currentTarget.style.borderColor = 'var(--color-primary, #3b82f6)'
-              e.currentTarget.style.borderStyle = 'solid'
+              e.currentTarget.style.borderColor = '#555'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'var(--color-surface, #fff)'
-              e.currentTarget.style.color = 'var(--color-text-muted, #666)'
-              e.currentTarget.style.borderColor = 'var(--color-border, #e5e7eb)'
-              e.currentTarget.style.borderStyle = 'dashed'
+              e.currentTarget.style.background = '#1a1a1a'
+              e.currentTarget.style.color = '#888'
+              e.currentTarget.style.borderColor = '#333'
             }}
             title="Add node"
           >

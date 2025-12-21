@@ -548,6 +548,11 @@ body {
   background: var(--color-surface) !important;
   border: 1px solid var(--color-border) !important;
   box-shadow: var(--shadow-md) !important;
+  /* Move controls to top right */
+  left: auto !important;
+  right: 10px !important;
+  bottom: auto !important;
+  top: 10px !important;
 }
 
 .react-flow__controls-button {
