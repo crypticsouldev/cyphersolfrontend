@@ -4,6 +4,7 @@ import {
   applyNodeChanges,
   applyEdgeChanges,
   addEdge,
+  reconnectEdge,
   Background,
   Controls,
   useReactFlow,
@@ -13,6 +14,7 @@ import {
   type OnNodesChange,
   type OnEdgesChange,
   type OnConnect,
+  type OnReconnect,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import AddNodeEdge from './AddNodeEdge'
@@ -152,6 +154,23 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
     [],
   )
 
+  // Handle edge reconnection (drag edge to new target or disconnect by dropping on empty space)
+  const onReconnect: OnReconnect = useCallback(
+    (oldEdge, newConnection) => {
+      setEdges((edgesSnapshot) => reconnectEdge(oldEdge, newConnection, edgesSnapshot))
+    },
+    [],
+  )
+
+  // Handle edge reconnection end - if dropped on empty space, delete the edge
+  const onReconnectEnd = useCallback(
+    (_event: MouseEvent | TouchEvent, edge: Edge) => {
+      // Edge was dropped on empty space, delete it
+      setEdges((edgesSnapshot) => edgesSnapshot.filter((e) => e.id !== edge.id))
+    },
+    [],
+  )
+
   return (
     <div style={{ width: '100vw', height: '100vh', ...containerStyle }}>
       <ReactFlow
@@ -164,6 +183,8 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
         nodesDraggable={!readOnly}
         nodesConnectable={!readOnly}
         edgesReconnectable={!readOnly}
+        onReconnect={readOnly ? undefined : onReconnect}
+        onReconnectEnd={readOnly ? undefined : onReconnectEnd}
         deleteKeyCode={readOnly ? null : ['Backspace', 'Delete']}
         onNodeClick={(_evt, node) => onNodeSelect?.(node.id)}
         onPaneClick={() => {
