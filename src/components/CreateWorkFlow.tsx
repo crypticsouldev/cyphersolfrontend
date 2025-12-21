@@ -4,6 +4,8 @@ import {
   applyNodeChanges,
   applyEdgeChanges,
   addEdge,
+  Background,
+  Controls,
   type Node,
   type Edge,
   type OnNodesChange,
@@ -23,6 +25,7 @@ type Props = {
   onDefinitionChange?: (definition: { nodes: Node[]; edges: Edge[] }) => void
   onNodeSelect?: (nodeId: string | undefined) => void
   onAddNodeOnEdge?: (edgeId: string, nodeType: string) => void
+  onAddNodeAfterLast?: (nodeType: string) => void
   containerStyle?: CSSProperties
   readOnly?: boolean
   syncFromProps?: boolean
@@ -39,7 +42,7 @@ export type CreateWorkFlowHandle = {
 }
 
 const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
-  ({ initialNodes, initialEdges, onDefinitionChange, onNodeSelect, onAddNodeOnEdge, containerStyle, readOnly, syncFromProps }, ref) => {
+  ({ initialNodes, initialEdges, onDefinitionChange, onNodeSelect, onAddNodeOnEdge, onAddNodeAfterLast, containerStyle, readOnly, syncFromProps }, ref) => {
   const [nodes, setNodes] = useState<Node[]>(initialNodes ?? defaultNodes)
   const [edges, setEdges] = useState<Edge[]>(initialEdges ?? defaultEdges)
 
@@ -122,10 +125,21 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
         onConnect={readOnly ? undefined : onConnect}
         nodesDraggable={!readOnly}
         nodesConnectable={!readOnly}
+        edgesReconnectable={!readOnly}
+        deleteKeyCode={readOnly ? null : ['Backspace', 'Delete']}
         onNodeClick={(_evt, node) => onNodeSelect?.(node.id)}
         onPaneClick={() => onNodeSelect?.(undefined)}
         fitView
-      />
+        style={{
+          // Custom node styling for dark mode
+          ['--xy-node-background-color' as any]: 'var(--color-surface, #fff)',
+          ['--xy-node-border-color' as any]: 'var(--color-border, #e5e7eb)',
+          ['--xy-node-color' as any]: 'var(--color-text, #111)',
+        }}
+      >
+        <Background color="var(--color-border)" gap={20} />
+        <Controls />
+      </ReactFlow>
     </div>
   )
   },

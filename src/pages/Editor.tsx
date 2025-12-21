@@ -44,6 +44,14 @@ export default function Editor() {
   const [selectedCredentialId, setSelectedCredentialId] = useState<string>('')
   const [maxBacklogDraft, setMaxBacklogDraft] = useState('')
   const [addNodeSelection, setAddNodeSelection] = useState('')
+  const [lastSavedDraft, setLastSavedDraft] = useState<string>('')
+
+  // Track if there are unsaved changes
+  const hasUnsavedChanges = useMemo(() => {
+    if (!draft) return false
+    const currentDraftStr = JSON.stringify({ nodes: draft.nodes, edges: draft.edges })
+    return currentDraftStr !== lastSavedDraft
+  }, [draft, lastSavedDraft])
 
   const handleDefinitionChange = useCallback((definition: { nodes: Node[]; edges: Edge[] }) => {
     setDraft(definition)
@@ -227,6 +235,7 @@ export default function Editor() {
         setInitialNodes(nodes)
         setInitialEdges(edges)
         setDraft({ nodes, edges })
+        setLastSavedDraft(JSON.stringify({ nodes, edges }))
       } catch (err) {
         const apiErr = err as ApiError
         if (apiErr.status === 401) {
@@ -666,6 +675,7 @@ export default function Editor() {
     try {
       const res = await updateWorkflow(workflowId, { definition: draft })
       setWorkflow(res.workflow)
+      setLastSavedDraft(JSON.stringify({ nodes: draft.nodes, edges: draft.edges }))
     } catch (err) {
       const apiErr = err as ApiError
       if (apiErr.status === 401) {
@@ -786,6 +796,18 @@ export default function Editor() {
     if (!runEligibility.ok) {
       setError(runEligibility.reason || 'workflow is not valid for running')
       return
+    }
+
+    // Check for unsaved changes
+    if (hasUnsavedChanges) {
+      const choice = window.confirm(
+        'You have unsaved changes.\n\nClick OK to save and run, or Cancel to discard changes and run.'
+      )
+      if (choice) {
+        // Save first, then run
+        await onSave()
+      }
+      // If cancelled, just run with saved version (discarding changes)
     }
 
     setBusy(true)
@@ -4203,9 +4225,9 @@ export default function Editor() {
           type="button"
           onClick={deleteSelectedNode}
           disabled={busy || !draft || !selectedNodeId}
-          style={{ background: 'var(--color-bg)', color: '#b42318', border: '1px solid #f3c7c7', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
+          style={{ background: '#dc2626', color: '#fff', border: '1px solid #b91c1c', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
         >
-          delete node
+          🗑 delete node
         </button>
 
         <button
@@ -4221,9 +4243,9 @@ export default function Editor() {
           type="button"
           onClick={onDeleteWorkflow}
           disabled={busy || !workflowId || !workflow}
-          style={{ background: 'var(--color-bg)', color: '#b42318', border: '1px solid #f3c7c7', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
+          style={{ background: '#dc2626', color: '#fff', border: '1px solid #b91c1c', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
         >
-          delete
+          🗑 delete
         </button>
 
         <span style={{ fontSize: 12, color: 'var(--color-text-muted)', marginLeft: 'auto' }}>id: {params.id}</span>
