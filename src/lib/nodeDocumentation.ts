@@ -375,15 +375,6 @@ export const nodeDocumentation: Record<string, NodeDoc> = {
     outputs: ['schedule', 'amountPerInterval'],
   },
 
-  // Paper Trading
-  paper_order: {
-    type: 'paper_order',
-    name: 'Paper Trade',
-    category: 'action',
-    description: 'Simulates a trade without real funds for testing strategies.',
-    inputs: ['symbol', 'side', 'quantity', 'price'],
-    outputs: ['orderId', 'filledAt'],
-  },
 }
 
 export function getNodeDoc(type: string): NodeDoc | undefined {

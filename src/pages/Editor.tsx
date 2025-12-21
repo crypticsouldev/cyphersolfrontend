@@ -328,8 +328,7 @@ export default function Editor() {
       | 'timer_trigger'
       | 'price_trigger'
       | 'onchain_trigger'
-      | 'market_data'
-      | 'paper_order',
+      | 'market_data',
   ) {
     if (!draft) return
 
@@ -621,13 +620,6 @@ export default function Editor() {
     if (kind === 'market_data') {
       baseData.symbol = 'SOL'
       baseData.vsCurrency = 'usd'
-    }
-
-    if (kind === 'paper_order') {
-      baseData.symbol = 'SOL'
-      baseData.side = 'buy'
-      baseData.quantity = 1
-      baseData.price = 150
     }
 
     if (kind === 'timer_trigger') {
@@ -1476,7 +1468,6 @@ export default function Editor() {
               <option value="twap">twap</option>
               <option value="rug_check">rug_check</option>
               <option value="market_data">market_data</option>
-              <option value="paper_order">paper_order</option>
             </select>
           </div>
 
@@ -3982,79 +3973,6 @@ export default function Editor() {
             </div>
           ) : null}
 
-          {selectedNodeType === 'paper_order' ? (
-            <div style={{ display: 'grid', gap: 10 }}>
-              <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>symbol</div>
-                <input
-                  value={typeof selectedNodeData.symbol === 'string' ? selectedNodeData.symbol : ''}
-                  onChange={(e) => patchSelectedNode({ symbol: e.target.value })}
-                  disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
-                  placeholder="SOL"
-                />
-              </div>
-
-              <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>side</div>
-                <select
-                  value={typeof selectedNodeData.side === 'string' ? selectedNodeData.side : 'buy'}
-                  onChange={(e) => patchSelectedNode({ side: e.target.value })}
-                  disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
-                >
-                  <option value="buy">buy</option>
-                  <option value="sell">sell</option>
-                </select>
-              </div>
-
-              <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>quantity</div>
-                <input
-                  type="number"
-                  value={
-                    typeof selectedNodeData.quantity === 'number'
-                      ? selectedNodeData.quantity
-                      : typeof selectedNodeData.quantity === 'string'
-                        ? selectedNodeData.quantity
-                        : ''
-                  }
-                  onChange={(e) => {
-                    const val = e.target.value
-                    patchSelectedNode({ quantity: val === '' ? undefined : Number(val) })
-                  }}
-                  disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
-                  placeholder="1"
-                  min={0}
-                  step={0.0001}
-                />
-              </div>
-
-              <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>price (optional)</div>
-                <input
-                  type="number"
-                  value={
-                    typeof selectedNodeData.price === 'number'
-                      ? selectedNodeData.price
-                      : typeof selectedNodeData.price === 'string'
-                        ? selectedNodeData.price
-                        : ''
-                  }
-                  onChange={(e) => {
-                    const val = e.target.value
-                    patchSelectedNode({ price: val === '' ? undefined : Number(val) })
-                  }}
-                  disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
-                  placeholder="150"
-                  min={0}
-                  step={0.0001}
-                />
-              </div>
-            </div>
-          ) : null}
         </div>
       ) : null}
 
@@ -4221,7 +4139,6 @@ export default function Editor() {
           <option value="slippage_estimator">calc: slippage</option>
           <option value="twap">action: twap</option>
           <option value="market_data">market: data</option>
-          <option value="paper_order">paper: trade</option>
         </select>
 
         <button

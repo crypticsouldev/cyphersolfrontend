@@ -565,46 +565,6 @@ export const workflowTemplates: WorkflowTemplate[] = [
     ],
   },
   {
-    id: 'paper-trading',
-    name: 'Paper Trading Bot',
-    description: 'Practice trading strategies with simulated orders - no real funds at risk.',
-    category: 'trading',
-    difficulty: 'beginner',
-    nodes: [
-      {
-        id: 'n1',
-        position: { x: 0, y: 0 },
-        data: { label: 'timer_trigger', type: 'timer_trigger', intervalSeconds: 60 },
-      },
-      {
-        id: 'n2',
-        position: { x: 0, y: 120 },
-        data: { label: 'dexscreener_price', type: 'dexscreener_price', pairAddress: '' },
-      },
-      {
-        id: 'n3',
-        position: { x: 0, y: 240 },
-        data: { label: 'if', type: 'if', condition: '{{n2.priceChange24h}} > 5' },
-      },
-      {
-        id: 'n4',
-        position: { x: 0, y: 360 },
-        data: { label: 'paper_order', type: 'paper_order', symbol: '', side: 'buy', quantity: 100 },
-      },
-      {
-        id: 'n5',
-        position: { x: 0, y: 480 },
-        data: { label: 'discord_webhook', type: 'discord_webhook', credentialId: '', message: '📝 Paper Trade Executed!\nBought {{n4.quantity}} at ${{n2.priceUsd}}' },
-      },
-    ],
-    edges: [
-      { id: 'e1', source: 'n1', target: 'n2' },
-      { id: 'e2', source: 'n2', target: 'n3' },
-      { id: 'e3', source: 'n3', target: 'n4' },
-      { id: 'e4', source: 'n4', target: 'n5' },
-    ],
-  },
-  {
     id: 'slippage-monitor',
     name: 'Slippage Monitor',
     description: 'Check expected slippage before trading and only execute when conditions are favorable.',

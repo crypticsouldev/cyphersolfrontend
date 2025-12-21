@@ -6,15 +6,11 @@ import {
   getMeta,
   listWorkflowExecutions,
   getExecution,
-  listPaperOrders,
-  listPaperPositions,
   type Workflow,
   type CredentialSummary,
   type MetaResponse,
   type ExecutionSummary,
   type Execution,
-  type PaperOrder,
-  type PaperPosition,
 } from './api'
 
 const defaultConfig = {
@@ -97,33 +93,6 @@ export function useExecution(executionId: string | undefined) {
     { ...defaultConfig, refreshInterval: 2000 }
   )
   return { execution: data, error, isLoading, revalidate }
-}
-
-// Paper trading
-export function usePaperOrders(params: { workflowId?: string; symbol?: string; limit?: number } = {}) {
-  const key = `/paper-orders?${JSON.stringify(params)}`
-  const { data, error, isLoading, mutate: revalidate } = useSWR<PaperOrder[]>(
-    key,
-    async () => {
-      const res = await listPaperOrders(params)
-      return res.paperOrders
-    },
-    defaultConfig
-  )
-  return { paperOrders: data ?? [], error, isLoading, revalidate }
-}
-
-export function usePaperPositions(params: { workflowId?: string } = {}) {
-  const key = `/paper-orders/positions?${JSON.stringify(params)}`
-  const { data, error, isLoading, mutate: revalidate } = useSWR<PaperPosition[]>(
-    key,
-    async () => {
-      const res = await listPaperPositions(params)
-      return res.positions
-    },
-    defaultConfig
-  )
-  return { positions: data ?? [], error, isLoading, revalidate }
 }
 
 // Cache invalidation helpers
