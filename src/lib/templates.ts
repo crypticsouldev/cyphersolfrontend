@@ -565,6 +565,58 @@ export const workflowTemplates: WorkflowTemplate[] = [
     ],
   },
   {
+    id: 'copy-trading',
+    name: 'Copy Trading Bot',
+    description: 'Mirror trades from successful whale wallets automatically. Watch a wallet and copy their swaps in real-time.',
+    category: 'trading',
+    difficulty: 'advanced',
+    nodes: [
+      {
+        id: 'n1',
+        position: { x: 0, y: 0 },
+        data: { label: 'onchain_trigger', type: 'onchain_trigger', walletAddresses: '', transactionTypes: 'swap' },
+      },
+      {
+        id: 'n2',
+        position: { x: 0, y: 120 },
+        data: { label: 'parse_transaction', type: 'parse_transaction' },
+      },
+      {
+        id: 'n3',
+        position: { x: 0, y: 240 },
+        data: { label: 'if', type: 'if', condition: '{{n2.type}} === "SWAP"' },
+      },
+      {
+        id: 'n4',
+        position: { x: 0, y: 360 },
+        data: { label: 'rug_check', type: 'rug_check', mint: '{{n2.tokenOutputMint}}' },
+      },
+      {
+        id: 'n5',
+        position: { x: 0, y: 480 },
+        data: { label: 'if', type: 'if', condition: '{{n4.isRugPull}} === false' },
+      },
+      {
+        id: 'n6',
+        position: { x: 0, y: 600 },
+        data: { label: 'jupiter_swap', type: 'jupiter_swap', credentialId: '', inputMint: 'So11111111111111111111111111111111111111112', outputMint: '{{n2.tokenOutputMint}}', amount: 0.1, slippageBps: 300 },
+      },
+      {
+        id: 'n7',
+        position: { x: 0, y: 720 },
+        data: { label: 'discord_webhook', type: 'discord_webhook', credentialId: '', message: '🔄 Copy Trade Executed!\n\nCopied swap from whale\nBought: {{n2.tokenOutputMint}}\nAmount: {{n6.outputAmount}}\nTx: {{n6.txSignature}}' },
+      },
+    ],
+    edges: [
+      { id: 'e1', source: 'n1', target: 'n2' },
+      { id: 'e2', source: 'n2', target: 'n3' },
+      { id: 'e3', source: 'n3', target: 'n4' },
+      { id: 'e4', source: 'n4', target: 'n5' },
+      { id: 'e5', source: 'n5', target: 'n6' },
+      { id: 'e6', source: 'n6', target: 'n7' },
+    ],
+  },
+  {
     id: 'slippage-monitor',
     name: 'Slippage Monitor',
     description: 'Check expected slippage before trading and only execute when conditions are favorable.',
