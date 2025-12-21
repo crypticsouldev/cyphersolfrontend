@@ -1,6 +1,7 @@
 /* CSS Variables for consistent theming */
 :root {
   --color-bg: #fafafa;
+  --color-bg-subtle: #f8fafc;
   --color-surface: #ffffff;
   --color-surface-elevated: #ffffff;
   --color-border: #e5e7eb;
@@ -34,6 +35,7 @@
 /* Dark mode */
 [data-theme="dark"] {
   --color-bg: #0f0f0f;
+  --color-bg-subtle: #141414;
   --color-surface: #1a1a1a;
   --color-surface-elevated: #252525;
   --color-border: #2e2e2e;

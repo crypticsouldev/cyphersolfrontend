@@ -872,7 +872,7 @@ export default function Editor() {
   }
 
   return (
-    <div style={{ width: '100vw', height: '100vh', background: '#f8fafc' }}>
+    <div style={{ width: '100vw', height: '100vh', background: 'var(--color-bg-subtle)' }}>
       <div
         style={{
           position: 'absolute',
@@ -884,8 +884,8 @@ export default function Editor() {
           justifyContent: 'space-between',
           alignItems: 'center',
           gap: 12,
-          background: '#fff',
-          border: '1px solid #e5e7eb',
+          background: 'var(--color-bg)',
+          border: '1px solid var(--color-border)',
           padding: '10px 12px',
           borderRadius: 12,
           boxShadow: '0 1px 2px rgba(16, 24, 40, 0.06)',
@@ -895,8 +895,8 @@ export default function Editor() {
           <Link
             to="/dashboard"
             style={{
-              background: '#fff',
-              border: '1px solid #e5e7eb',
+              background: 'var(--color-bg)',
+              border: '1px solid var(--color-border)',
               padding: '8px 10px',
               borderRadius: 10,
               textDecoration: 'none',
@@ -907,7 +907,7 @@ export default function Editor() {
             back
           </Link>
           <div style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
-            <span style={{ fontSize: 12, color: '#111' }}>{title}</span>
+            <span style={{ fontSize: 12, color: 'var(--color-text)' }}>{title}</span>
             {workflow ? (
               <span style={{ fontSize: 12, color: workflow.enabled ? '#157f3b' : '#666' }}>
                 {workflow.enabled ? 'enabled' : 'disabled'}
@@ -924,8 +924,8 @@ export default function Editor() {
             <Link
               to={`/workflows/${workflowId}/executions`}
               style={{
-                background: '#fff',
-                border: '1px solid #e5e7eb',
+                background: 'var(--color-bg)',
+                border: '1px solid var(--color-border)',
                 padding: '8px 10px',
                 borderRadius: 10,
                 textDecoration: 'none',
@@ -946,8 +946,8 @@ export default function Editor() {
             top: 122,
             left: 12,
             zIndex: 10,
-            background: '#fff',
-            border: '1px solid #e5e7eb',
+            background: 'var(--color-bg)',
+            border: '1px solid var(--color-border)',
             borderRadius: 10,
             padding: 12,
             display: 'grid',
@@ -957,23 +957,23 @@ export default function Editor() {
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'baseline' }}>
-            <div style={{ fontSize: 12, color: '#666' }}>selected node</div>
+            <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>selected node</div>
             <div style={{ fontSize: 12, fontFamily: 'monospace' }}>{selectedNodeId}</div>
           </div>
 
           <div style={{ display: 'grid', gap: 6 }}>
-            <div style={{ fontSize: 12, color: '#666' }}>label</div>
+            <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>label</div>
             <input
               value={typeof selectedNodeData.label === 'string' ? selectedNodeData.label : ''}
               onChange={(e) => patchSelectedNode({ label: e.target.value })}
               disabled={busy}
-              style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+              style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
               placeholder="label"
             />
           </div>
 
           <div style={{ display: 'grid', gap: 6 }}>
-            <div style={{ fontSize: 12, color: '#666' }}>type</div>
+            <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>type</div>
             <select
               value={selectedNodeType}
               onChange={(e) => {
@@ -1441,7 +1441,7 @@ export default function Editor() {
                 patchSelectedNode({ type: nextType })
               }}
               disabled={busy}
-              style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+              style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
             >
               <option value="timer_trigger">timer_trigger</option>
               <option value="price_trigger">price_trigger</option>
@@ -1541,12 +1541,12 @@ export default function Editor() {
 
           {selectedNodeType === 'log' ? (
             <div style={{ display: 'grid', gap: 6 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>message</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>message</div>
               <input
                 value={typeof selectedNodeData.message === 'string' ? selectedNodeData.message : ''}
                 onChange={(e) => patchSelectedNode({ message: e.target.value })}
                 disabled={busy}
-                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                 placeholder="message"
               />
             </div>
@@ -1554,15 +1554,15 @@ export default function Editor() {
 
           {selectedNodeType === 'pyth_price_feed_id' ? (
             <div style={{ display: 'grid', gap: 6 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>token symbol</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token symbol</div>
               <input
                 value={typeof (selectedNodeData as any).tokenSymbol === 'string' ? (selectedNodeData as any).tokenSymbol : ''}
                 onChange={(e) => patchSelectedNode({ tokenSymbol: e.target.value })}
                 disabled={busy}
-                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                 placeholder="SOL"
               />
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 fetched from <span style={{ fontFamily: 'monospace' }}>hermes.pyth.network</span>
               </div>
             </div>
@@ -1570,15 +1570,15 @@ export default function Editor() {
 
           {selectedNodeType === 'pyth_price' ? (
             <div style={{ display: 'grid', gap: 6 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>price feed id</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>price feed id</div>
               <input
                 value={typeof (selectedNodeData as any).priceFeedId === 'string' ? (selectedNodeData as any).priceFeedId : ''}
                 onChange={(e) => patchSelectedNode({ priceFeedId: e.target.value })}
                 disabled={busy}
-                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                 placeholder="feed id"
               />
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 fetched from <span style={{ fontFamily: 'monospace' }}>hermes.pyth.network</span>
               </div>
             </div>
@@ -1587,13 +1587,13 @@ export default function Editor() {
           {selectedNodeType === 'close_empty_token_accounts' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -1607,8 +1607,8 @@ export default function Editor() {
                     style={{
                       padding: '6px 8px',
                       borderRadius: 6,
-                      border: '1px solid #ddd',
-                      background: '#fff',
+                      border: '1px solid var(--color-border)',
+                      background: 'var(--color-bg)',
                       textDecoration: 'none',
                       color: 'inherit',
                       fontSize: 12,
@@ -1619,7 +1619,7 @@ export default function Editor() {
                 </div>
               </div>
 
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 requires backend rpc via <span style={{ fontFamily: 'monospace' }}>SOLANA_RPC_URL</span>
               </div>
             </div>
@@ -1628,13 +1628,13 @@ export default function Editor() {
           {selectedNodeType === 'solana_stake' || selectedNodeType === 'solana_restake' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -1648,8 +1648,8 @@ export default function Editor() {
                     style={{
                       padding: '6px 8px',
                       borderRadius: 6,
-                      border: '1px solid #ddd',
-                      background: '#fff',
+                      border: '1px solid var(--color-border)',
+                      background: 'var(--color-bg)',
                       textDecoration: 'none',
                       color: 'inherit',
                       fontSize: 12,
@@ -1661,12 +1661,12 @@ export default function Editor() {
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>amount (sol)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>amount (sol)</div>
                 <input
                   value={selectedNodeData.amount === undefined || selectedNodeData.amount === null ? '' : String(selectedNodeData.amount)}
                   onChange={(e) => patchSelectedNode({ amount: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="0.1"
                 />
                 {meta && Number.isFinite(Number((selectedNodeData as any).amount)) ? (
@@ -1685,12 +1685,12 @@ export default function Editor() {
               </div>
 
               {meta ? (
-                <div style={{ fontSize: 12, color: '#666' }}>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                   safety caps: stake max {meta.solanaStakeMaxSol} · restake max {meta.solanaRestakeMaxSol}
                 </div>
               ) : null}
 
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 requires backend rpc via <span style={{ fontFamily: 'monospace' }}>SOLANA_RPC_URL</span>
               </div>
             </div>
@@ -1699,13 +1699,13 @@ export default function Editor() {
           {selectedNodeType === 'solana_transfer' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -1719,8 +1719,8 @@ export default function Editor() {
                     style={{
                       padding: '6px 8px',
                       borderRadius: 6,
-                      border: '1px solid #ddd',
-                      background: '#fff',
+                      border: '1px solid var(--color-border)',
+                      background: 'var(--color-bg)',
                       textDecoration: 'none',
                       color: 'inherit',
                       fontSize: 12,
@@ -1732,34 +1732,34 @@ export default function Editor() {
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>to</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>to</div>
                 <input
                   value={typeof selectedNodeData.to === 'string' ? selectedNodeData.to : ''}
                   onChange={(e) => patchSelectedNode({ to: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="recipient public key"
                 />
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>mint (optional)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>mint (optional)</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value || undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="leave empty for SOL"
                 />
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>amount (token units)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>amount (token units)</div>
                 <input
                   value={selectedNodeData.amount === undefined || selectedNodeData.amount === null ? '' : String(selectedNodeData.amount)}
                   onChange={(e) => patchSelectedNode({ amount: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="0.01"
                 />
                 {meta && Number.isFinite(Number((selectedNodeData as any).amount)) ? (
@@ -1772,12 +1772,12 @@ export default function Editor() {
               </div>
 
               {meta ? (
-                <div style={{ fontSize: 12, color: '#666' }}>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                   safety caps: max sol {meta.solanaTransferMaxSol} · max token amount {meta.solanaTransferMaxTokenAmount}
                 </div>
               ) : null}
 
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 requires backend rpc via <span style={{ fontFamily: 'monospace' }}>SOLANA_RPC_URL</span>
               </div>
             </div>
@@ -1785,15 +1785,15 @@ export default function Editor() {
 
           {selectedNodeType === 'dexscreener_price' ? (
             <div style={{ display: 'grid', gap: 6 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>pair address (solana)</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>pair address (solana)</div>
               <input
                 value={typeof selectedNodeData.pairAddress === 'string' ? selectedNodeData.pairAddress : ''}
                 onChange={(e) => patchSelectedNode({ pairAddress: e.target.value })}
                 disabled={busy}
-                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                 placeholder="pair address"
               />
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 fetched from <span style={{ fontFamily: 'monospace' }}>api.dexscreener.com</span>
               </div>
             </div>
@@ -1802,19 +1802,19 @@ export default function Editor() {
           {selectedNodeType === 'parse_transaction' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>transaction signature</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>transaction signature</div>
                 <input
                   value={typeof selectedNodeData.signature === 'string' ? selectedNodeData.signature : ''}
                   onChange={(e) => patchSelectedNode({ signature: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="5abc123... or {{node.signature}}"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 Parses and enriches transaction with human-readable details.
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 returns: type, source, description, transfers, events
               </div>
             </div>
@@ -1823,29 +1823,29 @@ export default function Editor() {
           {selectedNodeType === 'cooldown' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>cooldown key</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>cooldown key</div>
                 <input
                   value={typeof selectedNodeData.key === 'string' ? selectedNodeData.key : ''}
                   onChange={(e) => patchSelectedNode({ key: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="my-cooldown or {{trigger.feePayer}}"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>ttl (seconds)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>ttl (seconds)</div>
                 <input
                   type="number"
                   value={selectedNodeData.ttlSeconds === undefined || selectedNodeData.ttlSeconds === null ? '' : String(selectedNodeData.ttlSeconds)}
                   onChange={(e) => patchSelectedNode({ ttlSeconds: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="60"
                   min={1}
                   max={604800}
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 gates downstream nodes. if cooldown is active (key seen within ttl), downstream nodes are skipped.
               </div>
             </div>
@@ -1854,29 +1854,29 @@ export default function Editor() {
           {selectedNodeType === 'solana_confirm_tx' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>transaction signature</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>transaction signature</div>
                 <input
                   value={typeof selectedNodeData.signature === 'string' ? selectedNodeData.signature : ''}
                   onChange={(e) => patchSelectedNode({ signature: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="5abc123... or {{node.signature}}"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>commitment</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>commitment</div>
                 <select
                   value={typeof (selectedNodeData as any).commitment === 'string' ? (selectedNodeData as any).commitment : 'confirmed'}
                   onChange={(e) => patchSelectedNode({ commitment: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                 >
                   <option value="processed">processed</option>
                   <option value="confirmed">confirmed</option>
                   <option value="finalized">finalized</option>
                 </select>
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 returns: found, confirmed, finalized, confirmationStatus, slot, err
               </div>
             </div>
@@ -1885,16 +1885,16 @@ export default function Editor() {
           {selectedNodeType === 'get_token_data' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>token mint address</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint address</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="EPjFWdd5... or {{node.mint}}"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 returns: decimals, supply, mintAuthority, freezeAuthority
               </div>
             </div>
@@ -1903,13 +1903,13 @@ export default function Editor() {
           {selectedNodeType === 'raydium_swap' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -1920,67 +1920,67 @@ export default function Editor() {
                   </select>
                   <Link
                     to="/credentials"
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-bg)', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
                   >
                     manage
                   </Link>
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>input mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>input mint</div>
                 <input
                   value={typeof (selectedNodeData as any).inputMint === 'string' ? (selectedNodeData as any).inputMint : ''}
                   onChange={(e) => patchSelectedNode({ inputMint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="So11111111111111111111111111111111111111112"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>output mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>output mint</div>
                 <input
                   value={typeof (selectedNodeData as any).outputMint === 'string' ? (selectedNodeData as any).outputMint : ''}
                   onChange={(e) => patchSelectedNode({ outputMint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>amount</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>amount</div>
                 <input
                   value={(selectedNodeData as any).amount === undefined ? '' : String((selectedNodeData as any).amount)}
                   onChange={(e) => patchSelectedNode({ amount: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="0.01"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>slippage (bps)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>slippage (bps)</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).slippageBps === undefined ? '' : String((selectedNodeData as any).slippageBps)}
                   onChange={(e) => patchSelectedNode({ slippageBps: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="300"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>swaps via raydium amm</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>swaps via raydium amm</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'pump_fun_buy' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -1991,57 +1991,57 @@ export default function Editor() {
                   </select>
                   <Link
                     to="/credentials"
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-bg)', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
                   >
                     manage
                   </Link>
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="pump.fun token mint"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>sol amount</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>sol amount</div>
                 <input
                   value={(selectedNodeData as any).solAmount === undefined ? '' : String((selectedNodeData as any).solAmount)}
                   onChange={(e) => patchSelectedNode({ solAmount: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="0.01"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>slippage (bps)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>slippage (bps)</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).slippageBps === undefined ? '' : String((selectedNodeData as any).slippageBps)}
                   onChange={(e) => patchSelectedNode({ slippageBps: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="500"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>buys token on pump.fun</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>buys token on pump.fun</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'pump_fun_sell' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -2052,57 +2052,57 @@ export default function Editor() {
                   </select>
                   <Link
                     to="/credentials"
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-bg)', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
                   >
                     manage
                   </Link>
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="pump.fun token mint"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>token amount</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token amount</div>
                 <input
                   value={(selectedNodeData as any).tokenAmount === undefined ? '' : String((selectedNodeData as any).tokenAmount)}
                   onChange={(e) => patchSelectedNode({ tokenAmount: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="1000"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>slippage (bps)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>slippage (bps)</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).slippageBps === undefined ? '' : String((selectedNodeData as any).slippageBps)}
                   onChange={(e) => patchSelectedNode({ slippageBps: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="500"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>sells token on pump.fun</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>sells token on pump.fun</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'lulo_lend' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -2113,72 +2113,72 @@ export default function Editor() {
                   </select>
                   <Link
                     to="/credentials"
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-bg)', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
                   >
                     manage
                   </Link>
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>usdc amount</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>usdc amount</div>
                 <input
                   value={(selectedNodeData as any).amount === undefined ? '' : String((selectedNodeData as any).amount)}
                   onChange={(e) => patchSelectedNode({ amount: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="1"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>lends usdc via lulo protocol</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>lends usdc via lulo protocol</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'jupiter_quote' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>input mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>input mint</div>
                 <input
                   value={typeof (selectedNodeData as any).inputMint === 'string' ? (selectedNodeData as any).inputMint : ''}
                   onChange={(e) => patchSelectedNode({ inputMint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="So11111111111111111111111111111111111111112"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>output mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>output mint</div>
                 <input
                   value={typeof (selectedNodeData as any).outputMint === 'string' ? (selectedNodeData as any).outputMint : ''}
                   onChange={(e) => patchSelectedNode({ outputMint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>amount</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>amount</div>
                 <input
                   value={(selectedNodeData as any).amount === undefined ? '' : String((selectedNodeData as any).amount)}
                   onChange={(e) => patchSelectedNode({ amount: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="1"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>gets jupiter quote without executing swap</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>gets jupiter quote without executing swap</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'solana_token_balance' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -2189,75 +2189,75 @@ export default function Editor() {
                   </select>
                   <Link
                     to="/credentials"
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-bg)', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
                   >
                     manage
                   </Link>
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="EPjFWdd5... or {{node.mint}}"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>returns: balance, decimals</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>returns: balance, decimals</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'wait_for_confirmation' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>transaction signature</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>transaction signature</div>
                 <input
                   value={typeof (selectedNodeData as any).signature === 'string' ? (selectedNodeData as any).signature : ''}
                   onChange={(e) => patchSelectedNode({ signature: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="{{node.signature}}"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>commitment</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>commitment</div>
                 <select
                   value={typeof (selectedNodeData as any).commitment === 'string' ? (selectedNodeData as any).commitment : 'confirmed'}
                   onChange={(e) => patchSelectedNode({ commitment: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                 >
                   <option value="confirmed">confirmed</option>
                   <option value="finalized">finalized</option>
                 </select>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>timeout (ms)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>timeout (ms)</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).timeoutMs === undefined ? '' : String((selectedNodeData as any).timeoutMs)}
                   onChange={(e) => patchSelectedNode({ timeoutMs: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="60000"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>polls until tx reaches commitment level</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>polls until tx reaches commitment level</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'telegram_notify' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>bot token credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>bot token credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select telegram_bot credential</option>
                     {credentials
@@ -2270,46 +2270,46 @@ export default function Editor() {
                   </select>
                   <Link
                     to="/credentials"
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-bg)', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
                   >
                     manage
                   </Link>
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>chat id</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>chat id</div>
                 <input
                   value={typeof (selectedNodeData as any).chatId === 'string' ? (selectedNodeData as any).chatId : ''}
                   onChange={(e) => patchSelectedNode({ chatId: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="-1001234567890"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>message</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>message</div>
                 <textarea
                   value={typeof (selectedNodeData as any).message === 'string' ? (selectedNodeData as any).message : ''}
                   onChange={(e) => patchSelectedNode({ message: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', minHeight: 60 }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', minHeight: 60 }}
                   placeholder="Trade executed: {{node.signature}}"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>sends message via telegram bot api</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>sends message via telegram bot api</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'balance_threshold_trigger' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -2320,58 +2320,58 @@ export default function Editor() {
                   </select>
                   <Link
                     to="/credentials"
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-bg)', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
                   >
                     manage
                   </Link>
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>token mint (empty for SOL)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint (empty for SOL)</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="leave empty for SOL"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>direction</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>direction</div>
                 <select
                   value={typeof (selectedNodeData as any).direction === 'string' ? (selectedNodeData as any).direction : 'above'}
                   onChange={(e) => patchSelectedNode({ direction: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                 >
                   <option value="above">above</option>
                   <option value="below">below</option>
                 </select>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>threshold</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>threshold</div>
                 <input
                   value={(selectedNodeData as any).threshold === undefined ? '' : String((selectedNodeData as any).threshold)}
                   onChange={(e) => patchSelectedNode({ threshold: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="1"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>gates downstream if balance doesn't meet threshold</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>gates downstream if balance doesn't meet threshold</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'memo' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -2382,147 +2382,147 @@ export default function Editor() {
                   </select>
                   <Link
                     to="/credentials"
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-bg)', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
                   >
                     manage
                   </Link>
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>memo text</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>memo text</div>
                 <input
                   value={typeof (selectedNodeData as any).memo === 'string' ? (selectedNodeData as any).memo : ''}
                   onChange={(e) => patchSelectedNode({ memo: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="workflow:{{workflowId}}"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>adds memo to solana blockchain</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>adds memo to solana blockchain</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'transaction_log' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>transaction signature</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>transaction signature</div>
                 <input
                   value={typeof (selectedNodeData as any).signature === 'string' ? (selectedNodeData as any).signature : ''}
                   onChange={(e) => patchSelectedNode({ signature: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="{{node.signature}}"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>action label</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>action label</div>
                 <input
                   value={typeof (selectedNodeData as any).action === 'string' ? (selectedNodeData as any).action : ''}
                   onChange={(e) => patchSelectedNode({ action: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="swap, buy, sell..."
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>logs transaction for audit trail</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>logs transaction for audit trail</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'retry' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>max attempts</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>max attempts</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).maxAttempts === undefined ? '' : String((selectedNodeData as any).maxAttempts)}
                   onChange={(e) => patchSelectedNode({ maxAttempts: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="3"
                   min={1}
                   max={10}
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>delay (ms)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>delay (ms)</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).delayMs === undefined ? '' : String((selectedNodeData as any).delayMs)}
                   onChange={(e) => patchSelectedNode({ delayMs: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="1000"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>backoff multiplier</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>backoff multiplier</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).backoffMultiplier === undefined ? '' : String((selectedNodeData as any).backoffMultiplier)}
                   onChange={(e) => patchSelectedNode({ backoffMultiplier: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="2"
                   step={0.5}
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>configures retry behavior for downstream nodes</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>configures retry behavior for downstream nodes</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'split_order' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>total amount</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>total amount</div>
                 <input
                   value={(selectedNodeData as any).totalAmount === undefined ? '' : String((selectedNodeData as any).totalAmount)}
                   onChange={(e) => patchSelectedNode({ totalAmount: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="1"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>chunks</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>chunks</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).chunks === undefined ? '' : String((selectedNodeData as any).chunks)}
                   onChange={(e) => patchSelectedNode({ chunks: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="5"
                   min={2}
                   max={20}
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>delay between chunks (ms)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>delay between chunks (ms)</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).delayBetweenMs === undefined ? '' : String((selectedNodeData as any).delayBetweenMs)}
                   onChange={(e) => patchSelectedNode({ delayBetweenMs: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="5000"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>splits order into chunks for DCA pattern</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>splits order into chunks for DCA pattern</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'birdeye_price' || selectedNodeType === 'token_supply' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="EPjFWdd5... or {{node.mint}}"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 {selectedNodeType === 'birdeye_price' ? 'fetches token price from birdeye api' : 'fetches token supply info'}
               </div>
             </div>
@@ -2531,68 +2531,68 @@ export default function Editor() {
           {selectedNodeType === 'token_holders' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="EPjFWdd5..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>limit</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>limit</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).limit === undefined ? '' : String((selectedNodeData as any).limit)}
                   onChange={(e) => patchSelectedNode({ limit: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="20"
                   min={1}
                   max={100}
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>Fetches token metadata (name, symbol, decimals, logo)</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Fetches token metadata (name, symbol, decimals, logo)</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'whale_alert' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="EPjFWdd5..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>minimum amount</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>minimum amount</div>
                 <input
                   value={(selectedNodeData as any).minAmount === undefined ? '' : String((selectedNodeData as any).minAmount)}
                   onChange={(e) => patchSelectedNode({ minAmount: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="10000"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>gates downstream if transfer is below threshold</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>gates downstream if transfer is below threshold</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'portfolio_value' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -2603,26 +2603,26 @@ export default function Editor() {
                   </select>
                   <Link
                     to="/credentials"
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-bg)', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
                   >
                     manage
                   </Link>
                 </div>
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>returns: sol balance, token holdings</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>returns: sol balance, token holdings</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'stop_loss' || selectedNodeType === 'take_profit' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -2633,46 +2633,46 @@ export default function Editor() {
                   </select>
                   <Link
                     to="/credentials"
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-bg)', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
                   >
                     manage
                   </Link>
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="EPjFWdd5..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>trigger price (USD)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>trigger price (USD)</div>
                 <input
                   value={(selectedNodeData as any).triggerPriceUsd === undefined ? '' : String((selectedNodeData as any).triggerPriceUsd)}
                   onChange={(e) => patchSelectedNode({ triggerPriceUsd: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="0.001"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>sell percentage</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>sell percentage</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).sellPercentage === undefined ? '' : String((selectedNodeData as any).sellPercentage)}
                   onChange={(e) => patchSelectedNode({ sellPercentage: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="100"
                   min={1}
                   max={100}
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 {selectedNodeType === 'stop_loss' ? 'triggers when price drops to threshold' : 'triggers when price rises to threshold'}
               </div>
             </div>
@@ -2681,13 +2681,13 @@ export default function Editor() {
           {selectedNodeType === 'wallet_transactions' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -2698,58 +2698,58 @@ export default function Editor() {
                   </select>
                   <Link
                     to="/credentials"
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-bg)', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
                   >
                     manage
                   </Link>
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>limit</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>limit</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).limit === undefined ? '' : String((selectedNodeData as any).limit)}
                   onChange={(e) => patchSelectedNode({ limit: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="10"
                   min={1}
                   max={100}
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>fetches recent wallet transactions</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>fetches recent wallet transactions</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'price_change_trigger' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="EPjFWdd5..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>change percentage</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>change percentage</div>
                 <input
                   value={(selectedNodeData as any).changePercentage === undefined ? '' : String((selectedNodeData as any).changePercentage)}
                   onChange={(e) => patchSelectedNode({ changePercentage: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="5"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>direction</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>direction</div>
                 <select
                   value={typeof (selectedNodeData as any).direction === 'string' ? (selectedNodeData as any).direction : 'any'}
                   onChange={(e) => patchSelectedNode({ direction: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                 >
                   <option value="any">any</option>
                   <option value="up">up</option>
@@ -2757,30 +2757,30 @@ export default function Editor() {
                 </select>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>timeframe (minutes)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>timeframe (minutes)</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).timeframeMinutes === undefined ? '' : String((selectedNodeData as any).timeframeMinutes)}
                   onChange={(e) => patchSelectedNode({ timeframeMinutes: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="60"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>gates downstream if price change not met</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>gates downstream if price change not met</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'copy_trade' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>your wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>your wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -2791,57 +2791,57 @@ export default function Editor() {
                   </select>
                   <Link
                     to="/credentials"
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-bg)', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
                   >
                     manage
                   </Link>
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>target wallet to copy</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>target wallet to copy</div>
                 <input
                   value={typeof (selectedNodeData as any).targetWallet === 'string' ? (selectedNodeData as any).targetWallet : ''}
                   onChange={(e) => patchSelectedNode({ targetWallet: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="wallet address..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>max amount per trade</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>max amount per trade</div>
                 <input
                   value={(selectedNodeData as any).maxAmountPerTrade === undefined ? '' : String((selectedNodeData as any).maxAmountPerTrade)}
                   onChange={(e) => patchSelectedNode({ maxAmountPerTrade: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="optional limit"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>slippage (bps)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>slippage (bps)</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).slippageBps === undefined ? '' : String((selectedNodeData as any).slippageBps)}
                   onChange={(e) => patchSelectedNode({ slippageBps: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="300"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>Detects and copies swaps from target wallet in real-time</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Detects and copies swaps from target wallet in real-time</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'trailing_stop' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -2852,62 +2852,62 @@ export default function Editor() {
                   </select>
                   <Link
                     to="/credentials"
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-bg)', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
                   >
                     manage
                   </Link>
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="EPjFWdd5..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>trail percentage</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>trail percentage</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).trailPercentage === undefined ? '' : String((selectedNodeData as any).trailPercentage)}
                   onChange={(e) => patchSelectedNode({ trailPercentage: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="5"
                   min={0.1}
                   max={50}
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>sell percentage</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>sell percentage</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).sellPercentage === undefined ? '' : String((selectedNodeData as any).sellPercentage)}
                   onChange={(e) => patchSelectedNode({ sellPercentage: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="100"
                   min={1}
                   max={100}
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>stop loss that moves up with price, triggers when price drops by trail %</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>stop loss that moves up with price, triggers when price drops by trail %</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'average_cost' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -2918,221 +2918,221 @@ export default function Editor() {
                   </select>
                   <Link
                     to="/credentials"
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-bg)', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
                   >
                     manage
                   </Link>
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="EPjFWdd5..."
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>returns: balance, current price, current value</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>returns: balance, current price, current value</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'position_size' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>account balance ($)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>account balance ($)</div>
                 <input
                   value={(selectedNodeData as any).accountBalance === undefined ? '' : String((selectedNodeData as any).accountBalance)}
                   onChange={(e) => patchSelectedNode({ accountBalance: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="1000"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>risk percentage</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>risk percentage</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).riskPercentage === undefined ? '' : String((selectedNodeData as any).riskPercentage)}
                   onChange={(e) => patchSelectedNode({ riskPercentage: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="2"
                   min={0.1}
                   max={100}
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>entry price</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>entry price</div>
                 <input
                   value={(selectedNodeData as any).entryPrice === undefined ? '' : String((selectedNodeData as any).entryPrice)}
                   onChange={(e) => patchSelectedNode({ entryPrice: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="0.001"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>stop loss price</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>stop loss price</div>
                 <input
                   value={(selectedNodeData as any).stopLossPrice === undefined ? '' : String((selectedNodeData as any).stopLossPrice)}
                   onChange={(e) => patchSelectedNode({ stopLossPrice: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="0.0008"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>calculates position size based on risk %</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>calculates position size based on risk %</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'pnl_calculator' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>entry price</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>entry price</div>
                 <input
                   value={(selectedNodeData as any).entryPrice === undefined ? '' : String((selectedNodeData as any).entryPrice)}
                   onChange={(e) => patchSelectedNode({ entryPrice: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="0.001"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>current price</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>current price</div>
                 <input
                   value={(selectedNodeData as any).currentPrice === undefined ? '' : String((selectedNodeData as any).currentPrice)}
                   onChange={(e) => patchSelectedNode({ currentPrice: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="0.0012 or {{node.price}}"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>quantity</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>quantity</div>
                 <input
                   value={(selectedNodeData as any).quantity === undefined ? '' : String((selectedNodeData as any).quantity)}
                   onChange={(e) => patchSelectedNode({ quantity: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="1000"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>side</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>side</div>
                 <select
                   value={typeof (selectedNodeData as any).side === 'string' ? (selectedNodeData as any).side : 'long'}
                   onChange={(e) => patchSelectedNode({ side: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                 >
                   <option value="long">long</option>
                   <option value="short">short</option>
                 </select>
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>returns: pnl, pnl %, isProfit</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>returns: pnl, pnl %, isProfit</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'volume_check' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="EPjFWdd5..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>min 24h volume ($)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>min 24h volume ($)</div>
                 <input
                   value={(selectedNodeData as any).minVolume24h === undefined ? '' : String((selectedNodeData as any).minVolume24h)}
                   onChange={(e) => patchSelectedNode({ minVolume24h: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="10000"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>gates downstream if volume below threshold</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>gates downstream if volume below threshold</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'liquidity_check' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="EPjFWdd5..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>min liquidity ($)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>min liquidity ($)</div>
                 <input
                   value={(selectedNodeData as any).minLiquidityUsd === undefined ? '' : String((selectedNodeData as any).minLiquidityUsd)}
                   onChange={(e) => patchSelectedNode({ minLiquidityUsd: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="50000"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>gates downstream if liquidity below threshold</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>gates downstream if liquidity below threshold</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'slippage_estimator' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>input mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>input mint</div>
                 <input
                   value={typeof (selectedNodeData as any).inputMint === 'string' ? (selectedNodeData as any).inputMint : ''}
                   onChange={(e) => patchSelectedNode({ inputMint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="So111..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>output mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>output mint</div>
                 <input
                   value={typeof (selectedNodeData as any).outputMint === 'string' ? (selectedNodeData as any).outputMint : ''}
                   onChange={(e) => patchSelectedNode({ outputMint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="EPjFWdd5..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>amount</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>amount</div>
                 <input
                   value={(selectedNodeData as any).amount === undefined ? '' : String((selectedNodeData as any).amount)}
                   onChange={(e) => patchSelectedNode({ amount: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="1"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>returns: price impact %, route plan</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>returns: price impact %, route plan</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'limit_order' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -3143,68 +3143,68 @@ export default function Editor() {
                   </select>
                   <Link
                     to="/credentials"
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-bg)', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
                   >
                     manage
                   </Link>
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="EPjFWdd5..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>side</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>side</div>
                 <select
                   value={typeof (selectedNodeData as any).side === 'string' ? (selectedNodeData as any).side : 'buy'}
                   onChange={(e) => patchSelectedNode({ side: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                 >
                   <option value="buy">buy</option>
                   <option value="sell">sell</option>
                 </select>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>target price (USD)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>target price (USD)</div>
                 <input
                   value={(selectedNodeData as any).targetPriceUsd === undefined ? '' : String((selectedNodeData as any).targetPriceUsd)}
                   onChange={(e) => patchSelectedNode({ targetPriceUsd: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="0.001"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>amount</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>amount</div>
                 <input
                   value={(selectedNodeData as any).amount === undefined ? '' : String((selectedNodeData as any).amount)}
                   onChange={(e) => patchSelectedNode({ amount: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="1"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>triggers when price reaches target (buy below, sell above)</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>triggers when price reaches target (buy below, sell above)</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'twap' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -3215,122 +3215,122 @@ export default function Editor() {
                   </select>
                   <Link
                     to="/credentials"
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-bg)', textDecoration: 'none', color: 'inherit', fontSize: 12 }}
                   >
                     manage
                   </Link>
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>input mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>input mint</div>
                 <input
                   value={typeof (selectedNodeData as any).inputMint === 'string' ? (selectedNodeData as any).inputMint : ''}
                   onChange={(e) => patchSelectedNode({ inputMint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="So111..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>output mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>output mint</div>
                 <input
                   value={typeof (selectedNodeData as any).outputMint === 'string' ? (selectedNodeData as any).outputMint : ''}
                   onChange={(e) => patchSelectedNode({ outputMint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="EPjFWdd5..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>total amount</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>total amount</div>
                 <input
                   value={(selectedNodeData as any).totalAmount === undefined ? '' : String((selectedNodeData as any).totalAmount)}
                   onChange={(e) => patchSelectedNode({ totalAmount: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="10"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>intervals</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>intervals</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).intervals === undefined ? '' : String((selectedNodeData as any).intervals)}
                   onChange={(e) => patchSelectedNode({ intervals: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="5"
                   min={2}
                   max={20}
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>interval (minutes)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>interval (minutes)</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).intervalMinutes === undefined ? '' : String((selectedNodeData as any).intervalMinutes)}
                   onChange={(e) => patchSelectedNode({ intervalMinutes: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="10"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>time-weighted average price execution schedule</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>time-weighted average price execution schedule</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'rug_check' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="EPjFWdd5..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>min token age (minutes)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>min token age (minutes)</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).minTokenAgeMinutes === undefined ? '' : String((selectedNodeData as any).minTokenAgeMinutes)}
                   onChange={(e) => patchSelectedNode({ minTokenAgeMinutes: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="60"
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>max top holder %</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>max top holder %</div>
                 <input
                   type="number"
                   value={(selectedNodeData as any).maxTopHolderPercentage === undefined ? '' : String((selectedNodeData as any).maxTopHolderPercentage)}
                   onChange={(e) => patchSelectedNode({ maxTopHolderPercentage: e.target.value ? Number(e.target.value) : undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="50"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>checks token age, liquidity, holder count - gates if warnings</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>checks token age, liquidity, holder count - gates if warnings</div>
             </div>
           ) : null}
 
           {selectedNodeType === 'discord_webhook' ? (
             <div style={{ display: 'grid', gap: 10 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 provide either a stored credential or a direct webhook url
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>credential (recommended)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>credential (recommended)</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select discord_webhook credential</option>
                     {discordWebhookCredentials.map((c) => (
@@ -3344,8 +3344,8 @@ export default function Editor() {
                     style={{
                       padding: '6px 8px',
                       borderRadius: 6,
-                      border: '1px solid #ddd',
-                      background: '#fff',
+                      border: '1px solid var(--color-border)',
+                      background: 'var(--color-bg)',
                       textDecoration: 'none',
                       color: 'inherit',
                       fontSize: 12,
@@ -3357,35 +3357,35 @@ export default function Editor() {
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>webhook url (optional)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>webhook url (optional)</div>
                 <input
                   value={typeof selectedNodeData.webhookUrl === 'string' ? selectedNodeData.webhookUrl : ''}
                   onChange={(e) => patchSelectedNode({ webhookUrl: e.target.value || undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="https://discord.com/api/webhooks/..."
                 />
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>content</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>content</div>
                 <textarea
                   value={typeof selectedNodeData.content === 'string' ? selectedNodeData.content : ''}
                   onChange={(e) => patchSelectedNode({ content: e.target.value })}
                   disabled={busy}
                   rows={4}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="message"
                 />
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>username (optional)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>username (optional)</div>
                 <input
                   value={typeof selectedNodeData.username === 'string' ? selectedNodeData.username : ''}
                   onChange={(e) => patchSelectedNode({ username: e.target.value || undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="cyphersol"
                 />
               </div>
@@ -3394,18 +3394,18 @@ export default function Editor() {
 
           {selectedNodeType === 'telegram_message' ? (
             <div style={{ display: 'grid', gap: 10 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 Send messages via Telegram bot. Create a bot with @BotFather to get a token.
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>credential (recommended)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>credential (recommended)</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select telegram_bot credential</option>
                     {telegramCredentials.map((c) => (
@@ -3419,8 +3419,8 @@ export default function Editor() {
                     style={{
                       padding: '6px 8px',
                       borderRadius: 6,
-                      border: '1px solid #ddd',
-                      background: '#fff',
+                      border: '1px solid var(--color-border)',
+                      background: 'var(--color-bg)',
                       textDecoration: 'none',
                       color: 'inherit',
                       fontSize: 12,
@@ -3432,38 +3432,38 @@ export default function Editor() {
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>chat ID</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>chat ID</div>
                 <input
                   value={typeof selectedNodeData.chatId === 'string' ? selectedNodeData.chatId : ''}
                   onChange={(e) => patchSelectedNode({ chatId: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="-1001234567890 or @channelname"
                 />
-                <div style={{ fontSize: 11, color: '#888' }}>
+                <div style={{ fontSize: 11, color: 'var(--color-text-subtle)' }}>
                   Get chat ID by forwarding a message to @userinfobot
                 </div>
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>message</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>message</div>
                 <textarea
                   value={typeof selectedNodeData.text === 'string' ? selectedNodeData.text : ''}
                   onChange={(e) => patchSelectedNode({ text: e.target.value })}
                   disabled={busy}
                   rows={4}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="Your notification message..."
                 />
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>parse mode (optional)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>parse mode (optional)</div>
                 <select
                   value={typeof selectedNodeData.parseMode === 'string' ? selectedNodeData.parseMode : ''}
                   onChange={(e) => patchSelectedNode({ parseMode: e.target.value || undefined })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                 >
                   <option value="">plain text</option>
                   <option value="HTML">HTML</option>
@@ -3477,12 +3477,12 @@ export default function Editor() {
           {selectedNodeType === 'if' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>op</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>op</div>
                 <select
                   value={typeof selectedNodeData.op === 'string' ? selectedNodeData.op : 'truthy'}
                   onChange={(e) => patchSelectedNode({ op: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                 >
                   <option value="truthy">truthy</option>
                   <option value="eq">eq</option>
@@ -3495,24 +3495,24 @@ export default function Editor() {
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>left</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>left</div>
                 <input
                   value={selectedNodeData.left === undefined || selectedNodeData.left === null ? '' : String(selectedNodeData.left)}
                   onChange={(e) => patchSelectedNode({ left: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="{{nodes.n1.output.value}}"
                 />
               </div>
 
               {typeof selectedNodeData.op === 'string' && selectedNodeData.op !== 'truthy' ? (
                 <div style={{ display: 'grid', gap: 6 }}>
-                  <div style={{ fontSize: 12, color: '#666' }}>right</div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>right</div>
                   <input
                     value={selectedNodeData.right === undefined || selectedNodeData.right === null ? '' : String(selectedNodeData.right)}
                     onChange={(e) => patchSelectedNode({ right: e.target.value })}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                     placeholder="100"
                   />
                 </div>
@@ -3523,13 +3523,13 @@ export default function Editor() {
           {selectedNodeType === 'solana_balance' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -3543,8 +3543,8 @@ export default function Editor() {
                     style={{
                       padding: '6px 8px',
                       borderRadius: 6,
-                      border: '1px solid #ddd',
-                      background: '#fff',
+                      border: '1px solid var(--color-border)',
+                      background: 'var(--color-bg)',
                       textDecoration: 'none',
                       color: 'inherit',
                       fontSize: 12,
@@ -3556,12 +3556,12 @@ export default function Editor() {
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>commitment</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>commitment</div>
                 <select
                   value={typeof selectedNodeData.commitment === 'string' ? selectedNodeData.commitment : 'confirmed'}
                   onChange={(e) => patchSelectedNode({ commitment: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                 >
                   <option value="processed">processed</option>
                   <option value="confirmed">confirmed</option>
@@ -3569,7 +3569,7 @@ export default function Editor() {
                 </select>
               </div>
 
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 requires backend rpc via <span style={{ fontFamily: 'monospace' }}>SOLANA_RPC_URL</span>
               </div>
             </div>
@@ -3578,13 +3578,13 @@ export default function Editor() {
           {selectedNodeType === 'jupiter_swap' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">select solana_wallet credential</option>
                     {solanaWalletCredentials.map((c) => (
@@ -3598,8 +3598,8 @@ export default function Editor() {
                     style={{
                       padding: '6px 8px',
                       borderRadius: 6,
-                      border: '1px solid #ddd',
-                      background: '#fff',
+                      border: '1px solid var(--color-border)',
+                      background: 'var(--color-bg)',
                       textDecoration: 'none',
                       color: 'inherit',
                       fontSize: 12,
@@ -3611,29 +3611,29 @@ export default function Editor() {
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>input mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>input mint</div>
                 <input
                   value={typeof selectedNodeData.inputMint === 'string' ? selectedNodeData.inputMint : ''}
                   onChange={(e) => patchSelectedNode({ inputMint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="So11111111111111111111111111111111111111112"
                 />
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>output mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>output mint</div>
                 <input
                   value={typeof selectedNodeData.outputMint === 'string' ? selectedNodeData.outputMint : ''}
                   onChange={(e) => patchSelectedNode({ outputMint: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                   placeholder="EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v"
                 />
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>amount (token units)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>amount (token units)</div>
                 <input
                   type="number"
                   value={
@@ -3648,7 +3648,7 @@ export default function Editor() {
                     patchSelectedNode({ amount: val === '' ? undefined : Number(val) })
                   }}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="0.01"
                   min={0}
                   step={0.000001}
@@ -3662,7 +3662,7 @@ export default function Editor() {
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>slippage bps</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>slippage bps</div>
                 <input
                   type="number"
                   value={
@@ -3677,7 +3677,7 @@ export default function Editor() {
                     patchSelectedNode({ slippageBps: val === '' ? undefined : Number(val) })
                   }}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="300"
                   min={1}
                   max={10_000}
@@ -3691,12 +3691,12 @@ export default function Editor() {
               </div>
 
               {meta ? (
-                <div style={{ fontSize: 12, color: '#666' }}>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                   safety caps: max amount {meta.jupiterSwapMaxAmount} · max slippage {meta.jupiterSwapMaxSlippageBps} bps
                 </div>
               ) : null}
 
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 requires backend rpc via <span style={{ fontFamily: 'monospace' }}>SOLANA_RPC_URL</span>
               </div>
             </div>
@@ -3704,30 +3704,30 @@ export default function Editor() {
 
           {selectedNodeType === 'onchain_trigger' ? (
             <div style={{ display: 'grid', gap: 10 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 Triggers when transactions involving your watched wallets are detected on Solana.
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>wallet addresses to watch</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet addresses to watch</div>
                 <textarea
                   value={typeof (selectedNodeData as any).walletAddresses === 'string' ? (selectedNodeData as any).walletAddresses : ''}
                   onChange={(e) => patchSelectedNode({ walletAddresses: e.target.value })}
                   disabled={busy}
                   rows={3}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace', fontSize: 11 }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace', fontSize: 11 }}
                   placeholder="Enter wallet addresses, one per line"
                 />
-                <div style={{ fontSize: 11, color: '#888' }}>
+                <div style={{ fontSize: 11, color: 'var(--color-text-subtle)' }}>
                   Enter one or more Solana wallet addresses to monitor for activity.
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>transaction types (optional)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>transaction types (optional)</div>
                 <select
                   value={typeof (selectedNodeData as any).transactionTypes === 'string' ? (selectedNodeData as any).transactionTypes : 'all'}
                   onChange={(e) => patchSelectedNode({ transactionTypes: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                 >
                   <option value="all">All transactions</option>
                   <option value="swap">Swaps only</option>
@@ -3741,34 +3741,34 @@ export default function Editor() {
           {selectedNodeType === 'price_trigger' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>symbol</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>symbol</div>
                 <input
                   value={typeof selectedNodeData.symbol === 'string' ? selectedNodeData.symbol : ''}
                   onChange={(e) => patchSelectedNode({ symbol: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="SOL"
                 />
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>vs currency</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>vs currency</div>
                 <input
                   value={typeof selectedNodeData.vsCurrency === 'string' ? selectedNodeData.vsCurrency : ''}
                   onChange={(e) => patchSelectedNode({ vsCurrency: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="usd"
                 />
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>direction</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>direction</div>
                 <select
                   value={typeof selectedNodeData.direction === 'string' ? selectedNodeData.direction : 'crosses_above'}
                   onChange={(e) => patchSelectedNode({ direction: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                 >
                   <option value="crosses_above">crosses_above</option>
                   <option value="crosses_below">crosses_below</option>
@@ -3776,7 +3776,7 @@ export default function Editor() {
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>threshold</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>threshold</div>
                 <input
                   type="number"
                   value={
@@ -3791,7 +3791,7 @@ export default function Editor() {
                     patchSelectedNode({ threshold: val === '' ? undefined : Number(val) })
                   }}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="150"
                   min={0}
                   step={0.0001}
@@ -3799,7 +3799,7 @@ export default function Editor() {
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>interval seconds</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>interval seconds</div>
                 <input
                   type="number"
                   value={
@@ -3814,18 +3814,18 @@ export default function Editor() {
                     patchSelectedNode({ intervalSeconds: val === '' ? undefined : Number(val) })
                   }}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="60"
                   min={1}
                 />
-                <div style={{ fontSize: 12, color: '#666' }}>polling interval used by trigger service</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>polling interval used by trigger service</div>
               </div>
             </div>
           ) : null}
 
           {selectedNodeType === 'timer_trigger' ? (
             <div style={{ display: 'grid', gap: 6 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>interval seconds</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>interval seconds</div>
               <input
                 type="number"
                 value={
@@ -3840,11 +3840,11 @@ export default function Editor() {
                   patchSelectedNode({ intervalSeconds: val === '' ? undefined : Number(val) })
                 }}
                 disabled={busy}
-                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                 placeholder="60"
                 min={1}
               />
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 used by the trigger service when workflow is enabled
               </div>
             </div>
@@ -3852,7 +3852,7 @@ export default function Editor() {
 
           {selectedNodeType === 'delay' ? (
             <div style={{ display: 'grid', gap: 6 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>delay ms</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>delay ms</div>
               <input
                 type="number"
                 value={
@@ -3867,7 +3867,7 @@ export default function Editor() {
                   patchSelectedNode({ ms: val === '' ? undefined : Number(val) })
                 }}
                 disabled={busy}
-                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                 placeholder="1000"
                 min={0}
               />
@@ -3876,7 +3876,7 @@ export default function Editor() {
 
           {selectedNodeType === 'transform' ? (
             <div style={{ display: 'grid', gap: 6 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>value (json or template)</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>value (json or template)</div>
               <textarea
                 value={
                   typeof selectedNodeData.value === 'string'
@@ -3905,7 +3905,7 @@ export default function Editor() {
                 }}
                 disabled={busy}
                 rows={6}
-                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
                 placeholder={'{"amount": "{{nodes.n1.output.sol}}"}'}
               />
             </div>
@@ -3914,23 +3914,23 @@ export default function Editor() {
           {selectedNodeType === 'http_request' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>url</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>url</div>
                 <input
                   value={typeof selectedNodeData.url === 'string' ? selectedNodeData.url : ''}
                   onChange={(e) => patchSelectedNode({ url: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="https://api.example.com/path"
                 />
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>method</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>method</div>
                 <select
                   value={typeof selectedNodeData.method === 'string' ? selectedNodeData.method : 'GET'}
                   onChange={(e) => patchSelectedNode({ method: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                 >
                   <option value="GET">GET</option>
                   <option value="POST">POST</option>
@@ -3938,13 +3938,13 @@ export default function Editor() {
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>credential</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>credential</div>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                   <select
                     value={selectedCredentialId}
                     onChange={(e) => onAttachCredential(e.target.value)}
                     disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
                   >
                     <option value="">no credential</option>
                     {credentials.map((c) => (
@@ -3958,8 +3958,8 @@ export default function Editor() {
                     style={{
                       padding: '6px 8px',
                       borderRadius: 6,
-                      border: '1px solid #ddd',
-                      background: '#fff',
+                      border: '1px solid var(--color-border)',
+                      background: 'var(--color-bg)',
                       textDecoration: 'none',
                       color: 'inherit',
                       fontSize: 12,
@@ -3968,7 +3968,7 @@ export default function Editor() {
                     manage
                   </Link>
                 </div>
-                <div style={{ fontSize: 12, color: '#666' }}>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                   requires backend allowlist via <span style={{ fontFamily: 'monospace' }}>EXECUTOR_HTTP_ALLOWED_HOSTS</span>
                 </div>
               </div>
@@ -3978,28 +3978,28 @@ export default function Editor() {
           {selectedNodeType === 'market_data' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>symbol</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>symbol</div>
                 <input
                   value={typeof selectedNodeData.symbol === 'string' ? selectedNodeData.symbol : ''}
                   onChange={(e) => patchSelectedNode({ symbol: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="SOL"
                 />
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>vs currency</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>vs currency</div>
                 <input
                   value={typeof selectedNodeData.vsCurrency === 'string' ? selectedNodeData.vsCurrency : ''}
                   onChange={(e) => patchSelectedNode({ vsCurrency: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="usd"
                 />
               </div>
 
-              <div style={{ fontSize: 12, color: '#666' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
                 requires backend allowlist via <span style={{ fontFamily: 'monospace' }}>EXECUTOR_HTTP_ALLOWED_HOSTS</span>
               </div>
             </div>
@@ -4008,23 +4008,23 @@ export default function Editor() {
           {selectedNodeType === 'paper_order' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>symbol</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>symbol</div>
                 <input
                   value={typeof selectedNodeData.symbol === 'string' ? selectedNodeData.symbol : ''}
                   onChange={(e) => patchSelectedNode({ symbol: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="SOL"
                 />
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>side</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>side</div>
                 <select
                   value={typeof selectedNodeData.side === 'string' ? selectedNodeData.side : 'buy'}
                   onChange={(e) => patchSelectedNode({ side: e.target.value })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                 >
                   <option value="buy">buy</option>
                   <option value="sell">sell</option>
@@ -4032,7 +4032,7 @@ export default function Editor() {
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>quantity</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>quantity</div>
                 <input
                   type="number"
                   value={
@@ -4047,7 +4047,7 @@ export default function Editor() {
                     patchSelectedNode({ quantity: val === '' ? undefined : Number(val) })
                   }}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="1"
                   min={0}
                   step={0.0001}
@@ -4055,7 +4055,7 @@ export default function Editor() {
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: '#666' }}>price (optional)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>price (optional)</div>
                 <input
                   type="number"
                   value={
@@ -4070,7 +4070,7 @@ export default function Editor() {
                     patchSelectedNode({ price: val === '' ? undefined : Number(val) })
                   }}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                   placeholder="150"
                   min={0}
                   step={0.0001}
@@ -4092,8 +4092,8 @@ export default function Editor() {
           flexWrap: 'wrap',
           gap: 8,
           alignItems: 'center',
-          background: '#fff',
-          border: '1px solid #e5e7eb',
+          background: 'var(--color-bg)',
+          border: '1px solid var(--color-border)',
           padding: '10px 12px',
           borderRadius: 12,
           boxShadow: '0 1px 2px rgba(16, 24, 40, 0.06)',
@@ -4115,9 +4115,9 @@ export default function Editor() {
           disabled={busy || !workflowId || !workflow || (!workflow.enabled && !enableEligibility.ok)}
           title={!workflow?.enabled && !enableEligibility.ok ? enableEligibility.reason || 'workflow is not valid for enabling' : undefined}
           style={{
-            background: '#fff',
+            background: 'var(--color-bg)',
             color: workflow?.enabled ? '#b42318' : '#157f3b',
-            border: '1px solid #e5e7eb',
+            border: '1px solid var(--color-border)',
             padding: '8px 10px',
             borderRadius: 10,
             fontSize: 12,
@@ -4136,7 +4136,7 @@ export default function Editor() {
           {busy ? 'working...' : 'run'}
         </button>
 
-        <div style={{ width: 1, height: 28, background: '#e5e7eb', margin: '0 2px' }} />
+        <div style={{ width: 1, height: 28, background: 'var(--color-border)', margin: '0 2px' }} />
 
         <select
           value={(workflow as any)?.network || 'mainnet'}
@@ -4144,8 +4144,8 @@ export default function Editor() {
           disabled={busy || !workflowId || !workflow}
           style={{ 
             background: (workflow as any)?.network === 'devnet' ? '#fef3c7' : '#fff', 
-            color: '#111', 
-            border: '1px solid #e5e7eb', 
+            color: 'var(--color-text)', 
+            border: '1px solid var(--color-border)', 
             padding: '8px 10px', 
             borderRadius: 10, 
             fontSize: 12 
@@ -4159,7 +4159,7 @@ export default function Editor() {
           value={workflow?.overlapPolicy || 'skip'}
           onChange={(e) => void onSetOverlapPolicy(e.target.value as 'skip' | 'queue' | 'allow')}
           disabled={busy || !workflowId || !workflow}
-          style={{ background: '#fff', color: '#111', border: '1px solid #e5e7eb', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
+          style={{ background: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid var(--color-border)', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
         >
           <option value="skip">overlap: skip</option>
           <option value="queue">overlap: queue</option>
@@ -4178,14 +4178,14 @@ export default function Editor() {
               }
             }}
             disabled={busy || !workflowId || !workflow}
-            style={{ background: '#fff', color: '#111', border: '1px solid #e5e7eb', padding: '8px 10px', borderRadius: 10, width: 160, fontSize: 12 }}
+            style={{ background: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid var(--color-border)', padding: '8px 10px', borderRadius: 10, width: 160, fontSize: 12 }}
             placeholder="max backlog"
             min={0}
             max={1000}
           />
         ) : null}
 
-        <div style={{ width: 1, height: 28, background: '#e5e7eb', margin: '0 2px' }} />
+        <div style={{ width: 1, height: 28, background: 'var(--color-border)', margin: '0 2px' }} />
 
         <select
           value={addNodeSelection}
@@ -4196,7 +4196,7 @@ export default function Editor() {
             setAddNodeSelection('')
           }}
           disabled={busy || !draft}
-          style={{ background: '#fff', color: '#111', border: '1px solid #e5e7eb', padding: '8px 10px', borderRadius: 10, fontSize: 12, minWidth: 180 }}
+          style={{ background: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid var(--color-border)', padding: '8px 10px', borderRadius: 10, fontSize: 12, minWidth: 180 }}
         >
           <option value="">add node…</option>
           <option value="timer_trigger" disabled={hasTriggerNode}>
@@ -4268,7 +4268,7 @@ export default function Editor() {
           type="button"
           onClick={deleteSelectedNode}
           disabled={busy || !draft || !selectedNodeId}
-          style={{ background: '#fff', color: '#b42318', border: '1px solid #f3c7c7', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
+          style={{ background: 'var(--color-bg)', color: '#b42318', border: '1px solid #f3c7c7', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
         >
           delete node
         </button>
@@ -4277,7 +4277,7 @@ export default function Editor() {
           type="button"
           onClick={onRenameWorkflow}
           disabled={busy || !workflowId || !workflow}
-          style={{ background: '#fff', color: '#111', border: '1px solid #e5e7eb', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
+          style={{ background: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid var(--color-border)', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
         >
           rename
         </button>
@@ -4286,12 +4286,12 @@ export default function Editor() {
           type="button"
           onClick={onDeleteWorkflow}
           disabled={busy || !workflowId || !workflow}
-          style={{ background: '#fff', color: '#b42318', border: '1px solid #f3c7c7', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
+          style={{ background: 'var(--color-bg)', color: '#b42318', border: '1px solid #f3c7c7', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
         >
           delete
         </button>
 
-        <span style={{ fontSize: 12, color: '#666', marginLeft: 'auto' }}>id: {params.id}</span>
+        <span style={{ fontSize: 12, color: 'var(--color-text-muted)', marginLeft: 'auto' }}>id: {params.id}</span>
       </div>
 
       {error ? (
@@ -4301,8 +4301,8 @@ export default function Editor() {
             top: 74,
             left: 12,
             zIndex: 10,
-            background: '#fee',
-            color: '#700',
+            background: 'var(--color-error-bg, #fee)',
+            color: 'var(--color-error, #700)',
             padding: '8px 10px',
             borderRadius: 6,
             border: '1px solid #f3c7c7',
@@ -4320,8 +4320,8 @@ export default function Editor() {
             top: 74,
             left: 12,
             zIndex: 10,
-            background: '#fff6ed',
-            color: '#7a2e0e',
+            background: 'var(--color-warning-bg, #fff6ed)',
+            color: 'var(--color-warning, #7a2e0e)',
             padding: '10px 12px',
             borderRadius: 10,
             border: '1px solid #f9dbaf',
