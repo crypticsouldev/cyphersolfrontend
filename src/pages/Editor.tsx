@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate, useParams, useBlocker } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import type { Edge, Node } from '@xyflow/react'
 import CreateWorkFlow, { type CreateWorkFlowHandle } from '../components/CreateWorkFlow'
 import {
@@ -53,22 +53,6 @@ export default function Editor() {
     return currentDraftStr !== lastSavedDraft
   }, [draft, lastSavedDraft])
 
-  // Block navigation when there are unsaved changes
-  const blocker = useBlocker(hasUnsavedChanges)
-
-  useEffect(() => {
-    if (blocker.state === 'blocked') {
-      const shouldLeave = window.confirm(
-        'You have unsaved changes.\n\nClick OK to leave without saving, or Cancel to stay.'
-      )
-      if (shouldLeave) {
-        blocker.proceed()
-      } else {
-        blocker.reset()
-      }
-    }
-  }, [blocker])
-
   // Warn on browser close/refresh with unsaved changes
   useEffect(() => {
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
@@ -80,6 +64,18 @@ export default function Editor() {
     window.addEventListener('beforeunload', handleBeforeUnload)
     return () => window.removeEventListener('beforeunload', handleBeforeUnload)
   }, [hasUnsavedChanges])
+
+  const onBackToDashboard = useCallback(async () => {
+    if (hasUnsavedChanges) {
+      const shouldSave = window.confirm(
+        'You have unsaved changes.\n\nClick OK to save and leave, or Cancel to discard and leave.'
+      )
+      if (shouldSave) {
+        await onSave()
+      }
+    }
+    navigate('/dashboard')
+  }, [hasUnsavedChanges, navigate, onSave])
 
   const handleDefinitionChange = useCallback((definition: { nodes: Node[]; edges: Edge[] }) => {
     setDraft(definition)
@@ -915,6 +911,10 @@ export default function Editor() {
         <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
           <Link
             to="/dashboard"
+            onClick={(e) => {
+              e.preventDefault()
+              void onBackToDashboard()
+            }}
             style={{
               background: 'var(--color-bg)',
               border: '1px solid var(--color-border)',
