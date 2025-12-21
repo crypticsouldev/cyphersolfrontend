@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState, type CSSProperties } from 'react'
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, type CSSProperties } from 'react'
 import {
   ReactFlow,
   applyNodeChanges,
@@ -11,6 +11,7 @@ import {
   type OnConnect,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
+import AddNodeEdge from './AddNodeEdge'
 
 const defaultNodes: Node[] = []
 
@@ -21,9 +22,14 @@ type Props = {
   initialEdges?: Edge[]
   onDefinitionChange?: (definition: { nodes: Node[]; edges: Edge[] }) => void
   onNodeSelect?: (nodeId: string | undefined) => void
+  onAddNodeOnEdge?: (edgeId: string, nodeType: string) => void
   containerStyle?: CSSProperties
   readOnly?: boolean
   syncFromProps?: boolean
+}
+
+const edgeTypes = {
+  addNode: AddNodeEdge,
 }
 
 export type CreateWorkFlowHandle = {
@@ -33,9 +39,22 @@ export type CreateWorkFlowHandle = {
 }
 
 const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
-  ({ initialNodes, initialEdges, onDefinitionChange, onNodeSelect, containerStyle, readOnly, syncFromProps }, ref) => {
+  ({ initialNodes, initialEdges, onDefinitionChange, onNodeSelect, onAddNodeOnEdge, containerStyle, readOnly, syncFromProps }, ref) => {
   const [nodes, setNodes] = useState<Node[]>(initialNodes ?? defaultNodes)
   const [edges, setEdges] = useState<Edge[]>(initialEdges ?? defaultEdges)
+
+  // Add edge data with onAddNode handler
+  const edgesWithHandlers = useMemo(() => {
+    if (readOnly) return edges
+    return edges.map((edge) => ({
+      ...edge,
+      type: 'addNode',
+      data: {
+        ...edge.data,
+        onAddNode: onAddNodeOnEdge,
+      },
+    }))
+  }, [edges, onAddNodeOnEdge, readOnly])
 
   const didHydrateRef = useRef(false)
 
@@ -96,7 +115,8 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
     <div style={{ width: '100vw', height: '100vh', ...containerStyle }}>
       <ReactFlow
         nodes={nodes}
-        edges={edges}
+        edges={edgesWithHandlers}
+        edgeTypes={edgeTypes}
         onNodesChange={readOnly ? undefined : onNodesChange}
         onEdgesChange={readOnly ? undefined : onEdgesChange}
         onConnect={readOnly ? undefined : onConnect}

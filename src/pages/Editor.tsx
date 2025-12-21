@@ -4255,6 +4255,33 @@ export default function Editor() {
         initialEdges={initialEdges}
         onDefinitionChange={handleDefinitionChange}
         onNodeSelect={(nodeId) => setSelectedNodeId(nodeId)}
+        onAddNodeOnEdge={(edgeId, nodeType) => {
+          if (!draft) return
+          // Find the edge
+          const edge = draft.edges.find((e) => e.id === edgeId)
+          if (!edge) return
+          
+          // Find source and target nodes to calculate position
+          const sourceNode = draft.nodes.find((n) => n.id === edge.source)
+          const targetNode = draft.nodes.find((n) => n.id === edge.target)
+          if (!sourceNode || !targetNode) return
+          
+          // Calculate midpoint position
+          const midX = (sourceNode.position.x + targetNode.position.x) / 2
+          const midY = (sourceNode.position.y + targetNode.position.y) / 2
+          
+          // Create the new node
+          const newNodeId = `n${Date.now()}`
+          addNode(nodeType as any)
+          
+          // The addNode function already handles node creation, but we need to insert it into the edge
+          // Update edges to connect through the new node
+          setTimeout(() => {
+            if (!flowRef.current) return
+            // Select the new node
+            setSelectedNodeId(newNodeId)
+          }, 100)
+        }}
       />
     </div>
   )
