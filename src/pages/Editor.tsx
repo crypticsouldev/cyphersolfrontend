@@ -4062,16 +4062,45 @@ export default function Editor() {
 
         <div style={{ width: 1, height: 28, background: 'var(--color-border)', margin: '0 2px' }} />
 
-        <select
-          value={workflow?.overlapPolicy || 'skip'}
-          onChange={(e) => void onSetOverlapPolicy(e.target.value as 'skip' | 'queue' | 'allow')}
-          disabled={busy || !workflowId || !workflow}
-          style={{ background: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid var(--color-border)', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
-        >
-          <option value="skip">overlap: skip</option>
-          <option value="queue">overlap: queue</option>
-          <option value="allow">overlap: allow</option>
-        </select>
+        <div style={{ position: 'relative', display: 'inline-block' }}>
+          <select
+            value={workflow?.overlapPolicy || 'skip'}
+            onChange={(e) => void onSetOverlapPolicy(e.target.value as 'skip' | 'queue' | 'allow')}
+            disabled={busy || !workflowId || !workflow}
+            style={{ background: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid var(--color-border)', padding: '8px 10px', borderRadius: 10, fontSize: 12, paddingRight: 24 }}
+            title={
+              (workflow?.overlapPolicy || 'skip') === 'skip' 
+                ? 'Skip: If workflow is already running, new triggers are ignored'
+                : (workflow?.overlapPolicy || 'skip') === 'queue'
+                ? 'Queue: New triggers wait in line until the current run finishes'
+                : 'Allow: Multiple instances can run at the same time (use carefully)'
+            }
+          >
+            <option value="skip">🚫 Skip new</option>
+            <option value="queue">📋 Queue</option>
+            <option value="allow">⚡ Allow all</option>
+          </select>
+          <span 
+            style={{ 
+              position: 'absolute', 
+              right: 6, 
+              top: '50%', 
+              transform: 'translateY(-50%)', 
+              fontSize: 10, 
+              color: 'var(--color-text-subtle)',
+              pointerEvents: 'none',
+            }}
+            title={
+              (workflow?.overlapPolicy || 'skip') === 'skip' 
+                ? 'Skip: If workflow is already running, new triggers are ignored'
+                : (workflow?.overlapPolicy || 'skip') === 'queue'
+                ? 'Queue: New triggers wait in line until the current run finishes'
+                : 'Allow: Multiple instances can run at the same time (use carefully)'
+            }
+          >
+            ⓘ
+          </span>
+        </div>
 
         {(workflow?.overlapPolicy || 'skip') === 'queue' ? (
           <input
