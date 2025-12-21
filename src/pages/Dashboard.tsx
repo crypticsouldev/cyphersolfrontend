@@ -11,6 +11,7 @@ import {
 import { clearAuthToken } from '../lib/auth'
 import { useWorkflows, invalidateWorkflows } from '../lib/hooks'
 import TemplateLibrary from '../components/TemplateLibrary'
+import ThemeToggle from '../components/ThemeToggle'
 import type { WorkflowTemplate } from '../lib/templates'
 
 function formatRelativeTime(date: Date): string {
@@ -151,6 +152,13 @@ export default function Dashboard() {
       <div className="page-header">
         <h1 className="page-title">Workflows</h1>
         <div className="flex gap-2">
+          <Link to="/analytics" className="btn btn-secondary">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 3v18h18"/>
+              <path d="m19 9-5 5-4-4-3 3"/>
+            </svg>
+            Analytics
+          </Link>
           <Link to="/credentials" className="btn btn-secondary">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
@@ -182,6 +190,7 @@ export default function Dashboard() {
             )}
             New Workflow
           </button>
+          <ThemeToggle />
           <button type="button" onClick={onLogout} disabled={busy} className="btn btn-ghost">
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>

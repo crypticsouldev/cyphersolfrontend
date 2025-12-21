@@ -12,6 +12,7 @@ import {
 } from '../lib/api'
 import { clearAuthToken } from '../lib/auth'
 import { useCredentials, useMeta, invalidateWorkflow } from '../lib/hooks'
+import { getNodeDoc, getCategoryColor, getCategoryLabel } from '../lib/nodeDocumentation'
 
 export default function Editor() {
   const params = useParams()
@@ -33,6 +34,10 @@ export default function Editor() {
   const solanaWalletCredentials = useMemo(() => credentials.filter((c) => c.provider === 'solana_wallet'), [credentials])
   const discordWebhookCredentials = useMemo(
     () => credentials.filter((c) => c.provider === 'discord_webhook'),
+    [credentials],
+  )
+  const telegramCredentials = useMemo(
+    () => credentials.filter((c) => c.provider === 'telegram_bot'),
     [credentials],
   )
   const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>()
@@ -1474,6 +1479,42 @@ export default function Editor() {
               <option value="paper_order">paper_order</option>
             </select>
           </div>
+
+          {/* Node Documentation */}
+          {selectedNodeType && getNodeDoc(selectedNodeType) && (
+            <div style={{ 
+              background: 'var(--color-hover)', 
+              borderRadius: 8, 
+              padding: 12,
+              marginBottom: 4,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <span style={{ 
+                  display: 'inline-block',
+                  width: 8, 
+                  height: 8, 
+                  borderRadius: '50%',
+                  background: getCategoryColor(getNodeDoc(selectedNodeType)!.category),
+                }} />
+                <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', color: 'var(--color-text-subtle)' }}>
+                  {getCategoryLabel(getNodeDoc(selectedNodeType)!.category)}
+                </span>
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--color-text-muted)', lineHeight: 1.5 }}>
+                {getNodeDoc(selectedNodeType)!.description}
+              </div>
+              {getNodeDoc(selectedNodeType)!.example && (
+                <div style={{ fontSize: 12, color: 'var(--color-text-subtle)', marginTop: 8, fontStyle: 'italic' }}>
+                  💡 {getNodeDoc(selectedNodeType)!.example}
+                </div>
+              )}
+              {getNodeDoc(selectedNodeType)!.outputs && (
+                <div style={{ fontSize: 11, color: 'var(--color-text-subtle)', marginTop: 8 }}>
+                  <strong>Outputs:</strong> {getNodeDoc(selectedNodeType)!.outputs!.join(', ')}
+                </div>
+              )}
+            </div>
+          )}
 
           {selectedNodeType === 'log' ? (
             <div style={{ display: 'grid', gap: 6 }}>
@@ -3329,6 +3370,88 @@ export default function Editor() {
             </div>
           ) : null}
 
+          {selectedNodeType === 'telegram_message' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
+              <div style={{ fontSize: 12, color: '#666' }}>
+                Send messages via Telegram bot. Create a bot with @BotFather to get a token.
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>credential (recommended)</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <select
+                    value={selectedCredentialId}
+                    onChange={(e) => onAttachCredential(e.target.value)}
+                    disabled={busy}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', flex: 1 }}
+                  >
+                    <option value="">select telegram_bot credential</option>
+                    {telegramCredentials.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.provider} · {c.name}
+                      </option>
+                    ))}
+                  </select>
+                  <Link
+                    to="/credentials"
+                    style={{
+                      padding: '6px 8px',
+                      borderRadius: 6,
+                      border: '1px solid #ddd',
+                      background: '#fff',
+                      textDecoration: 'none',
+                      color: 'inherit',
+                      fontSize: 12,
+                    }}
+                  >
+                    manage
+                  </Link>
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>chat ID</div>
+                <input
+                  value={typeof selectedNodeData.chatId === 'string' ? selectedNodeData.chatId : ''}
+                  onChange={(e) => patchSelectedNode({ chatId: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace' }}
+                  placeholder="-1001234567890 or @channelname"
+                />
+                <div style={{ fontSize: 11, color: '#888' }}>
+                  Get chat ID by forwarding a message to @userinfobot
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>message</div>
+                <textarea
+                  value={typeof selectedNodeData.text === 'string' ? selectedNodeData.text : ''}
+                  onChange={(e) => patchSelectedNode({ text: e.target.value })}
+                  disabled={busy}
+                  rows={4}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                  placeholder="Your notification message..."
+                />
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>parse mode (optional)</div>
+                <select
+                  value={typeof selectedNodeData.parseMode === 'string' ? selectedNodeData.parseMode : ''}
+                  onChange={(e) => patchSelectedNode({ parseMode: e.target.value || undefined })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                >
+                  <option value="">plain text</option>
+                  <option value="HTML">HTML</option>
+                  <option value="Markdown">Markdown</option>
+                  <option value="MarkdownV2">MarkdownV2</option>
+                </select>
+              </div>
+            </div>
+          ) : null}
+
           {selectedNodeType === 'if' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
@@ -4055,7 +4178,7 @@ export default function Editor() {
           <option value="balance_threshold_trigger">logic: balance threshold</option>
           <option value="retry">logic: retry config</option>
           <option value="split_order">logic: split order (dca)</option>
-          <option value="telegram_notify">notify: telegram</option>
+          <option value="telegram_message">notify: telegram</option>
           <option value="transaction_log">data: transaction log</option>
           <option value="birdeye_price">data: birdeye price</option>
           <option value="token_holders">data: token holders</option>
