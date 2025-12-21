@@ -3491,37 +3491,66 @@ export default function Editor() {
           {selectedNodeType === 'solana_balance' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                  <select
-                    value={selectedCredentialId}
-                    onChange={(e) => onAttachCredential(e.target.value)}
-                    disabled={busy}
-                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
-                  >
-                    <option value="">select solana_wallet credential</option>
-                    {solanaWalletCredentials.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.provider} · {c.name}
-                      </option>
-                    ))}
-                  </select>
-                  <Link
-                    to="/credentials"
-                    style={{
-                      padding: '6px 8px',
-                      borderRadius: 6,
-                      border: '1px solid var(--color-border)',
-                      background: 'var(--color-bg)',
-                      textDecoration: 'none',
-                      color: 'inherit',
-                      fontSize: 12,
-                    }}
-                  >
-                    manage
-                  </Link>
-                </div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet source</div>
+                <select
+                  value={(selectedNodeData as any).walletSource || 'credential'}
+                  onChange={(e) => patchSelectedNode({ walletSource: e.target.value, walletAddress: undefined, credentialId: undefined })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
+                >
+                  <option value="credential">my wallet (credential)</option>
+                  <option value="address">external wallet (address)</option>
+                </select>
               </div>
+
+              {((selectedNodeData as any).walletSource || 'credential') === 'credential' ? (
+                <div style={{ display: 'grid', gap: 6 }}>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet credential</div>
+                  <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                    <select
+                      value={selectedCredentialId}
+                      onChange={(e) => onAttachCredential(e.target.value)}
+                      disabled={busy}
+                      style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
+                    >
+                      <option value="">select solana_wallet credential</option>
+                      {solanaWalletCredentials.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.provider} · {c.name}
+                        </option>
+                      ))}
+                    </select>
+                    <Link
+                      to="/credentials"
+                      style={{
+                        padding: '6px 8px',
+                        borderRadius: 6,
+                        border: '1px solid var(--color-border)',
+                        background: 'var(--color-bg)',
+                        textDecoration: 'none',
+                        color: 'inherit',
+                        fontSize: 12,
+                      }}
+                    >
+                      manage
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gap: 6 }}>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>wallet address</div>
+                  <input
+                    value={typeof (selectedNodeData as any).walletAddress === 'string' ? (selectedNodeData as any).walletAddress : ''}
+                    onChange={(e) => patchSelectedNode({ walletAddress: e.target.value })}
+                    disabled={busy}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
+                    placeholder="e.g. 5Q544fKrFoe6tsEbD7S8EmxGTJYAKtTVhAW5Q5pge4j1"
+                  />
+                  <div style={{ fontSize: 11, color: 'var(--color-text-subtle)' }}>
+                    enter any Solana wallet address to check its balance
+                  </div>
+                </div>
+              )}
 
               <div style={{ display: 'grid', gap: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>commitment</div>
