@@ -6,6 +6,8 @@ import {
   addEdge,
   Background,
   Controls,
+  useReactFlow,
+  ReactFlowProvider,
   type Node,
   type Edge,
   type OnNodesChange,
@@ -36,6 +38,31 @@ type Props = {
   syncFromProps?: boolean
 }
 
+// Wrapper component to use hooks inside ReactFlow
+function AddNodeButton({ nodeId, onAddNode, onPopupOpen, onPopupClose }: { 
+  nodeId: string
+  onAddNode: (nodeType: string) => void
+  onPopupOpen: () => void
+  onPopupClose: () => void 
+}) {
+  const { getNode } = useReactFlow()
+  const node = getNode(nodeId)
+  
+  if (!node) return null
+  
+  return (
+    <AddNodeAfterLast
+      position={{ 
+        x: node.position.x + (node.measured?.width ? node.measured.width / 2 : 75),
+        y: node.position.y + (node.measured?.height ? node.measured.height + 10 : 50)
+      }}
+      onAddNode={onAddNode}
+      onPopupOpen={onPopupOpen}
+      onPopupClose={onPopupClose}
+    />
+  )
+}
+
 export type CreateWorkFlowHandle = {
   patchNodeData: (nodeId: string, patch: Record<string, unknown>) => void
   addNode: (node: Node) => void
@@ -57,6 +84,8 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
       data: {
         ...edge.data,
         onAddNode: onAddNodeOnEdge,
+        onPopupOpen: () => setPopupOpen(true),
+        onPopupClose: () => setPopupOpen(false),
       },
     }))
   }, [edges, onAddNodeOnEdge, readOnly])
@@ -158,12 +187,9 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
         <Controls showInteractive={false} position="bottom-left" />
         {/* Plus icon after terminal nodes - only show for the last one */}
         {terminalNodes.length > 0 && (
-          <AddNodeAfterLast
+          <AddNodeButton
             key={`add-after-${terminalNodes[terminalNodes.length - 1].id}`}
-            position={{ 
-              x: terminalNodes[terminalNodes.length - 1].position.x + 75,
-              y: terminalNodes[terminalNodes.length - 1].position.y + 60
-            }}
+            nodeId={terminalNodes[terminalNodes.length - 1].id}
             onAddNode={(nodeType) => {
               setPopupOpen(false)
               onAddNodeAfterLast?.(nodeType)
