@@ -4333,6 +4333,9 @@ export default function Editor() {
             setSelectedNodeId(newNodeId)
           }, 100)
         }}
+        onAddNodeAfterLast={(nodeType) => {
+          addNode(nodeType as any)
+        }}
       />
     </div>
   )

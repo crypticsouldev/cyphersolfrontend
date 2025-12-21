@@ -14,6 +14,7 @@ import {
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import AddNodeEdge from './AddNodeEdge'
+import AddNodeAfterLast from './AddNodeAfterLast'
 
 const defaultNodes: Node[] = []
 
@@ -58,6 +59,13 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
       },
     }))
   }, [edges, onAddNodeOnEdge, readOnly])
+
+  // Find terminal nodes (nodes with no outgoing edges)
+  const terminalNodes = useMemo(() => {
+    if (readOnly || nodes.length === 0) return []
+    const nodesWithOutgoing = new Set(edges.map((e) => e.source))
+    return nodes.filter((n) => !nodesWithOutgoing.has(n.id))
+  }, [nodes, edges, readOnly])
 
   const didHydrateRef = useRef(false)
 
@@ -139,6 +147,17 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
       >
         <Background color="var(--color-border)" gap={20} />
         <Controls />
+        {/* Plus icon after terminal nodes */}
+        {terminalNodes.map((node) => (
+          <AddNodeAfterLast
+            key={`add-after-${node.id}`}
+            position={{ 
+              x: node.position.x + 75, // Center below node (assuming ~150px node width)
+              y: node.position.y + 60  // Below the node
+            }}
+            onAddNode={(nodeType) => onAddNodeAfterLast?.(nodeType)}
+          />
+        ))}
       </ReactFlow>
     </div>
   )
