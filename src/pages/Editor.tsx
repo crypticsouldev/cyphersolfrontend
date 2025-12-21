@@ -688,29 +688,6 @@ export default function Editor() {
     }
   }
 
-  async function onSetNetwork(nextNetwork: 'mainnet' | 'devnet') {
-    if (!workflowId) return
-    if (!workflow) return
-
-    setBusy(true)
-    setError(undefined)
-    try {
-      const res = await updateWorkflow(workflowId, { network: nextNetwork } as any)
-      setWorkflow(res.workflow)
-    } catch (err) {
-      const apiErr = err as ApiError
-      if (apiErr.status === 401) {
-        clearAuthToken()
-        navigate('/login', { replace: true })
-        return
-      }
-      const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
-      setError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
-    } finally {
-      setBusy(false)
-    }
-  }
-
   async function onSetOverlapPolicy(nextPolicy: 'skip' | 'queue' | 'allow') {
     if (!workflowId) return
     if (!workflow) return
@@ -4137,23 +4114,6 @@ export default function Editor() {
         </button>
 
         <div style={{ width: 1, height: 28, background: 'var(--color-border)', margin: '0 2px' }} />
-
-        <select
-          value={(workflow as any)?.network || 'mainnet'}
-          onChange={(e) => void onSetNetwork(e.target.value as 'mainnet' | 'devnet')}
-          disabled={busy || !workflowId || !workflow}
-          style={{ 
-            background: (workflow as any)?.network === 'devnet' ? '#fef3c7' : '#fff', 
-            color: 'var(--color-text)', 
-            border: '1px solid var(--color-border)', 
-            padding: '8px 10px', 
-            borderRadius: 10, 
-            fontSize: 12 
-          }}
-        >
-          <option value="mainnet">🟢 Mainnet</option>
-          <option value="devnet">🟡 Devnet</option>
-        </select>
 
         <select
           value={workflow?.overlapPolicy || 'skip'}
