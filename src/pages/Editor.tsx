@@ -43,8 +43,9 @@ export default function Editor() {
   const [selectedNodeId, setSelectedNodeId] = useState<string | undefined>()
   const [selectedCredentialId, setSelectedCredentialId] = useState<string>('')
   const [maxBacklogDraft, setMaxBacklogDraft] = useState('')
-  const [addNodeSelection, setAddNodeSelection] = useState('')
   const [lastSavedDraft, setLastSavedDraft] = useState<string>('')
+  const [isEditingName, setIsEditingName] = useState(false)
+  const [editingNameValue, setEditingNameValue] = useState('')
 
   // Track if there are unsaved changes
   const hasUnsavedChanges = useMemo(() => {
@@ -714,6 +715,32 @@ export default function Editor() {
     }
   }
 
+  async function onInlineRename(newName: string) {
+    if (!workflowId || !workflow) return
+    if (!newName.trim() || newName.trim() === workflow.name) {
+      setIsEditingName(false)
+      return
+    }
+    setBusy(true)
+    setError(undefined)
+    try {
+      const res = await updateWorkflow(workflowId, { name: newName.trim() })
+      setWorkflow(res.workflow)
+      setIsEditingName(false)
+    } catch (err) {
+      const apiErr = err as ApiError
+      if (apiErr.status === 401) {
+        clearAuthToken()
+        navigate('/login', { replace: true })
+        return
+      }
+      const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
+      setError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   async function onSetOverlapPolicy(nextPolicy: 'skip' | 'queue' | 'allow') {
     if (!workflowId) return
     if (!workflow) return
@@ -925,30 +952,104 @@ export default function Editor() {
               fontSize: 12,
             }}
           >
-            back
+            ← back
           </Link>
-          <div style={{ display: 'flex', gap: 8, alignItems: 'baseline' }}>
-            <span style={{ fontSize: 12, color: 'var(--color-text)' }}>{title}</span>
+          <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+            {isEditingName ? (
+              <input
+                autoFocus
+                value={editingNameValue}
+                onChange={(e) => setEditingNameValue(e.target.value)}
+                onBlur={() => void onInlineRename(editingNameValue)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') void onInlineRename(editingNameValue)
+                  if (e.key === 'Escape') setIsEditingName(false)
+                }}
+                style={{
+                  fontSize: 12,
+                  padding: '4px 8px',
+                  border: '1px solid var(--color-primary)',
+                  borderRadius: 6,
+                  outline: 'none',
+                  minWidth: 120,
+                }}
+              />
+            ) : (
+              <>
+                <span style={{ fontSize: 12, color: 'var(--color-text)', fontWeight: 500 }}>{title}</span>
+                <button
+                  onClick={() => {
+                    setEditingNameValue(workflow?.name || '')
+                    setIsEditingName(true)
+                  }}
+                  disabled={!workflow}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: 2,
+                    fontSize: 12,
+                    color: 'var(--color-text-muted)',
+                  }}
+                  title="Rename workflow"
+                >
+                  ✏️
+                </button>
+              </>
+            )}
             {workflow ? (
-              <span style={{ fontSize: 12, color: workflow.enabled ? '#157f3b' : '#666' }}>
-                {workflow.enabled ? 'enabled' : 'disabled'}
+              <span style={{ fontSize: 11, color: workflow.enabled ? '#157f3b' : '#888', marginLeft: 4 }}>
+                {workflow.enabled ? '● enabled' : '○ disabled'}
               </span>
             ) : null}
           </div>
-          {workflow && !workflow.enabled && !enableEligibility.ok ? (
-            <span style={{ fontSize: 12, color: '#b42318' }}>{enableEligibility.reason || 'not ready to enable'}</span>
-          ) : null}
         </div>
 
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button
+            type="button"
+            onClick={onSave}
+            disabled={busy || !draft}
+            style={{ background: '#111', color: '#fff', border: '1px solid #111', padding: '6px 12px', borderRadius: 8, fontSize: 12 }}
+          >
+            {busy ? '...' : 'save'}
+          </button>
+
+          <button
+            type="button"
+            onClick={onToggleEnabled}
+            disabled={busy || !workflowId || !workflow || (!workflow.enabled && !enableEligibility.ok)}
+            title={!workflow?.enabled && !enableEligibility.ok ? enableEligibility.reason || 'workflow is not valid for enabling' : undefined}
+            style={{
+              background: 'var(--color-bg)',
+              color: workflow?.enabled ? '#b42318' : '#157f3b',
+              border: '1px solid var(--color-border)',
+              padding: '6px 12px',
+              borderRadius: 8,
+              fontSize: 12,
+            }}
+          >
+            {workflow?.enabled ? 'disable' : 'enable'}
+          </button>
+
+          <button
+            type="button"
+            onClick={onRun}
+            disabled={busy || !workflowId || !runEligibility.ok}
+            title={!runEligibility.ok ? runEligibility.reason || 'workflow is not valid for running' : undefined}
+            style={{ background: '#0b5', color: '#fff', border: '1px solid #084', padding: '6px 12px', borderRadius: 8, fontSize: 12 }}
+          >
+            ▶ run
+          </button>
+
           {workflowId ? (
             <Link
               to={`/workflows/${workflowId}/executions`}
               style={{
                 background: 'var(--color-bg)',
                 border: '1px solid var(--color-border)',
-                padding: '8px 10px',
-                borderRadius: 10,
+                padding: '6px 12px',
+                borderRadius: 8,
                 textDecoration: 'none',
                 color: 'inherit',
                 fontSize: 12,
@@ -4057,230 +4158,6 @@ export default function Editor() {
         </div>
       ) : null}
 
-      <div
-        style={{
-          position: 'absolute',
-          bottom: 12,
-          left: 12,
-          right: 12,
-          zIndex: 10,
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: 8,
-          alignItems: 'center',
-          background: 'var(--color-bg)',
-          border: '1px solid var(--color-border)',
-          padding: '10px 12px',
-          borderRadius: 12,
-          boxShadow: '0 1px 2px rgba(16, 24, 40, 0.06)',
-        }}
-      >
-        <button
-          type="button"
-          onClick={onSave}
-          disabled={busy || !draft}
-          title={!draft ? 'no workflow loaded' : undefined}
-          style={{ background: '#111', color: '#fff', border: '1px solid #111', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
-        >
-          {busy ? 'working...' : 'save'}
-        </button>
-
-        <button
-          type="button"
-          onClick={onToggleEnabled}
-          disabled={busy || !workflowId || !workflow || (!workflow.enabled && !enableEligibility.ok)}
-          title={!workflow?.enabled && !enableEligibility.ok ? enableEligibility.reason || 'workflow is not valid for enabling' : undefined}
-          style={{
-            background: 'var(--color-bg)',
-            color: workflow?.enabled ? '#b42318' : '#157f3b',
-            border: '1px solid var(--color-border)',
-            padding: '8px 10px',
-            borderRadius: 10,
-            fontSize: 12,
-          }}
-        >
-          {workflow?.enabled ? 'disable' : 'enable'}
-        </button>
-
-        <button
-          type="button"
-          onClick={onRun}
-          disabled={busy || !workflowId || !runEligibility.ok}
-          title={!runEligibility.ok ? runEligibility.reason || 'workflow is not valid for running' : undefined}
-          style={{ background: '#0b5', color: '#fff', border: '1px solid #084', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
-        >
-          {busy ? 'working...' : 'run'}
-        </button>
-
-        <div style={{ width: 1, height: 28, background: 'var(--color-border)', margin: '0 2px' }} />
-
-        <div style={{ position: 'relative', display: 'inline-block' }}>
-          <select
-            value={workflow?.overlapPolicy || 'skip'}
-            onChange={(e) => void onSetOverlapPolicy(e.target.value as 'skip' | 'queue' | 'allow')}
-            disabled={busy || !workflowId || !workflow}
-            style={{ background: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid var(--color-border)', padding: '8px 10px', borderRadius: 10, fontSize: 12, paddingRight: 24 }}
-            title={
-              (workflow?.overlapPolicy || 'skip') === 'skip' 
-                ? 'Skip: If workflow is already running, new triggers are ignored'
-                : (workflow?.overlapPolicy || 'skip') === 'queue'
-                ? 'Queue: New triggers wait in line until the current run finishes'
-                : 'Allow: Multiple instances can run at the same time (use carefully)'
-            }
-          >
-            <option value="skip">🚫 Skip new</option>
-            <option value="queue">📋 Queue</option>
-            <option value="allow">⚡ Allow all</option>
-          </select>
-          <span 
-            style={{ 
-              position: 'absolute', 
-              right: 6, 
-              top: '50%', 
-              transform: 'translateY(-50%)', 
-              fontSize: 10, 
-              color: 'var(--color-text-subtle)',
-              pointerEvents: 'none',
-            }}
-            title={
-              (workflow?.overlapPolicy || 'skip') === 'skip' 
-                ? 'Skip: If workflow is already running, new triggers are ignored'
-                : (workflow?.overlapPolicy || 'skip') === 'queue'
-                ? 'Queue: New triggers wait in line until the current run finishes'
-                : 'Allow: Multiple instances can run at the same time (use carefully)'
-            }
-          >
-            ⓘ
-          </span>
-        </div>
-
-        {(workflow?.overlapPolicy || 'skip') === 'queue' ? (
-          <input
-            type="number"
-            value={maxBacklogDraft}
-            onChange={(e) => setMaxBacklogDraft(e.target.value)}
-            onBlur={() => {
-              const n = Number(maxBacklogDraft)
-              if (Number.isFinite(n) && n >= 0) {
-                void onSetMaxBacklog(n)
-              }
-            }}
-            disabled={busy || !workflowId || !workflow}
-            style={{ background: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid var(--color-border)', padding: '8px 10px', borderRadius: 10, width: 160, fontSize: 12 }}
-            placeholder="max backlog"
-            min={0}
-            max={1000}
-          />
-        ) : null}
-
-        <div style={{ width: 1, height: 28, background: 'var(--color-border)', margin: '0 2px' }} />
-
-        <select
-          value={addNodeSelection}
-          onChange={(e) => {
-            const kind = e.target.value
-            if (!kind) return
-            addNode(kind as any)
-            setAddNodeSelection('')
-          }}
-          disabled={busy || !draft}
-          style={{ background: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid var(--color-border)', padding: '8px 10px', borderRadius: 10, fontSize: 12, minWidth: 180 }}
-        >
-          <option value="">add node…</option>
-          <option value="timer_trigger" disabled={hasTriggerNode}>
-            trigger: timer
-          </option>
-          <option value="price_trigger" disabled={hasTriggerNode}>
-            trigger: price
-          </option>
-          <option value="onchain_trigger" disabled={hasTriggerNode}>
-            trigger: on-chain
-          </option>
-          <option value="log">action: log</option>
-          <option value="transform">action: transform</option>
-          <option value="if">logic: if</option>
-          <option value="discord_webhook">notify: discord</option>
-          <option value="dexscreener_price">market: dexscreener price</option>
-          <option value="pyth_price_feed_id">market: pyth feed id</option>
-          <option value="pyth_price">market: pyth price</option>
-          <option value="delay">action: delay</option>
-          <option value="http_request">action: http request</option>
-          <option value="solana_balance">solana: balance</option>
-          <option value="solana_transfer">solana: transfer</option>
-          <option value="solana_stake">solana: stake</option>
-          <option value="solana_restake">solana: restake</option>
-          <option value="close_empty_token_accounts">solana: close empty token accounts</option>
-          <option value="jupiter_swap">solana: jupiter swap</option>
-          <option value="raydium_swap">solana: raydium swap</option>
-          <option value="pump_fun_buy">solana: pump.fun buy</option>
-          <option value="pump_fun_sell">solana: pump.fun sell</option>
-          <option value="lulo_lend">solana: lulo lend</option>
-          <option value="memo">solana: memo</option>
-          <option value="solana_token_balance">solana: token balance</option>
-          <option value="parse_transaction">data: parse transaction</option>
-          <option value="solana_confirm_tx">data: confirm tx</option>
-          <option value="get_token_data">data: token metadata</option>
-          <option value="jupiter_quote">data: jupiter quote</option>
-          <option value="wait_for_confirmation">data: wait for confirmation</option>
-          <option value="cooldown">logic: cooldown</option>
-          <option value="balance_threshold_trigger">logic: balance threshold</option>
-          <option value="retry">logic: retry config</option>
-          <option value="split_order">logic: split order (dca)</option>
-          <option value="telegram_message">notify: telegram</option>
-          <option value="transaction_log">data: transaction log</option>
-          <option value="birdeye_price">data: birdeye price</option>
-          <option value="token_holders">data: token holders</option>
-          <option value="token_supply">data: token supply</option>
-          <option value="portfolio_value">data: portfolio value</option>
-          <option value="wallet_transactions">data: wallet transactions</option>
-          <option value="whale_alert">logic: whale alert</option>
-          <option value="stop_loss">logic: stop loss</option>
-          <option value="take_profit">logic: take profit</option>
-          <option value="price_change_trigger">logic: price change trigger</option>
-          <option value="copy_trade">logic: copy trade</option>
-          <option value="trailing_stop">logic: trailing stop</option>
-          <option value="limit_order">logic: limit order</option>
-          <option value="volume_check">logic: volume check</option>
-          <option value="liquidity_check">logic: liquidity check</option>
-          <option value="rug_check">logic: rug check</option>
-          <option value="average_cost">calc: average cost</option>
-          <option value="position_size">calc: position size</option>
-          <option value="pnl_calculator">calc: pnl</option>
-          <option value="slippage_estimator">calc: slippage</option>
-          <option value="twap">action: twap</option>
-          <option value="market_data">market: data</option>
-        </select>
-
-        <button
-          type="button"
-          onClick={deleteSelectedNode}
-          disabled={busy || !draft || !selectedNodeId}
-          style={{ background: '#dc2626', color: '#fff', border: '1px solid #b91c1c', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
-        >
-          🗑 delete node
-        </button>
-
-        <button
-          type="button"
-          onClick={onRenameWorkflow}
-          disabled={busy || !workflowId || !workflow}
-          style={{ background: 'var(--color-bg)', color: 'var(--color-text)', border: '1px solid var(--color-border)', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
-        >
-          rename
-        </button>
-
-        <button
-          type="button"
-          onClick={onDeleteWorkflow}
-          disabled={busy || !workflowId || !workflow}
-          style={{ background: '#dc2626', color: '#fff', border: '1px solid #b91c1c', padding: '8px 10px', borderRadius: 10, fontSize: 12 }}
-        >
-          🗑 delete
-        </button>
-
-        <span style={{ fontSize: 12, color: 'var(--color-text-muted)', marginLeft: 'auto' }}>id: {params.id}</span>
-      </div>
-
       {error ? (
         <div
           style={{
@@ -4336,6 +4213,29 @@ export default function Editor() {
         initialEdges={initialEdges}
         onDefinitionChange={handleDefinitionChange}
         onNodeSelect={(nodeId) => setSelectedNodeId(nodeId)}
+        onAddNodeOnEdge={(edgeId, nodeType) => {
+          if (!draft) return
+          const edge = draft.edges.find((e) => e.id === edgeId)
+          if (!edge) return
+          const sourceNode = draft.nodes.find((n) => n.id === edge.source)
+          const targetNode = draft.nodes.find((n) => n.id === edge.target)
+          if (!sourceNode || !targetNode) return
+          
+          const midX = (sourceNode.position.x + targetNode.position.x) / 2
+          const midY = (sourceNode.position.y + targetNode.position.y) / 2
+          
+          const newNodeId = getNextNodeId(draft.nodes)
+          const newNode = {
+            id: newNodeId,
+            type: 'default',
+            position: { x: midX, y: midY },
+            data: { label: nodeType, type: nodeType },
+          }
+          
+          // Add new node and update edges to go through it
+          flowRef.current?.addNode(newNode)
+          setSelectedNodeId(newNodeId)
+        }}
         onAddNodeAfterLast={(nodeType) => {
           addNode(nodeType as any)
         }}

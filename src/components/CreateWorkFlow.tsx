@@ -13,7 +13,12 @@ import {
   type OnConnect,
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
+import AddNodeEdge from './AddNodeEdge'
 import AddNodeAfterLast from './AddNodeAfterLast'
+
+const edgeTypes = {
+  addNode: AddNodeEdge,
+}
 
 const defaultNodes: Node[] = []
 
@@ -24,6 +29,7 @@ type Props = {
   initialEdges?: Edge[]
   onDefinitionChange?: (definition: { nodes: Node[]; edges: Edge[] }) => void
   onNodeSelect?: (nodeId: string | undefined) => void
+  onAddNodeOnEdge?: (edgeId: string, nodeType: string) => void
   onAddNodeAfterLast?: (nodeType: string) => void
   containerStyle?: CSSProperties
   readOnly?: boolean
@@ -37,10 +43,23 @@ export type CreateWorkFlowHandle = {
 }
 
 const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
-  ({ initialNodes, initialEdges, onDefinitionChange, onNodeSelect, onAddNodeAfterLast, containerStyle, readOnly, syncFromProps }, ref) => {
+  ({ initialNodes, initialEdges, onDefinitionChange, onNodeSelect, onAddNodeOnEdge, onAddNodeAfterLast, containerStyle, readOnly, syncFromProps }, ref) => {
   const [nodes, setNodes] = useState<Node[]>(initialNodes ?? defaultNodes)
   const [edges, setEdges] = useState<Edge[]>(initialEdges ?? defaultEdges)
   const [popupOpen, setPopupOpen] = useState(false)
+
+  // Add edge data with onAddNode handler for plus icon on edges
+  const edgesWithHandlers = useMemo(() => {
+    if (readOnly) return edges
+    return edges.map((edge) => ({
+      ...edge,
+      type: 'addNode',
+      data: {
+        ...edge.data,
+        onAddNode: onAddNodeOnEdge,
+      },
+    }))
+  }, [edges, onAddNodeOnEdge, readOnly])
 
   // Find terminal nodes (nodes with no outgoing edges)
   const terminalNodes = useMemo(() => {
@@ -108,7 +127,8 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
     <div style={{ width: '100vw', height: '100vh', ...containerStyle }}>
       <ReactFlow
         nodes={nodes}
-        edges={edges}
+        edges={edgesWithHandlers}
+        edgeTypes={edgeTypes}
         onNodesChange={readOnly ? undefined : onNodesChange}
         onEdgesChange={readOnly ? undefined : onEdgesChange}
         onConnect={readOnly ? undefined : onConnect}
@@ -126,6 +146,7 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
         zoomOnPinch={!popupOpen}
         zoomOnDoubleClick={!popupOpen}
         panOnScroll={!popupOpen}
+        proOptions={{ hideAttribution: true }}
         style={{
           // Custom node styling for dark mode
           ['--xy-node-background-color' as any]: 'var(--color-surface, #fff)',
@@ -133,8 +154,8 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
           ['--xy-node-color' as any]: 'var(--color-text, #111)',
         }}
       >
-        <Background color="var(--color-border)" gap={20} />
-        <Controls showInteractive={false} />
+        <Background color="#d1d5db" gap={20} />
+        <Controls showInteractive={false} position="bottom-left" />
         {/* Plus icon after terminal nodes - only show for the last one */}
         {terminalNodes.length > 0 && (
           <AddNodeAfterLast
