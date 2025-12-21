@@ -140,7 +140,7 @@ export default function Editor() {
     const triggers = draft.nodes.filter((n) => {
       const data = (n.data as any) || {}
       const kind = String(data?.type || (n as any)?.type || '')
-      return kind === 'timer_trigger' || kind === 'price_trigger' || kind === 'helius_webhook_trigger'
+      return kind === 'timer_trigger' || kind === 'price_trigger' || kind === 'onchain_trigger'
     })
 
     if (triggers.length === 0) {
@@ -154,7 +154,7 @@ export default function Editor() {
     const data = (triggers[0].data as any) || {}
     const kind = String(data?.type || (triggers[0] as any)?.type || '')
 
-    if (kind === 'helius_webhook_trigger') {
+    if (kind === 'onchain_trigger') {
       return { ok: true, reason: undefined }
     }
 
@@ -201,7 +201,7 @@ export default function Editor() {
     return draft.nodes.some((n) => {
       const data = (n.data as any) || {}
       const kind = String(data?.type || (n as any)?.type || '')
-      return kind === 'timer_trigger' || kind === 'price_trigger' || kind === 'helius_webhook_trigger'
+      return kind === 'timer_trigger' || kind === 'price_trigger' || kind === 'onchain_trigger'
     })
   }, [draft])
 
@@ -288,7 +288,7 @@ export default function Editor() {
       | 'solana_restake'
       | 'close_empty_token_accounts'
       | 'jupiter_swap'
-      | 'helius_parse_tx'
+      | 'parse_transaction'
       | 'cooldown'
       | 'solana_confirm_tx'
       | 'get_token_data'
@@ -327,17 +327,17 @@ export default function Editor() {
       | 'rug_check'
       | 'timer_trigger'
       | 'price_trigger'
-      | 'helius_webhook_trigger'
+      | 'onchain_trigger'
       | 'market_data'
       | 'paper_order',
   ) {
     if (!draft) return
 
-    if (kind === 'timer_trigger' || kind === 'price_trigger' || kind === 'helius_webhook_trigger') {
+    if (kind === 'timer_trigger' || kind === 'price_trigger' || kind === 'onchain_trigger') {
       const existing = draft.nodes.find((n) => {
         const data = (n.data as any) || {}
         const nodeKind = String(data?.type || (n as any)?.type || '')
-        return nodeKind === 'timer_trigger' || nodeKind === 'price_trigger' || nodeKind === 'helius_webhook_trigger'
+        return nodeKind === 'timer_trigger' || nodeKind === 'price_trigger' || nodeKind === 'onchain_trigger'
       })
       if (existing) {
         setError('only one trigger node is allowed')
@@ -416,7 +416,7 @@ export default function Editor() {
       baseData.slippageBps = 300
     }
 
-    if (kind === 'helius_parse_tx') {
+    if (kind === 'parse_transaction') {
       baseData.signature = ''
     }
 
@@ -642,7 +642,7 @@ export default function Editor() {
       baseData.intervalSeconds = 60
     }
 
-    if (kind === 'helius_webhook_trigger') {
+    if (kind === 'onchain_trigger') {
       // no config in v1
     }
 
@@ -673,6 +673,29 @@ export default function Editor() {
     setError(undefined)
     try {
       const res = await updateWorkflow(workflowId, { definition: draft })
+      setWorkflow(res.workflow)
+    } catch (err) {
+      const apiErr = err as ApiError
+      if (apiErr.status === 401) {
+        clearAuthToken()
+        navigate('/login', { replace: true })
+        return
+      }
+      const meta = [apiErr.code, apiErr.requestId].filter(Boolean).join(' · ')
+      setError(meta ? `${apiErr.message} (${meta})` : apiErr.message || 'failed')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function onSetNetwork(nextNetwork: 'mainnet' | 'devnet') {
+    if (!workflowId) return
+    if (!workflow) return
+
+    setBusy(true)
+    setError(undefined)
+    try {
+      const res = await updateWorkflow(workflowId, { network: nextNetwork } as any)
       setWorkflow(res.workflow)
     } catch (err) {
       const apiErr = err as ApiError
@@ -956,14 +979,14 @@ export default function Editor() {
               onChange={(e) => {
                 const nextType = e.target.value
                 if (
-                  (nextType === 'timer_trigger' || nextType === 'price_trigger' || nextType === 'helius_webhook_trigger') &&
+                  (nextType === 'timer_trigger' || nextType === 'price_trigger' || nextType === 'onchain_trigger') &&
                   draft
                 ) {
                   const existingTrigger = draft.nodes.find((n) => {
                     const data = (n.data as any) || {}
                     const kind = String(data?.type || (n as any)?.type || '')
                     return (
-                      (kind === 'timer_trigger' || kind === 'price_trigger' || kind === 'helius_webhook_trigger') &&
+                      (kind === 'timer_trigger' || kind === 'price_trigger' || kind === 'onchain_trigger') &&
                       n.id !== selectedNodeId
                     )
                   })
@@ -989,7 +1012,7 @@ export default function Editor() {
                     )
                   } else {
                     patchSelectedNode(
-                      nextType === 'helius_webhook_trigger'
+                      nextType === 'onchain_trigger'
                         ? { type: nextType }
                         : needsDefault
                           ? { type: nextType, intervalSeconds: 60 }
@@ -1096,7 +1119,7 @@ export default function Editor() {
                   return
                 }
 
-                if (nextType === 'helius_parse_tx') {
+                if (nextType === 'parse_transaction') {
                   patchSelectedNode({
                     type: nextType,
                     signature: (selectedNodeData as any).signature || '',
@@ -1422,7 +1445,7 @@ export default function Editor() {
             >
               <option value="timer_trigger">timer_trigger</option>
               <option value="price_trigger">price_trigger</option>
-              <option value="helius_webhook_trigger">helius_webhook_trigger</option>
+              <option value="onchain_trigger">onchain_trigger</option>
               <option value="log">log</option>
               <option value="transform">transform</option>
               <option value="if">if</option>
@@ -1438,7 +1461,7 @@ export default function Editor() {
               <option value="solana_restake">solana_restake</option>
               <option value="close_empty_token_accounts">close_empty_token_accounts</option>
               <option value="jupiter_swap">jupiter_swap</option>
-              <option value="helius_parse_tx">helius_parse_tx</option>
+              <option value="parse_transaction">parse_transaction</option>
               <option value="cooldown">cooldown</option>
               <option value="solana_confirm_tx">solana_confirm_tx</option>
               <option value="get_token_data">get_token_data</option>
@@ -1776,7 +1799,7 @@ export default function Editor() {
             </div>
           ) : null}
 
-          {selectedNodeType === 'helius_parse_tx' ? (
+          {selectedNodeType === 'parse_transaction' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
                 <div style={{ fontSize: 12, color: '#666' }}>transaction signature</div>
@@ -1789,8 +1812,7 @@ export default function Editor() {
                 />
               </div>
               <div style={{ fontSize: 12, color: '#666' }}>
-                parses transaction via helius enhanced transactions api. requires backend{' '}
-                <span style={{ fontFamily: 'monospace' }}>HELIUS_API_KEY</span>
+                Parses and enriches transaction with human-readable details.
               </div>
               <div style={{ fontSize: 12, color: '#666' }}>
                 returns: type, source, description, transfers, events
@@ -2531,7 +2553,7 @@ export default function Editor() {
                   max={100}
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>fetches token metadata via helius</div>
+              <div style={{ fontSize: 12, color: '#666' }}>Fetches token metadata (name, symbol, decimals, logo)</div>
             </div>
           ) : null}
 
@@ -2806,7 +2828,7 @@ export default function Editor() {
                   placeholder="300"
                 />
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>detects swaps from target wallet via helius webhook</div>
+              <div style={{ fontSize: 12, color: '#666' }}>Detects and copies swaps from target wallet in real-time</div>
             </div>
           ) : null}
 
@@ -3680,17 +3702,38 @@ export default function Editor() {
             </div>
           ) : null}
 
-          {selectedNodeType === 'helius_webhook_trigger' ? (
-            <div style={{ display: 'grid', gap: 6 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>webhook trigger</div>
+          {selectedNodeType === 'onchain_trigger' ? (
+            <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ fontSize: 12, color: '#666' }}>
-                configure Helius to POST to:
+                Triggers when transactions involving your watched wallets are detected on Solana.
               </div>
-              <div style={{ fontSize: 12, color: '#666', fontFamily: 'monospace' }}>
-                /webhooks/helius/{workflow?.id || '<workflowId>'}
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>wallet addresses to watch</div>
+                <textarea
+                  value={typeof (selectedNodeData as any).walletAddresses === 'string' ? (selectedNodeData as any).walletAddresses : ''}
+                  onChange={(e) => patchSelectedNode({ walletAddresses: e.target.value })}
+                  disabled={busy}
+                  rows={3}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd', fontFamily: 'monospace', fontSize: 11 }}
+                  placeholder="Enter wallet addresses, one per line"
+                />
+                <div style={{ fontSize: 11, color: '#888' }}>
+                  Enter one or more Solana wallet addresses to monitor for activity.
+                </div>
               </div>
-              <div style={{ fontSize: 12, color: '#666' }}>
-                set the Authorization header to match HELIUS_WEBHOOK_AUTH_HEADER
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: '#666' }}>transaction types (optional)</div>
+                <select
+                  value={typeof (selectedNodeData as any).transactionTypes === 'string' ? (selectedNodeData as any).transactionTypes : 'all'}
+                  onChange={(e) => patchSelectedNode({ transactionTypes: e.target.value })}
+                  disabled={busy}
+                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid #ddd' }}
+                >
+                  <option value="all">All transactions</option>
+                  <option value="swap">Swaps only</option>
+                  <option value="transfer">Transfers only</option>
+                  <option value="nft">NFT transactions</option>
+                </select>
               </div>
             </div>
           ) : null}
@@ -4096,6 +4139,23 @@ export default function Editor() {
         <div style={{ width: 1, height: 28, background: '#e5e7eb', margin: '0 2px' }} />
 
         <select
+          value={(workflow as any)?.network || 'mainnet'}
+          onChange={(e) => void onSetNetwork(e.target.value as 'mainnet' | 'devnet')}
+          disabled={busy || !workflowId || !workflow}
+          style={{ 
+            background: (workflow as any)?.network === 'devnet' ? '#fef3c7' : '#fff', 
+            color: '#111', 
+            border: '1px solid #e5e7eb', 
+            padding: '8px 10px', 
+            borderRadius: 10, 
+            fontSize: 12 
+          }}
+        >
+          <option value="mainnet">🟢 Mainnet</option>
+          <option value="devnet">🟡 Devnet</option>
+        </select>
+
+        <select
           value={workflow?.overlapPolicy || 'skip'}
           onChange={(e) => void onSetOverlapPolicy(e.target.value as 'skip' | 'queue' | 'allow')}
           disabled={busy || !workflowId || !workflow}
@@ -4145,8 +4205,8 @@ export default function Editor() {
           <option value="price_trigger" disabled={hasTriggerNode}>
             trigger: price
           </option>
-          <option value="helius_webhook_trigger" disabled={hasTriggerNode}>
-            trigger: helius webhook
+          <option value="onchain_trigger" disabled={hasTriggerNode}>
+            trigger: on-chain
           </option>
           <option value="log">action: log</option>
           <option value="transform">action: transform</option>
@@ -4169,7 +4229,7 @@ export default function Editor() {
           <option value="lulo_lend">solana: lulo lend</option>
           <option value="memo">solana: memo</option>
           <option value="solana_token_balance">solana: token balance</option>
-          <option value="helius_parse_tx">data: helius parse tx</option>
+          <option value="parse_transaction">data: parse transaction</option>
           <option value="solana_confirm_tx">data: confirm tx</option>
           <option value="get_token_data">data: token metadata</option>
           <option value="jupiter_quote">data: jupiter quote</option>

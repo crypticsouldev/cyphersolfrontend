@@ -29,13 +29,14 @@ export const nodeDocumentation: Record<string, NodeDoc> = {
     outputs: ['price', 'triggered'],
     example: 'Alert when SOL crosses above $100.',
   },
-  helius_webhook_trigger: {
-    type: 'helius_webhook_trigger',
-    name: 'Helius Webhook',
+  onchain_trigger: {
+    type: 'onchain_trigger',
+    name: 'On-Chain Trigger',
     category: 'trigger',
-    description: 'Triggers from Helius webhook events (transactions, NFT events, etc.).',
+    description: 'Triggers when transactions involving your watched wallets are detected on Solana.',
+    inputs: ['walletAddresses'],
     outputs: ['signature', 'event', 'receivedAt'],
-    example: 'React to on-chain events in real-time.',
+    example: 'React to wallet activity, swaps, or transfers in real-time.',
   },
 
   // Actions
@@ -331,11 +332,11 @@ export const nodeDocumentation: Record<string, NodeDoc> = {
     inputs: ['mint'],
     outputs: ['name', 'symbol', 'decimals', 'logoUri'],
   },
-  helius_parse_tx: {
-    type: 'helius_parse_tx',
+  parse_transaction: {
+    type: 'parse_transaction',
     name: 'Parse Transaction',
     category: 'data',
-    description: 'Parses a Solana transaction using Helius API.',
+    description: 'Parses and enriches a Solana transaction with human-readable details.',
     inputs: ['signature'],
     outputs: ['type', 'description', 'fee', 'accounts'],
   },
