@@ -139,17 +139,18 @@ export default function AddNodeAfterLast({ screenPosition, onAddNode, onPopupOpe
 
   // Render button and popup using portal to avoid ReactFlow zoom transform
   return createPortal(
-    <div
-      style={{
-        position: 'fixed',
-        left: screenPosition.x,
-        top: screenPosition.y,
-        transform: 'translate(-50%, 0)',
-        zIndex: 100,
-        pointerEvents: 'auto',
-      }}
-    >
-      {!showMenu ? (
+    <>
+      {/* Button always visible with connecting line */}
+      <div
+        style={{
+          position: 'fixed',
+          left: screenPosition.x,
+          top: screenPosition.y,
+          transform: 'translate(-50%, 0)',
+          zIndex: 100,
+          pointerEvents: 'auto',
+        }}
+      >
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           {/* Connecting line */}
           <div style={{ 
@@ -166,15 +167,15 @@ export default function AddNodeAfterLast({ screenPosition, onAddNode, onPopupOpe
               width: 40,
               height: 40,
               borderRadius: 10,
-              background: '#1a1a1a',
-              border: '1px solid #333',
+              background: showMenu ? '#333' : '#1a1a1a',
+              border: `1px solid ${showMenu ? '#555' : '#333'}`,
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               fontSize: 22,
               fontWeight: 300,
-              color: '#666',
+              color: showMenu ? '#fff' : '#666',
               transition: 'all 0.15s ease',
               boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
             }}
@@ -184,16 +185,21 @@ export default function AddNodeAfterLast({ screenPosition, onAddNode, onPopupOpe
               e.currentTarget.style.borderColor = '#555'
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#1a1a1a'
-              e.currentTarget.style.color = '#666'
-              e.currentTarget.style.borderColor = '#333'
+              if (!showMenu) {
+                e.currentTarget.style.background = '#1a1a1a'
+                e.currentTarget.style.color = '#666'
+                e.currentTarget.style.borderColor = '#333'
+              }
             }}
             title="Add node"
           >
             +
           </button>
         </div>
-      ) : (
+      </div>
+      
+      {/* Popup - shown when menu is open */}
+      {showMenu && (
         <div
           className="add-node-after-popup"
           onClick={(e) => e.stopPropagation()}
@@ -349,7 +355,7 @@ export default function AddNodeAfterLast({ screenPosition, onAddNode, onPopupOpe
           </div>
         </div>
       )}
-    </div>,
+    </>,
     document.body
   )
 }

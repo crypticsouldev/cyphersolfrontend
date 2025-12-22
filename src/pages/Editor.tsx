@@ -4220,17 +4220,21 @@ export default function Editor() {
           const targetNode = draft.nodes.find((n) => n.id === targetId)
           if (!sourceNode || !targetNode) return
           
-          // Position new node between source and target
-          const midX = (sourceNode.position.x + targetNode.position.x) / 2
-          const midY = (sourceNode.position.y + targetNode.position.y) / 2 + 80
+          // Position new node between source and target, shift target down
+          const newX = sourceNode.position.x
+          const newY = sourceNode.position.y + 150
           
           const newNodeId = getNextNodeId(draft.nodes)
           const newNode = {
             id: newNodeId,
             type: 'default',
-            position: { x: midX, y: midY },
+            position: { x: newX, y: newY },
             data: { label: nodeType, type: nodeType },
           }
+          
+          // Move target node and all nodes below it down to make room
+          const shiftAmount = 150
+          flowRef.current?.shiftNodesDown(targetId, shiftAmount)
           
           // Add new node and update edges: remove old edge, add source->new and new->target
           flowRef.current?.insertNodeOnEdge(edgeId, newNode)

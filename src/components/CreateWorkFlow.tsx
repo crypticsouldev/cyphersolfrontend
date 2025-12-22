@@ -80,6 +80,7 @@ export type CreateWorkFlowHandle = {
   addNode: (node: Node) => void
   deleteNode: (nodeId: string) => void
   insertNodeOnEdge: (edgeId: string, node: Node) => void
+  shiftNodesDown: (startNodeId: string, amount: number) => void
 }
 
 const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
@@ -173,6 +174,19 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
         })
         setNodes((prev) => [...prev, node])
       },
+      shiftNodesDown: (startNodeId: string, amount: number) => {
+        setNodes((prev) => {
+          const startNode = prev.find((n) => n.id === startNodeId)
+          if (!startNode) return prev
+          const startY = startNode.position.y
+          // Shift all nodes at or below startY down by amount
+          return prev.map((n) => 
+            n.position.y >= startY 
+              ? { ...n, position: { ...n.position, y: n.position.y + amount } }
+              : n
+          )
+        })
+      },
     }),
     [],
   )
@@ -192,19 +206,31 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
     [],
   )
 
-  // Handle edge reconnection (drag edge to new target or disconnect by dropping on empty space)
+  // Track if edge reconnection was successful
+  const edgeReconnectSuccessful = useRef(true)
+
+  // Called when user starts dragging an edge handle
+  const onReconnectStart = useCallback(() => {
+    edgeReconnectSuccessful.current = false
+  }, [])
+
+  // Handle edge reconnection (drag edge to new target)
   const onReconnect: OnReconnect = useCallback(
     (oldEdge, newConnection) => {
+      edgeReconnectSuccessful.current = true
       setEdges((edgesSnapshot) => reconnectEdge(oldEdge, newConnection, edgesSnapshot))
     },
     [],
   )
 
-  // Handle edge reconnection end - if dropped on empty space, delete the edge
+  // Handle edge reconnection end - if dropped on empty space (not reconnected), delete the edge
   const onReconnectEnd = useCallback(
     (_event: MouseEvent | TouchEvent, edge: Edge) => {
-      // Edge was dropped on empty space, delete it
-      setEdges((edgesSnapshot) => edgesSnapshot.filter((e) => e.id !== edge.id))
+      // Only delete if reconnection was not successful (dropped on empty space)
+      if (!edgeReconnectSuccessful.current) {
+        setEdges((edgesSnapshot) => edgesSnapshot.filter((e) => e.id !== edge.id))
+      }
+      edgeReconnectSuccessful.current = true
     },
     [],
   )
@@ -222,6 +248,7 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
         nodesDraggable={!readOnly}
         nodesConnectable={!readOnly}
         edgesReconnectable={!readOnly}
+        onReconnectStart={readOnly ? undefined : onReconnectStart}
         onReconnect={readOnly ? undefined : onReconnect}
         onReconnectEnd={readOnly ? undefined : onReconnectEnd}
         deleteKeyCode={readOnly ? null : ['Backspace', 'Delete']}
