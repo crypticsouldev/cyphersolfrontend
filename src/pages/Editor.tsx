@@ -4239,6 +4239,13 @@ export default function Editor() {
         onAddNodeAfterLast={(nodeType) => {
           addNode(nodeType as any)
         }}
+        onDeleteNode={(nodeId) => {
+          if (!draft) return
+          const ok = window.confirm('Delete this node?')
+          if (!ok) return
+          flowRef.current?.deleteNode(nodeId)
+          setSelectedNodeId(undefined)
+        }}
       />
     </div>
   )

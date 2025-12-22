@@ -19,9 +19,14 @@ import {
 import '@xyflow/react/dist/style.css'
 import AddNodeEdge from './AddNodeEdge'
 import AddNodeAfterLast from './AddNodeAfterLast'
+import CustomNode from './CustomNode'
 
 const edgeTypes = {
   addNode: AddNodeEdge,
+}
+
+const nodeTypes = {
+  custom: CustomNode,
 }
 
 const defaultNodes: Node[] = []
@@ -35,6 +40,7 @@ type Props = {
   onNodeSelect?: (nodeId: string | undefined) => void
   onAddNodeOnEdge?: (edgeId: string, nodeType: string, sourceId: string, targetId: string) => void
   onAddNodeAfterLast?: (nodeType: string) => void
+  onDeleteNode?: (nodeId: string) => void
   containerStyle?: CSSProperties
   readOnly?: boolean
   syncFromProps?: boolean
@@ -77,10 +83,23 @@ export type CreateWorkFlowHandle = {
 }
 
 const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
-  ({ initialNodes, initialEdges, onDefinitionChange, onNodeSelect, onAddNodeOnEdge, onAddNodeAfterLast, containerStyle, readOnly, syncFromProps }, ref) => {
+  ({ initialNodes, initialEdges, onDefinitionChange, onNodeSelect, onAddNodeOnEdge, onAddNodeAfterLast, onDeleteNode, containerStyle, readOnly, syncFromProps }, ref) => {
   const [nodes, setNodes] = useState<Node[]>(initialNodes ?? defaultNodes)
   const [edges, setEdges] = useState<Edge[]>(initialEdges ?? defaultEdges)
   const [popupOpen, setPopupOpen] = useState(false)
+
+  // Add custom node type with delete handler to all nodes
+  const nodesWithHandlers = useMemo(() => {
+    if (readOnly) return nodes
+    return nodes.map((node) => ({
+      ...node,
+      type: 'custom',
+      data: {
+        ...node.data,
+        onDelete: onDeleteNode,
+      },
+    }))
+  }, [nodes, onDeleteNode, readOnly])
 
   // Add edge data with onAddNode handler for plus icon on edges
   const edgesWithHandlers = useMemo(() => {
@@ -193,8 +212,9 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
   return (
     <div style={{ width: '100vw', height: '100vh', ...containerStyle }}>
       <ReactFlow
-        nodes={nodes}
+        nodes={nodesWithHandlers}
         edges={edgesWithHandlers}
+        nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         onNodesChange={readOnly ? undefined : onNodesChange}
         onEdgesChange={readOnly ? undefined : onEdgesChange}
