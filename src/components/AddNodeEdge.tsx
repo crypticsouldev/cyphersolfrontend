@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { BaseEdge, EdgeLabelRenderer, getBezierPath, type EdgeProps } from '@xyflow/react'
 
 type NodeCategory = 'trigger' | 'action' | 'logic' | 'data' | 'market'
@@ -77,7 +78,7 @@ const nodeOptions: { value: string; label: string; category: NodeCategory; descr
 
 type AddNodeEdgeProps = EdgeProps & {
   data?: {
-    onAddNode?: (edgeId: string, nodeType: string) => void
+    onAddNode?: (edgeId: string, nodeType: string, sourceId: string, targetId: string) => void
     onPopupOpen?: () => void
     onPopupClose?: () => void
   }
@@ -85,6 +86,8 @@ type AddNodeEdgeProps = EdgeProps & {
 
 export default function AddNodeEdge({
   id,
+  source,
+  target,
   sourceX,
   sourceY,
   targetX,
@@ -97,6 +100,8 @@ export default function AddNodeEdge({
 }: AddNodeEdgeProps) {
   const [showMenu, setShowMenu] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<NodeCategory | null>(null)
+  const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 })
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
   // Notify parent when popup opens/closes
   useEffect(() => {
@@ -106,6 +111,14 @@ export default function AddNodeEdge({
       data?.onPopupClose?.()
     }
   }, [showMenu, data])
+
+  const handleOpenMenu = () => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect()
+      setPopupPosition({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
+    }
+    setShowMenu(true)
+  }
 
   const [edgePath, labelX, labelY] = getBezierPath({
     sourceX,
@@ -141,7 +154,7 @@ export default function AddNodeEdge({
   }, [showMenu])
 
   const handleAddNode = (nodeType: string) => {
-    data?.onAddNode?.(id, nodeType)
+    data?.onAddNode?.(id, nodeType, source, target)
     setShowMenu(false)
     setSelectedCategory(null)
   }
@@ -161,58 +174,60 @@ export default function AddNodeEdge({
           }}
           className="nodrag nopan"
         >
-          {!showMenu ? (
-            <button
-              onClick={() => setShowMenu(true)}
-              style={{
-                width: 20,
-                height: 20,
-                borderRadius: '50%',
-                background: 'var(--color-surface, #fff)',
-                border: '2px solid var(--color-border, #e5e7eb)',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: 12,
-                fontWeight: 'bold',
-                color: 'var(--color-text-muted, #666)',
-                transition: 'all 0.15s ease',
-                opacity: 0.6,
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = 'var(--color-primary, #3b82f6)'
-                e.currentTarget.style.color = '#fff'
-                e.currentTarget.style.borderColor = 'var(--color-primary, #3b82f6)'
-                e.currentTarget.style.opacity = '1'
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = 'var(--color-surface, #fff)'
-                e.currentTarget.style.color = 'var(--color-text-muted, #666)'
-                e.currentTarget.style.borderColor = 'var(--color-border, #e5e7eb)'
-                e.currentTarget.style.opacity = '0.6'
-              }}
-              title="Add node"
-            >
-              +
-            </button>
-          ) : (
-            <div
-              className="add-node-popup"
-              onClick={(e) => e.stopPropagation()}
-              onWheel={(e) => e.stopPropagation()}
-              style={{
-                background: '#1a1a1a',
-                border: '1px solid #333',
-                borderRadius: 12,
-                boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-                padding: 0,
-                minWidth: selectedCategory ? 280 : 380,
-                maxHeight: 480,
-                overflow: 'hidden',
-                zIndex: 99999,
-              }}
-            >
+          <button
+            ref={buttonRef}
+            onClick={handleOpenMenu}
+            style={{
+              width: 24,
+              height: 24,
+              borderRadius: '50%',
+              background: '#1a1a1a',
+              border: '2px solid #444',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: 14,
+              fontWeight: 'bold',
+              color: '#888',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = '#333'
+              e.currentTarget.style.color = '#fff'
+              e.currentTarget.style.borderColor = '#666'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = '#1a1a1a'
+              e.currentTarget.style.color = '#888'
+              e.currentTarget.style.borderColor = '#444'
+            }}
+            title="Add node"
+          >
+            +
+          </button>
+        </div>
+      </EdgeLabelRenderer>
+      {showMenu && createPortal(
+        <div
+          className="add-node-popup"
+          onClick={(e) => e.stopPropagation()}
+          style={{
+            position: 'fixed',
+            left: popupPosition.x,
+            top: popupPosition.y,
+            transform: 'translate(-50%, -50%)',
+            background: '#1a1a1a',
+            border: '1px solid #333',
+            borderRadius: 12,
+            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+            padding: 0,
+            minWidth: selectedCategory ? 280 : 380,
+            maxHeight: 480,
+            overflow: 'hidden',
+            zIndex: 99999,
+          }}
+        >
               {/* Header */}
               <div style={{ 
                 padding: '14px 16px', 
@@ -347,10 +362,9 @@ export default function AddNodeEdge({
                   </div>
                 )}
               </div>
-            </div>
-          )}
-        </div>
-      </EdgeLabelRenderer>
+        </div>,
+        document.body
+      )}
     </>
   )
 }

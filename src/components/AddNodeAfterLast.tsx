@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 
 type NodeCategory = 'trigger' | 'action' | 'logic' | 'data' | 'market'
 
@@ -75,15 +76,17 @@ const nodeOptions: { value: string; label: string; category: NodeCategory; descr
 ]
 
 type Props = {
-  position: { x: number; y: number }
+  screenPosition: { x: number; y: number }
   onAddNode: (nodeType: string) => void
   onPopupOpen?: () => void
   onPopupClose?: () => void
 }
 
-export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onPopupClose }: Props) {
+export default function AddNodeAfterLast({ screenPosition, onAddNode, onPopupOpen, onPopupClose }: Props) {
   const [showMenu, setShowMenu] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<NodeCategory | null>(null)
+  const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 })
+  const buttonRef = useRef<HTMLButtonElement>(null)
 
   // Notify parent when popup opens/closes
   useEffect(() => {
@@ -93,6 +96,14 @@ export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onP
       onPopupClose?.()
     }
   }, [showMenu, onPopupOpen, onPopupClose])
+
+  const handleOpenMenu = () => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect()
+      setPopupPosition({ x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 })
+    }
+    setShowMenu(true)
+  }
 
   // Close menu when clicking outside
   useEffect(() => {
@@ -126,16 +137,17 @@ export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onP
 
   const categories = ['trigger', 'action', 'logic', 'data', 'market'] as NodeCategory[]
 
-  return (
+  // Render button and popup using portal to avoid ReactFlow zoom transform
+  return createPortal(
     <div
       style={{
-        position: 'absolute',
-        left: position.x,
-        top: position.y,
+        position: 'fixed',
+        left: screenPosition.x,
+        top: screenPosition.y,
         transform: 'translate(-50%, 0)',
-        zIndex: showMenu ? 9999 : 5,
+        zIndex: 100,
+        pointerEvents: 'auto',
       }}
-      className="nodrag nopan"
     >
       {!showMenu ? (
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
@@ -146,9 +158,10 @@ export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onP
             background: '#555',
             borderRadius: 1,
           }} />
-          {/* Dark rounded square button matching screenshot */}
+          {/* Dark rounded square button */}
           <button
-            onClick={() => setShowMenu(true)}
+            ref={buttonRef}
+            onClick={handleOpenMenu}
             style={{
               width: 40,
               height: 40,
@@ -184,8 +197,11 @@ export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onP
         <div
           className="add-node-after-popup"
           onClick={(e) => e.stopPropagation()}
-          onWheel={(e) => e.stopPropagation()}
           style={{
+            position: 'fixed',
+            left: popupPosition.x,
+            top: popupPosition.y,
+            transform: 'translate(-50%, -50%)',
             background: '#1a1a1a',
             border: '1px solid #333',
             borderRadius: 12,
@@ -194,6 +210,7 @@ export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onP
             minWidth: selectedCategory ? 280 : 380,
             maxHeight: 480,
             overflow: 'hidden',
+            zIndex: 99999,
           }}
         >
           {/* Header */}
@@ -332,6 +349,7 @@ export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onP
           </div>
         </div>
       )}
-    </div>
+    </div>,
+    document.body
   )
 }

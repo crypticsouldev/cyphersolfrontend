@@ -8,7 +8,7 @@ import {
   Background,
   Controls,
   useReactFlow,
-  ReactFlowProvider,
+  Panel,
   type Node,
   type Edge,
   type OnNodesChange,
@@ -33,31 +33,35 @@ type Props = {
   initialEdges?: Edge[]
   onDefinitionChange?: (definition: { nodes: Node[]; edges: Edge[] }) => void
   onNodeSelect?: (nodeId: string | undefined) => void
-  onAddNodeOnEdge?: (edgeId: string, nodeType: string) => void
+  onAddNodeOnEdge?: (edgeId: string, nodeType: string, sourceId: string, targetId: string) => void
   onAddNodeAfterLast?: (nodeType: string) => void
   containerStyle?: CSSProperties
   readOnly?: boolean
   syncFromProps?: boolean
 }
 
-// Wrapper component to use hooks inside ReactFlow
+// Wrapper component to use hooks inside ReactFlow - converts flow coords to screen coords
 function AddNodeButton({ nodeId, onAddNode, onPopupOpen, onPopupClose }: { 
   nodeId: string
   onAddNode: (nodeType: string) => void
   onPopupOpen: () => void
   onPopupClose: () => void 
 }) {
-  const { getNode } = useReactFlow()
+  const { getNode, flowToScreenPosition } = useReactFlow()
   const node = getNode(nodeId)
   
   if (!node) return null
   
+  // Calculate position below the node in flow coordinates
+  const flowX = node.position.x + (node.measured?.width ? node.measured.width / 2 : 75)
+  const flowY = node.position.y + (node.measured?.height ? node.measured.height + 10 : 50)
+  
+  // Convert to screen coordinates
+  const screenPos = flowToScreenPosition({ x: flowX, y: flowY })
+  
   return (
     <AddNodeAfterLast
-      position={{ 
-        x: node.position.x + (node.measured?.width ? node.measured.width / 2 : 75),
-        y: node.position.y + (node.measured?.height ? node.measured.height + 10 : 50)
-      }}
+      screenPosition={screenPos}
       onAddNode={onAddNode}
       onPopupOpen={onPopupOpen}
       onPopupClose={onPopupClose}
@@ -69,6 +73,7 @@ export type CreateWorkFlowHandle = {
   patchNodeData: (nodeId: string, patch: Record<string, unknown>) => void
   addNode: (node: Node) => void
   deleteNode: (nodeId: string) => void
+  insertNodeOnEdge: (edgeId: string, node: Node) => void
 }
 
 const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
@@ -134,6 +139,20 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
       deleteNode: (nodeId: string) => {
         setNodes((prev) => prev.filter((n) => n.id !== nodeId))
         setEdges((prev) => prev.filter((e) => e.source !== nodeId && e.target !== nodeId))
+      },
+      insertNodeOnEdge: (edgeId: string, node: Node) => {
+        setEdges((prev) => {
+          const edge = prev.find((e) => e.id === edgeId)
+          if (!edge) return prev
+          // Remove old edge, add two new edges
+          const newEdges = prev.filter((e) => e.id !== edgeId)
+          newEdges.push(
+            { id: `e-${edge.source}-${node.id}`, source: edge.source, target: node.id },
+            { id: `e-${node.id}-${edge.target}`, source: node.id, target: edge.target }
+          )
+          return newEdges
+        })
+        setNodes((prev) => [...prev, node])
       },
     }),
     [],

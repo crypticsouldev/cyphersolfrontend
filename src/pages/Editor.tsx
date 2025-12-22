@@ -4213,16 +4213,16 @@ export default function Editor() {
         initialEdges={initialEdges}
         onDefinitionChange={handleDefinitionChange}
         onNodeSelect={(nodeId) => setSelectedNodeId(nodeId)}
-        onAddNodeOnEdge={(edgeId, nodeType) => {
+        onAddNodeOnEdge={(edgeId, nodeType, sourceId, targetId) => {
           if (!draft) return
-          const edge = draft.edges.find((e) => e.id === edgeId)
-          if (!edge) return
-          const sourceNode = draft.nodes.find((n) => n.id === edge.source)
-          const targetNode = draft.nodes.find((n) => n.id === edge.target)
+          
+          const sourceNode = draft.nodes.find((n) => n.id === sourceId)
+          const targetNode = draft.nodes.find((n) => n.id === targetId)
           if (!sourceNode || !targetNode) return
           
+          // Position new node between source and target
           const midX = (sourceNode.position.x + targetNode.position.x) / 2
-          const midY = (sourceNode.position.y + targetNode.position.y) / 2
+          const midY = (sourceNode.position.y + targetNode.position.y) / 2 + 80
           
           const newNodeId = getNextNodeId(draft.nodes)
           const newNode = {
@@ -4232,8 +4232,8 @@ export default function Editor() {
             data: { label: nodeType, type: nodeType },
           }
           
-          // Add new node and update edges to go through it
-          flowRef.current?.addNode(newNode)
+          // Add new node and update edges: remove old edge, add source->new and new->target
+          flowRef.current?.insertNodeOnEdge(edgeId, newNode)
           setSelectedNodeId(newNodeId)
         }}
         onAddNodeAfterLast={(nodeType) => {
