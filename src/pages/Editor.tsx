@@ -229,6 +229,39 @@ export default function Editor() {
     return { ok: true, reason: undefined }
   }, [draft, solanaValidationIssues])
 
+  const connectivityEligibility = useMemo((): { ok: boolean; reason?: string } => {
+    if (!draft) return { ok: false, reason: 'no workflow loaded' }
+
+    const isTriggerNode = (n: Node) => {
+      const kind = String((n.data as any)?.type ?? '')
+      return kind === 'timer_trigger' || kind === 'price_trigger' || kind === 'onchain_trigger'
+    }
+
+    const trigger = draft.nodes.find(isTriggerNode)
+    if (!trigger) return { ok: false, reason: 'add a trigger node first' }
+
+    const reachable = new Set<string>()
+    const queue: string[] = [trigger.id]
+    reachable.add(trigger.id)
+
+    while (queue.length) {
+      const current = queue.shift()!
+      for (const e of draft.edges) {
+        if (e.source !== current) continue
+        if (!reachable.has(e.target)) {
+          reachable.add(e.target)
+          queue.push(e.target)
+        }
+      }
+    }
+
+    if (reachable.size !== draft.nodes.length) {
+      return { ok: false, reason: 'please connect all nodes to proceed' }
+    }
+
+    return { ok: true, reason: undefined }
+  }, [draft])
+
   const hasTriggerNode = useMemo(() => {
     if (!draft) return false
     return draft.nodes.some((n) => {
@@ -764,6 +797,12 @@ export default function Editor() {
 
   async function onSave() {
     if (!workflowId || !draft) return
+
+    if (!connectivityEligibility.ok) {
+      window.alert(connectivityEligibility.reason || 'please connect all nodes to proceed')
+      return
+    }
+
     setBusy(true)
     setError(undefined)
     try {
@@ -918,18 +957,20 @@ export default function Editor() {
       return
     }
 
+    if (!connectivityEligibility.ok) {
+      window.alert(connectivityEligibility.reason || 'please connect all nodes to proceed')
+      return
+    }
+
     // Check for unsaved changes
     if (hasUnsavedChanges) {
       const choice = window.confirm(
-        'You have unsaved changes.\n\nClick OK to save and run, or Cancel to go back to editor.'
+        'Save first before running.\n\nClick OK to save, or Cancel to go back to editor.'
       )
       if (choice) {
-        // Save first, then run
         await onSave()
-      } else {
-        // User cancelled - go back to editor without running
-        return
       }
+      return
     }
 
     setBusy(true)

@@ -142,16 +142,16 @@ export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onP
       className="nodrag nopan add-node-after-anchor"
       style={{
         position: 'absolute',
-        left: position.x,
-        top: position.y,
-        transform: 'translate(-50%, 0)',
+        left: 0,
+        top: 0,
+        transform: `translate(${position.x}px, ${position.y}px) translate(-50%, 0)`,
         zIndex: 5,
       }}
     >
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         <div style={{ 
           width: 2, 
-          height: 30, 
+          height: 36, 
           background: '#555',
           borderRadius: 1,
         }} />

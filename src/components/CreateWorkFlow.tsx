@@ -9,6 +9,7 @@ import {
   Controls,
   useReactFlow,
   Panel,
+  ViewportPortal,
   type Node,
   type Edge,
   type OnNodesChange,
@@ -57,12 +58,15 @@ function AddNodeButton({ nodeId, onAddNode, onPopupOpen, onPopupClose }: {
   const node = getNode(nodeId)
   
   if (!node) return null
+
+  const width = node.measured?.width ?? (node as any).width ?? 150
+  const height = node.measured?.height ?? (node as any).height ?? 50
   
   return (
     <AddNodeAfterLast
       position={{ 
-        x: node.position.x + (node.measured?.width ? node.measured.width / 2 : 75),
-        y: node.position.y + (node.measured?.height ? node.measured.height + 10 : 50)
+        x: node.position.x + width / 2,
+        y: node.position.y + height - 2
       }}
       onAddNode={onAddNode}
       onPopupOpen={onPopupOpen}
@@ -342,16 +346,18 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
         <Controls showInteractive={false} position="bottom-left" />
         {/* Plus icon after terminal nodes - only show for the last one */}
         {terminalNodes.length > 0 && (
-          <AddNodeButton
-            key={`add-after-${terminalNodes[terminalNodes.length - 1].id}`}
-            nodeId={terminalNodes[terminalNodes.length - 1].id}
-            onAddNode={(nodeType) => {
-              setPopupOpen(false)
-              onAddNodeAfterLast?.(nodeType, terminalNodes[terminalNodes.length - 1].id)
-            }}
-            onPopupOpen={() => setPopupOpen(true)}
-            onPopupClose={() => setPopupOpen(false)}
-          />
+          <ViewportPortal>
+            <AddNodeButton
+              key={`add-after-${terminalNodes[terminalNodes.length - 1].id}`}
+              nodeId={terminalNodes[terminalNodes.length - 1].id}
+              onAddNode={(nodeType) => {
+                setPopupOpen(false)
+                onAddNodeAfterLast?.(nodeType, terminalNodes[terminalNodes.length - 1].id)
+              }}
+              onPopupOpen={() => setPopupOpen(true)}
+              onPopupClose={() => setPopupOpen(false)}
+            />
+          </ViewportPortal>
         )}
       </ReactFlow>
     </div>
