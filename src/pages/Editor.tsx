@@ -2035,12 +2035,14 @@ export default function Editor() {
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>transaction signature</div>
-                <input
+                <NodeOutputSelector
+                  nodes={draft?.nodes || []}
+                  currentNodeId={selectedNodeId || ''}
+                  edges={draft?.edges || []}
                   value={typeof selectedNodeData.signature === 'string' ? selectedNodeData.signature : ''}
-                  onChange={(e) => patchSelectedNode({ signature: e.target.value })}
+                  onChange={(v) => patchSelectedNode({ signature: v })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
-                  placeholder="5abc123... or {{node.signature}}"
+                  placeholder="Select transaction signature..."
                 />
               </div>
               <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
@@ -2116,12 +2118,14 @@ export default function Editor() {
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>transaction signature</div>
-                <input
+                <NodeOutputSelector
+                  nodes={draft?.nodes || []}
+                  currentNodeId={selectedNodeId || ''}
+                  edges={draft?.edges || []}
                   value={typeof selectedNodeData.signature === 'string' ? selectedNodeData.signature : ''}
-                  onChange={(e) => patchSelectedNode({ signature: e.target.value })}
+                  onChange={(v) => patchSelectedNode({ signature: v })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
-                  placeholder="5abc123... or {{node.signature}}"
+                  placeholder="Select transaction signature..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
@@ -2147,12 +2151,14 @@ export default function Editor() {
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
-                <input
+                <NodeOutputSelector
+                  nodes={draft?.nodes || []}
+                  currentNodeId={selectedNodeId || ''}
+                  edges={draft?.edges || []}
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
-                  onChange={(e) => patchSelectedNode({ mint: e.target.value })}
+                  onChange={(v) => patchSelectedNode({ mint: v })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
-                  placeholder="EPjFWdd5... or {{node.mint}}"
+                  placeholder="Select or enter token address..."
                 />
               </div>
               <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
@@ -2482,12 +2488,14 @@ export default function Editor() {
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
-                <input
+                <NodeOutputSelector
+                  nodes={draft?.nodes || []}
+                  currentNodeId={selectedNodeId || ''}
+                  edges={draft?.edges || []}
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
-                  onChange={(e) => patchSelectedNode({ mint: e.target.value })}
+                  onChange={(v) => patchSelectedNode({ mint: v })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
-                  placeholder="EPjFWdd5... or {{node.mint}}"
+                  placeholder="Select or enter token address..."
                 />
               </div>
               <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>returns: balance, decimals</div>
@@ -2498,12 +2506,14 @@ export default function Editor() {
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>transaction signature</div>
-                <input
+                <NodeOutputSelector
+                  nodes={draft?.nodes || []}
+                  currentNodeId={selectedNodeId || ''}
+                  edges={draft?.edges || []}
                   value={typeof (selectedNodeData as any).signature === 'string' ? (selectedNodeData as any).signature : ''}
-                  onChange={(e) => patchSelectedNode({ signature: e.target.value })}
+                  onChange={(v) => patchSelectedNode({ signature: v })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
-                  placeholder="{{node.signature}}"
+                  placeholder="Select transaction signature..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
@@ -2691,12 +2701,14 @@ export default function Editor() {
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>transaction signature</div>
-                <input
+                <NodeOutputSelector
+                  nodes={draft?.nodes || []}
+                  currentNodeId={selectedNodeId || ''}
+                  edges={draft?.edges || []}
                   value={typeof (selectedNodeData as any).signature === 'string' ? (selectedNodeData as any).signature : ''}
-                  onChange={(e) => patchSelectedNode({ signature: e.target.value })}
+                  onChange={(v) => patchSelectedNode({ signature: v })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
-                  placeholder="{{node.signature}}"
+                  placeholder="Select transaction signature..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
@@ -2799,12 +2811,14 @@ export default function Editor() {
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
-                <input
+                <NodeOutputSelector
+                  nodes={draft?.nodes || []}
+                  currentNodeId={selectedNodeId || ''}
+                  edges={draft?.edges || []}
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
-                  onChange={(e) => patchSelectedNode({ mint: e.target.value })}
+                  onChange={(v) => patchSelectedNode({ mint: v })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
-                  placeholder="EPjFWdd5... or {{node.mint}}"
+                  placeholder="Select or enter token address..."
                 />
               </div>
               <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
@@ -2817,12 +2831,14 @@ export default function Editor() {
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
-                <input
+                <NodeOutputSelector
+                  nodes={draft?.nodes || []}
+                  currentNodeId={selectedNodeId || ''}
+                  edges={draft?.edges || []}
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
-                  onChange={(e) => patchSelectedNode({ mint: e.target.value })}
+                  onChange={(v) => patchSelectedNode({ mint: v })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
-                  placeholder="EPjFWdd5..."
+                  placeholder="Select or enter token address..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
@@ -2846,12 +2862,14 @@ export default function Editor() {
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
-                <input
+                <NodeOutputSelector
+                  nodes={draft?.nodes || []}
+                  currentNodeId={selectedNodeId || ''}
+                  edges={draft?.edges || []}
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
-                  onChange={(e) => patchSelectedNode({ mint: e.target.value })}
+                  onChange={(v) => patchSelectedNode({ mint: v })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
-                  placeholder="EPjFWdd5..."
+                  placeholder="Select or enter token address..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
@@ -3286,12 +3304,14 @@ export default function Editor() {
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>current price</div>
-                <input
+                <NodeOutputSelector
+                  nodes={draft?.nodes || []}
+                  currentNodeId={selectedNodeId || ''}
+                  edges={draft?.edges || []}
                   value={(selectedNodeData as any).currentPrice === undefined ? '' : String((selectedNodeData as any).currentPrice)}
-                  onChange={(e) => patchSelectedNode({ currentPrice: e.target.value })}
+                  onChange={(v) => patchSelectedNode({ currentPrice: v })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
-                  placeholder="0.0012 or {{node.price}}"
+                  placeholder="Select or enter current price..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
