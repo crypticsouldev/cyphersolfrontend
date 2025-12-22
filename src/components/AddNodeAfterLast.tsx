@@ -146,6 +146,7 @@ export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onP
         top: 0,
         transform: `translate(${position.x}px, ${position.y}px) translate(-50%, 0)`,
         zIndex: 5,
+        pointerEvents: 'all',
       }}
     >
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
