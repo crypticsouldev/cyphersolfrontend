@@ -13,6 +13,7 @@ import {
 import { clearAuthToken } from '../lib/auth'
 import { useCredentials, useMeta, invalidateWorkflow } from '../lib/hooks'
 import { getNodeDoc, getCategoryColor, getCategoryLabel } from '../lib/nodeDocumentation'
+import NodeOutputSelector from '../components/NodeOutputSelector'
 
 export default function Editor() {
   const params = useParams()
@@ -2053,31 +2054,60 @@ export default function Editor() {
 
           {selectedNodeType === 'cooldown' ? (
             <div style={{ display: 'grid', gap: 10 }}>
-              <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>cooldown key</div>
-                <input
-                  value={typeof selectedNodeData.key === 'string' ? selectedNodeData.key : ''}
-                  onChange={(e) => patchSelectedNode({ key: e.target.value })}
-                  disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
-                  placeholder="my-cooldown or {{trigger.feePayer}}"
-                />
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)', background: 'var(--color-bg)', padding: 10, borderRadius: 8 }}>
+                💡 <strong>What is a cooldown?</strong> Prevents the workflow from running too frequently. After the workflow runs once, it won't run again until the cooldown period expires.
               </div>
+
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>ttl (seconds)</div>
-                <input
-                  type="number"
-                  value={selectedNodeData.ttlSeconds === undefined || selectedNodeData.ttlSeconds === null ? '' : String(selectedNodeData.ttlSeconds)}
-                  onChange={(e) => patchSelectedNode({ ttlSeconds: e.target.value ? Number(e.target.value) : undefined })}
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Wait time before allowing next run</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <input
+                    type="number"
+                    value={selectedNodeData.ttlSeconds === undefined || selectedNodeData.ttlSeconds === null ? '' : String(selectedNodeData.ttlSeconds)}
+                    onChange={(e) => patchSelectedNode({ ttlSeconds: e.target.value ? Number(e.target.value) : undefined })}
+                    disabled={busy}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', width: 100 }}
+                    placeholder="60"
+                    min={1}
+                    max={604800}
+                  />
+                  <span style={{ fontSize: 13, color: 'var(--color-text-muted)' }}>seconds</span>
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--color-text-subtle)' }}>
+                  Common values: 60 = 1 minute, 300 = 5 minutes, 3600 = 1 hour, 86400 = 1 day
+                </div>
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Cooldown identifier (advanced)</div>
+                <select
+                  value={typeof selectedNodeData.key === 'string' && selectedNodeData.key.startsWith('{{') ? 'dynamic' : 'static'}
+                  onChange={(e) => {
+                    if (e.target.value === 'static') {
+                      patchSelectedNode({ key: 'default' })
+                    } else {
+                      patchSelectedNode({ key: '{{nodes.trigger.output.signature}}' })
+                    }
+                  }}
                   disabled={busy}
                   style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
-                  placeholder="60"
-                  min={1}
-                  max={604800}
-                />
-              </div>
-              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
-                gates downstream nodes. if cooldown is active (key seen within ttl), downstream nodes are skipped.
+                >
+                  <option value="static">Same cooldown for all triggers (recommended)</option>
+                  <option value="dynamic">Different cooldown per trigger event</option>
+                </select>
+                {typeof selectedNodeData.key === 'string' && selectedNodeData.key.startsWith('{{') ? (
+                  <div style={{ marginTop: 4 }}>
+                    <NodeOutputSelector
+                      nodes={draft?.nodes || []}
+                      currentNodeId={selectedNodeId || ''}
+                      edges={draft?.edges || []}
+                      value={typeof selectedNodeData.key === 'string' ? selectedNodeData.key : ''}
+                      onChange={(v) => patchSelectedNode({ key: v })}
+                      disabled={busy}
+                      placeholder="Select unique identifier..."
+                    />
+                  </div>
+                ) : null}
               </div>
             </div>
           ) : null}
@@ -2116,7 +2146,7 @@ export default function Editor() {
           {selectedNodeType === 'get_token_data' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint address</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
@@ -2158,7 +2188,7 @@ export default function Editor() {
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>input mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token to sell (mint address)</div>
                 <input
                   value={typeof (selectedNodeData as any).inputMint === 'string' ? (selectedNodeData as any).inputMint : ''}
                   onChange={(e) => patchSelectedNode({ inputMint: e.target.value })}
@@ -2168,7 +2198,7 @@ export default function Editor() {
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>output mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token to buy (mint address)</div>
                 <input
                   value={typeof (selectedNodeData as any).outputMint === 'string' ? (selectedNodeData as any).outputMint : ''}
                   onChange={(e) => patchSelectedNode({ outputMint: e.target.value })}
@@ -2188,17 +2218,27 @@ export default function Editor() {
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>slippage (bps)</div>
-                <input
-                  type="number"
-                  value={(selectedNodeData as any).slippageBps === undefined ? '' : String((selectedNodeData as any).slippageBps)}
-                  onChange={(e) => patchSelectedNode({ slippageBps: e.target.value ? Number(e.target.value) : undefined })}
-                  disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
-                  placeholder="300"
-                />
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Max price slippage</div>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                  <select
+                    value={(selectedNodeData as any).slippageBps === undefined ? '300' : String((selectedNodeData as any).slippageBps)}
+                    onChange={(e) => patchSelectedNode({ slippageBps: Number(e.target.value) })}
+                    disabled={busy}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', flex: 1 }}
+                  >
+                    <option value="50">0.5% (very low)</option>
+                    <option value="100">1% (low)</option>
+                    <option value="300">3% (recommended)</option>
+                    <option value="500">5% (medium)</option>
+                    <option value="1000">10% (high)</option>
+                    <option value="2000">20% (very high)</option>
+                  </select>
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--color-text-subtle)' }}>
+                  Maximum price change allowed during swap. Higher = more likely to succeed but may get worse price.
+                </div>
               </div>
-              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>swaps via raydium amm</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Swaps tokens via Raydium DEX</div>
             </div>
           ) : null}
 
@@ -2229,7 +2269,7 @@ export default function Editor() {
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
@@ -2249,17 +2289,24 @@ export default function Editor() {
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>slippage (bps)</div>
-                <input
-                  type="number"
-                  value={(selectedNodeData as any).slippageBps === undefined ? '' : String((selectedNodeData as any).slippageBps)}
-                  onChange={(e) => patchSelectedNode({ slippageBps: e.target.value ? Number(e.target.value) : undefined })}
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Max price slippage</div>
+                <select
+                  value={(selectedNodeData as any).slippageBps === undefined ? '500' : String((selectedNodeData as any).slippageBps)}
+                  onChange={(e) => patchSelectedNode({ slippageBps: Number(e.target.value) })}
                   disabled={busy}
                   style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
-                  placeholder="500"
-                />
+                >
+                  <option value="100">1% (low)</option>
+                  <option value="300">3% (medium)</option>
+                  <option value="500">5% (recommended for pump.fun)</option>
+                  <option value="1000">10% (high)</option>
+                  <option value="2000">20% (very high)</option>
+                </select>
+                <div style={{ fontSize: 11, color: 'var(--color-text-subtle)' }}>
+                  Pump.fun tokens are volatile - higher slippage recommended.
+                </div>
               </div>
-              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>buys token on pump.fun</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Buys token on Pump.fun</div>
             </div>
           ) : null}
 
@@ -2290,7 +2337,7 @@ export default function Editor() {
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
@@ -2310,17 +2357,24 @@ export default function Editor() {
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>slippage (bps)</div>
-                <input
-                  type="number"
-                  value={(selectedNodeData as any).slippageBps === undefined ? '' : String((selectedNodeData as any).slippageBps)}
-                  onChange={(e) => patchSelectedNode({ slippageBps: e.target.value ? Number(e.target.value) : undefined })}
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Max price slippage</div>
+                <select
+                  value={(selectedNodeData as any).slippageBps === undefined ? '500' : String((selectedNodeData as any).slippageBps)}
+                  onChange={(e) => patchSelectedNode({ slippageBps: Number(e.target.value) })}
                   disabled={busy}
                   style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
-                  placeholder="500"
-                />
+                >
+                  <option value="100">1% (low)</option>
+                  <option value="300">3% (medium)</option>
+                  <option value="500">5% (recommended for pump.fun)</option>
+                  <option value="1000">10% (high)</option>
+                  <option value="2000">20% (very high)</option>
+                </select>
+                <div style={{ fontSize: 11, color: 'var(--color-text-subtle)' }}>
+                  Pump.fun tokens are volatile - higher slippage recommended.
+                </div>
               </div>
-              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>sells token on pump.fun</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Sells token on Pump.fun</div>
             </div>
           ) : null}
 
@@ -2367,7 +2421,7 @@ export default function Editor() {
           {selectedNodeType === 'jupiter_quote' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>input mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token to sell (mint address)</div>
                 <input
                   value={typeof (selectedNodeData as any).inputMint === 'string' ? (selectedNodeData as any).inputMint : ''}
                   onChange={(e) => patchSelectedNode({ inputMint: e.target.value })}
@@ -2377,7 +2431,7 @@ export default function Editor() {
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>output mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token to buy (mint address)</div>
                 <input
                   value={typeof (selectedNodeData as any).outputMint === 'string' ? (selectedNodeData as any).outputMint : ''}
                   onChange={(e) => patchSelectedNode({ outputMint: e.target.value })}
@@ -2427,7 +2481,7 @@ export default function Editor() {
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
@@ -2558,7 +2612,7 @@ export default function Editor() {
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint (empty for SOL)</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address (leave empty for SOL)</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
@@ -2744,7 +2798,7 @@ export default function Editor() {
           {selectedNodeType === 'birdeye_price' || selectedNodeType === 'token_supply' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
@@ -2762,7 +2816,7 @@ export default function Editor() {
           {selectedNodeType === 'token_holders' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
@@ -2791,7 +2845,7 @@ export default function Editor() {
           {selectedNodeType === 'whale_alert' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
@@ -2871,7 +2925,7 @@ export default function Editor() {
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
@@ -2955,7 +3009,7 @@ export default function Editor() {
           {selectedNodeType === 'price_change_trigger' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
@@ -3090,7 +3144,7 @@ export default function Editor() {
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
@@ -3156,7 +3210,7 @@ export default function Editor() {
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
@@ -3269,7 +3323,7 @@ export default function Editor() {
           {selectedNodeType === 'volume_check' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
@@ -3295,7 +3349,7 @@ export default function Editor() {
           {selectedNodeType === 'liquidity_check' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
@@ -3321,7 +3375,7 @@ export default function Editor() {
           {selectedNodeType === 'slippage_estimator' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>input mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token to sell (mint address)</div>
                 <input
                   value={typeof (selectedNodeData as any).inputMint === 'string' ? (selectedNodeData as any).inputMint : ''}
                   onChange={(e) => patchSelectedNode({ inputMint: e.target.value })}
@@ -3331,7 +3385,7 @@ export default function Editor() {
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>output mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token to buy (mint address)</div>
                 <input
                   value={typeof (selectedNodeData as any).outputMint === 'string' ? (selectedNodeData as any).outputMint : ''}
                   onChange={(e) => patchSelectedNode({ outputMint: e.target.value })}
@@ -3381,7 +3435,7 @@ export default function Editor() {
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
@@ -3453,7 +3507,7 @@ export default function Editor() {
                 </div>
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>input mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token to sell (mint address)</div>
                 <input
                   value={typeof (selectedNodeData as any).inputMint === 'string' ? (selectedNodeData as any).inputMint : ''}
                   onChange={(e) => patchSelectedNode({ inputMint: e.target.value })}
@@ -3463,7 +3517,7 @@ export default function Editor() {
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>output mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token to buy (mint address)</div>
                 <input
                   value={typeof (selectedNodeData as any).outputMint === 'string' ? (selectedNodeData as any).outputMint : ''}
                   onChange={(e) => patchSelectedNode({ outputMint: e.target.value })}
@@ -3513,7 +3567,7 @@ export default function Editor() {
           {selectedNodeType === 'rug_check' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>token mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
                 <input
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(e) => patchSelectedNode({ mint: e.target.value })}
@@ -3708,46 +3762,55 @@ export default function Editor() {
           {selectedNodeType === 'if' ? (
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>op</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Value to check</div>
+                <NodeOutputSelector
+                  nodes={draft?.nodes || []}
+                  currentNodeId={selectedNodeId || ''}
+                  edges={draft?.edges || []}
+                  value={selectedNodeData.left === undefined || selectedNodeData.left === null ? '' : String(selectedNodeData.left)}
+                  onChange={(v) => patchSelectedNode({ left: v })}
+                  disabled={busy}
+                  placeholder="Select value from previous node..."
+                />
+              </div>
+
+              <div style={{ display: 'grid', gap: 6 }}>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Condition</div>
                 <select
                   value={typeof selectedNodeData.op === 'string' ? selectedNodeData.op : 'truthy'}
                   onChange={(e) => patchSelectedNode({ op: e.target.value })}
                   disabled={busy}
                   style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
                 >
-                  <option value="truthy">truthy</option>
-                  <option value="eq">eq</option>
-                  <option value="neq">neq</option>
-                  <option value="gt">gt</option>
-                  <option value="gte">gte</option>
-                  <option value="lt">lt</option>
-                  <option value="lte">lte</option>
+                  <option value="truthy">has a value (is not empty)</option>
+                  <option value="eq">equals (=)</option>
+                  <option value="neq">does not equal (≠)</option>
+                  <option value="gt">is greater than (&gt;)</option>
+                  <option value="gte">is greater than or equal (≥)</option>
+                  <option value="lt">is less than (&lt;)</option>
+                  <option value="lte">is less than or equal (≤)</option>
                 </select>
-              </div>
-
-              <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>left</div>
-                <input
-                  value={selectedNodeData.left === undefined || selectedNodeData.left === null ? '' : String(selectedNodeData.left)}
-                  onChange={(e) => patchSelectedNode({ left: e.target.value })}
-                  disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
-                  placeholder="{{nodes.n1.output.value}}"
-                />
               </div>
 
               {typeof selectedNodeData.op === 'string' && selectedNodeData.op !== 'truthy' ? (
                 <div style={{ display: 'grid', gap: 6 }}>
-                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>right</div>
+                  <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Compare to</div>
                   <input
                     value={selectedNodeData.right === undefined || selectedNodeData.right === null ? '' : String(selectedNodeData.right)}
                     onChange={(e) => patchSelectedNode({ right: e.target.value })}
                     disabled={busy}
                     style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
-                    placeholder="100"
+                    placeholder="e.g. 100"
                   />
+                  <div style={{ fontSize: 11, color: 'var(--color-text-subtle)' }}>
+                    Enter the value to compare against (number or text)
+                  </div>
                 </div>
               ) : null}
+
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)', background: 'var(--color-bg)', padding: 10, borderRadius: 8 }}>
+                💡 <strong>Example:</strong> To check if price is above $100, select the price from a previous node, choose "is greater than", and enter 100.
+              </div>
             </div>
           ) : null}
 
@@ -3871,7 +3934,7 @@ export default function Editor() {
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>input mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token to sell (mint address)</div>
                 <input
                   value={typeof selectedNodeData.inputMint === 'string' ? selectedNodeData.inputMint : ''}
                   onChange={(e) => patchSelectedNode({ inputMint: e.target.value })}
@@ -3882,7 +3945,7 @@ export default function Editor() {
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>output mint</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token to buy (mint address)</div>
                 <input
                   value={typeof selectedNodeData.outputMint === 'string' ? selectedNodeData.outputMint : ''}
                   onChange={(e) => patchSelectedNode({ outputMint: e.target.value })}
@@ -3915,49 +3978,52 @@ export default function Editor() {
                 />
                 {meta && Number.isFinite(Number((selectedNodeData as any).amount)) &&
                 Number((selectedNodeData as any).amount) > meta.jupiterSwapMaxAmount ? (
-                  <div style={{ fontSize: 12, color: '#b42318' }}>
-                    amount exceeds max ({meta.jupiterSwapMaxAmount})
+                  <div style={{ fontSize: 12, color: 'var(--color-error)' }}>
+                    Amount exceeds safety limit ({meta.jupiterSwapMaxAmount} SOL)
                   </div>
                 ) : null}
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>slippage bps</div>
-                <input
-                  type="number"
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Max price slippage</div>
+                <select
                   value={
                     typeof selectedNodeData.slippageBps === 'number'
-                      ? selectedNodeData.slippageBps
+                      ? String(selectedNodeData.slippageBps)
                       : typeof selectedNodeData.slippageBps === 'string'
                         ? selectedNodeData.slippageBps
-                        : ''
+                        : '300'
                   }
-                  onChange={(e) => {
-                    const val = e.target.value
-                    patchSelectedNode({ slippageBps: val === '' ? undefined : Number(val) })
-                  }}
+                  onChange={(e) => patchSelectedNode({ slippageBps: Number(e.target.value) })}
                   disabled={busy}
                   style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
-                  placeholder="300"
-                  min={1}
-                  max={10_000}
-                />
+                >
+                  <option value="50">0.5% (very low - may fail)</option>
+                  <option value="100">1% (low)</option>
+                  <option value="300">3% (recommended)</option>
+                  <option value="500">5% (medium)</option>
+                  <option value="1000">10% (high)</option>
+                  <option value="2000">20% (very high)</option>
+                </select>
+                <div style={{ fontSize: 11, color: 'var(--color-text-subtle)' }}>
+                  Maximum price change allowed during swap. Higher = more likely to succeed but may get worse price.
+                </div>
                 {meta && Number.isFinite(Number((selectedNodeData as any).slippageBps)) &&
                 Number((selectedNodeData as any).slippageBps) > meta.jupiterSwapMaxSlippageBps ? (
-                  <div style={{ fontSize: 12, color: '#b42318' }}>
-                    slippage exceeds max ({meta.jupiterSwapMaxSlippageBps} bps)
+                  <div style={{ fontSize: 12, color: 'var(--color-error)' }}>
+                    Slippage exceeds safety limit ({(meta.jupiterSwapMaxSlippageBps / 100).toFixed(1)}%)
                   </div>
                 ) : null}
               </div>
 
               {meta ? (
-                <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
-                  safety caps: max amount {meta.jupiterSwapMaxAmount} · max slippage {meta.jupiterSwapMaxSlippageBps} bps
+                <div style={{ fontSize: 12, color: 'var(--color-text-muted)', background: 'var(--color-bg)', padding: 8, borderRadius: 6 }}>
+                  ⚠️ Safety limits: max swap amount {meta.jupiterSwapMaxAmount} SOL · max slippage {(meta.jupiterSwapMaxSlippageBps / 100).toFixed(1)}%
                 </div>
               ) : null}
 
               <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
-                requires backend rpc via <span style={{ fontFamily: 'monospace' }}>SOLANA_RPC_URL</span>
+                Swaps tokens using Jupiter aggregator for best rates
               </div>
             </div>
           ) : null}
