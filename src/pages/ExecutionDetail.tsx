@@ -150,61 +150,61 @@ export default function ExecutionDetail() {
       return (
         <div style={{ display: 'grid', gap: 10 }}>
           <div style={{ display: 'grid', gap: 4 }}>
-            <div style={{ fontSize: 12, color: '#666' }}>signature</div>
+            <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>signature</div>
             {signature ? (
               <a
                 href={buildSolanaExplorerUrl(`/tx/${signature}`)}
                 target="_blank"
                 rel="noreferrer"
-                style={{ fontFamily: 'monospace', fontSize: 13, textDecoration: 'none', color: '#175cd3' }}
+                style={{ fontFamily: 'monospace', fontSize: 13, textDecoration: 'none', color: 'var(--color-primary)' }}
               >
                 {signature}
               </a>
             ) : (
-              <div style={{ fontFamily: 'monospace', fontSize: 13, color: '#666' }}>—</div>
+              <div style={{ fontFamily: 'monospace', fontSize: 13, color: 'var(--color-text-muted)' }}>—</div>
             )}
           </div>
 
           <div style={{ display: 'grid', gap: 6, gridTemplateColumns: '1fr 1fr' }}>
             <div style={{ display: 'grid', gap: 4 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>input mint</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>input mint</div>
               {inputMint ? (
                 <a
                   href={buildSolanaExplorerUrl(`/address/${inputMint}`)}
                   target="_blank"
                   rel="noreferrer"
-                  style={{ fontFamily: 'monospace', fontSize: 13, textDecoration: 'none', color: '#175cd3' }}
+                  style={{ fontFamily: 'monospace', fontSize: 13, textDecoration: 'none', color: 'var(--color-primary)' }}
                 >
                   {inputMint}
                 </a>
               ) : (
-                <div style={{ fontFamily: 'monospace', fontSize: 13, color: '#666' }}>—</div>
+                <div style={{ fontFamily: 'monospace', fontSize: 13, color: 'var(--color-text-muted)' }}>—</div>
               )}
             </div>
             <div style={{ display: 'grid', gap: 4 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>output mint</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>output mint</div>
               {outputMint ? (
                 <a
                   href={buildSolanaExplorerUrl(`/address/${outputMint}`)}
                   target="_blank"
                   rel="noreferrer"
-                  style={{ fontFamily: 'monospace', fontSize: 13, textDecoration: 'none', color: '#175cd3' }}
+                  style={{ fontFamily: 'monospace', fontSize: 13, textDecoration: 'none', color: 'var(--color-primary)' }}
                 >
                   {outputMint}
                 </a>
               ) : (
-                <div style={{ fontFamily: 'monospace', fontSize: 13, color: '#666' }}>—</div>
+                <div style={{ fontFamily: 'monospace', fontSize: 13, color: 'var(--color-text-muted)' }}>—</div>
               )}
             </div>
           </div>
 
           <div style={{ display: 'grid', gap: 6, gridTemplateColumns: '1fr 1fr' }}>
             <div style={{ display: 'grid', gap: 4 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>amount</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>amount</div>
               <div style={{ fontFamily: 'monospace', fontSize: 13 }}>{amount !== undefined ? String(amount) : '—'}</div>
             </div>
             <div style={{ display: 'grid', gap: 4 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>slippage</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>slippage</div>
               <div style={{ fontFamily: 'monospace', fontSize: 13 }}>{slippageBps !== undefined ? `${slippageBps} bps` : '—'}</div>
             </div>
           </div>
@@ -221,45 +221,45 @@ export default function ExecutionDetail() {
       return (
         <div style={{ display: 'grid', gap: 10 }}>
           <div style={{ display: 'grid', gap: 4 }}>
-            <div style={{ fontSize: 12, color: '#666' }}>public key</div>
+            <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>public key</div>
             {publicKey ? (
               <a
                 href={buildSolanaExplorerUrl(`/address/${publicKey}`)}
                 target="_blank"
                 rel="noreferrer"
-                style={{ fontFamily: 'monospace', fontSize: 13, textDecoration: 'none', color: '#175cd3' }}
+                style={{ fontFamily: 'monospace', fontSize: 13, textDecoration: 'none', color: 'var(--color-primary)' }}
               >
                 {publicKey}
               </a>
             ) : (
-              <div style={{ fontFamily: 'monospace', fontSize: 13, color: '#666' }}>—</div>
+              <div style={{ fontFamily: 'monospace', fontSize: 13, color: 'var(--color-text-muted)' }}>—</div>
             )}
           </div>
 
           <div style={{ display: 'grid', gap: 6, gridTemplateColumns: '1fr 1fr' }}>
             <div style={{ display: 'grid', gap: 4 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>sol</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>sol</div>
               <div style={{ fontFamily: 'monospace', fontSize: 13 }}>{sol !== undefined ? String(sol) : '—'}</div>
             </div>
             <div style={{ display: 'grid', gap: 4 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>lamports</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>lamports</div>
               <div style={{ fontFamily: 'monospace', fontSize: 13 }}>{solLamports !== undefined ? String(solLamports) : '—'}</div>
             </div>
           </div>
 
           <div style={{ display: 'grid', gap: 6 }}>
-            <div style={{ fontSize: 12, color: '#666' }}>tokens</div>
+            <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>tokens</div>
             {tokens.length === 0 ? (
-              <div style={{ color: '#555' }}>no token accounts</div>
+              <div style={{ color: 'var(--color-text-subtle)' }}>no token accounts</div>
             ) : (
               <div style={{ overflowX: 'auto' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr>
-                      <th style={{ textAlign: 'left', fontSize: 12, color: '#666', padding: '8px 6px' }}>mint</th>
-                      <th style={{ textAlign: 'left', fontSize: 12, color: '#666', padding: '8px 6px' }}>ui</th>
-                      <th style={{ textAlign: 'left', fontSize: 12, color: '#666', padding: '8px 6px' }}>amount</th>
-                      <th style={{ textAlign: 'left', fontSize: 12, color: '#666', padding: '8px 6px' }}>decimals</th>
+                      <th style={{ textAlign: 'left', fontSize: 12, color: 'var(--color-text-muted)', padding: '8px 6px' }}>mint</th>
+                      <th style={{ textAlign: 'left', fontSize: 12, color: 'var(--color-text-muted)', padding: '8px 6px' }}>ui</th>
+                      <th style={{ textAlign: 'left', fontSize: 12, color: 'var(--color-text-muted)', padding: '8px 6px' }}>amount</th>
+                      <th style={{ textAlign: 'left', fontSize: 12, color: 'var(--color-text-muted)', padding: '8px 6px' }}>decimals</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -270,7 +270,7 @@ export default function ExecutionDetail() {
                       const amount = typeof tok.amount === 'string' ? tok.amount : undefined
                       const decimals = typeof tok.decimals === 'number' ? tok.decimals : undefined
                       return (
-                        <tr key={idx} style={{ borderTop: '1px solid #eee' }}>
+                        <tr key={idx} style={{ borderTop: '1px solid var(--color-border)' }}>
                           <td style={{ padding: '10px 6px', fontFamily: 'monospace', fontSize: 13 }}>
                             {mint ? (
                               <a
@@ -278,7 +278,7 @@ export default function ExecutionDetail() {
                                 target="_blank"
                                 rel="noreferrer"
                                 title={mint}
-                                style={{ textDecoration: 'none', color: '#175cd3' }}
+                                style={{ textDecoration: 'none', color: 'var(--color-primary)' }}
                               >
                                 {shorten(mint, 8, 8)}
                               </a>
@@ -306,8 +306,8 @@ export default function ExecutionDetail() {
         style={{
           margin: 0,
           fontSize: 12,
-          background: '#fafafa',
-          border: '1px solid #eee',
+          background: 'var(--color-bg)',
+          border: '1px solid var(--color-border)',
           borderRadius: 8,
           padding: 10,
           overflowX: 'auto',
@@ -399,20 +399,20 @@ export default function ExecutionDetail() {
     <div style={{ maxWidth: 900, margin: '40px auto', padding: 16 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12 }}>
         <div style={{ display: 'grid', gap: 4 }}>
-          <div style={{ fontSize: 12, color: '#666' }}>Execution</div>
+          <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Execution</div>
           <div style={{ display: 'flex', gap: 10, alignItems: 'baseline' }}>
             <h1 style={{ margin: 0 }}>{title}</h1>
-            {polling ? <span style={{ fontSize: 12, color: '#666' }}>auto-refreshing</span> : null}
+            {polling ? <span style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>auto-refreshing</span> : null}
           </div>
         </div>
 
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-            <div style={{ fontSize: 12, color: '#666' }}>explorer</div>
+            <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>explorer</div>
             <select
               value={solanaExplorerCluster}
               onChange={(e) => setSolanaExplorerCluster(e.target.value as 'mainnet-beta' | 'devnet')}
-              style={{ padding: '8px 10px', borderRadius: 6, border: '1px solid #ddd', background: '#fff', fontSize: 12 }}
+              style={{ padding: '8px 10px', borderRadius: 6, border: '1px solid var(--color-border)', background: 'var(--color-surface)', fontSize: 12 }}
             >
               <option value="mainnet-beta">mainnet</option>
               <option value="devnet">devnet</option>
@@ -424,10 +424,10 @@ export default function ExecutionDetail() {
               style={{
                 padding: '8px 12px',
                 borderRadius: 6,
-                border: '1px solid #ddd',
+                border: '1px solid var(--color-border)',
                 textDecoration: 'none',
                 color: 'inherit',
-                background: '#fff',
+                background: 'var(--color-surface)',
               }}
             >
               back to executions
@@ -437,29 +437,29 @@ export default function ExecutionDetail() {
       </div>
 
       {error ? (
-        <div style={{ background: '#fee', color: '#700', padding: 10, borderRadius: 6, marginTop: 12 }}>{error}</div>
+        <div style={{ background: 'var(--color-error-bg)', color: 'var(--color-error)', padding: 10, borderRadius: 6, marginTop: 12 }}>{error}</div>
       ) : null}
 
-      <div style={{ marginTop: 16, border: '1px solid #eee', borderRadius: 10, padding: 16 }}>
+      <div style={{ marginTop: 16, border: '1px solid var(--color-border)', borderRadius: 10, padding: 16 }}>
         {busy ? (
-          <div style={{ color: '#555' }}>loading...</div>
+          <div style={{ color: 'var(--color-text-subtle)' }}>loading...</div>
         ) : !execution ? (
-          <div style={{ color: '#555' }}>not found</div>
+          <div style={{ color: 'var(--color-text-subtle)' }}>not found</div>
         ) : (
           <div style={{ display: 'grid', gap: 12 }}>
             <div style={{ display: 'grid', gap: 4 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>Execution id</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Execution id</div>
               <div style={{ fontFamily: 'monospace' }}>{execution.id}</div>
             </div>
 
             <div style={{ display: 'grid', gap: 4 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>Workflow id</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Workflow id</div>
               <div style={{ fontFamily: 'monospace' }}>{execution.workflowId}</div>
             </div>
 
             <div style={{ display: 'grid', gap: 4 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>Timestamps</div>
-              <div style={{ fontSize: 13, color: '#333' }}>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Timestamps</div>
+              <div style={{ fontSize: 13, color: 'var(--color-text)' }}>
                 created: {new Date(execution.createdAt).toLocaleString()}
                 {execution.startedAt ? ` · started: ${new Date(execution.startedAt).toLocaleString()}` : ''}
                 {execution.finishedAt ? ` · finished: ${new Date(execution.finishedAt).toLocaleString()}` : ''}
@@ -467,12 +467,12 @@ export default function ExecutionDetail() {
             </div>
 
             <div style={{ display: 'grid', gap: 8 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>Graph</div>
-              {graphError ? <div style={{ color: '#700' }}>{graphError}</div> : null}
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Graph</div>
+              {graphError ? <div style={{ color: 'var(--color-error)' }}>{graphError}</div> : null}
               {!styledGraphNodes || !graph ? (
-                <div style={{ color: '#555' }}>loading graph...</div>
+                <div style={{ color: 'var(--color-text-subtle)' }}>loading graph...</div>
               ) : (
-                <div style={{ border: '1px solid #eee', borderRadius: 10, overflow: 'hidden' }}>
+                <div style={{ border: '1px solid var(--color-border)', borderRadius: 10, overflow: 'hidden' }}>
                   <CreateWorkFlow
                     initialNodes={styledGraphNodes}
                     initialEdges={graph.edges}
@@ -488,9 +488,9 @@ export default function ExecutionDetail() {
             </div>
 
             <div style={{ display: 'grid', gap: 8 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>Outputs</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Outputs</div>
               {outputEntries.length === 0 ? (
-                <div style={{ color: '#555' }}>no outputs</div>
+                <div style={{ color: 'var(--color-text-subtle)' }}>no outputs</div>
               ) : (
                 <div style={{ display: 'grid', gap: 10 }}>
                   {outputEntries.map(([nodeId, output]) => (
@@ -498,14 +498,14 @@ export default function ExecutionDetail() {
                       key={nodeId}
                       id={`node-output-${nodeId}`}
                       style={{
-                        border: '1px solid #eee',
+                        border: '1px solid var(--color-border)',
                         borderRadius: 10,
                         padding: 12,
-                        background: '#fff',
-                        outline: highlightNodeId === nodeId ? '2px solid #175cd3' : undefined,
+                        background: 'var(--color-surface)',
+                        outline: highlightNodeId === nodeId ? '2px solid var(--color-primary)' : undefined,
                       }}
                     >
-                      <div style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>node: {nodeId}</div>
+                      <div style={{ fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 8 }}>node: {nodeId}</div>
                       {renderNodeOutput(output)}
                     </div>
                   ))}
@@ -514,19 +514,19 @@ export default function ExecutionDetail() {
             </div>
 
             <div style={{ display: 'grid', gap: 8 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>Node statuses</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Node statuses</div>
               {nodeEntries.length === 0 ? (
-                <div style={{ color: '#555' }}>no node statuses</div>
+                <div style={{ color: 'var(--color-text-subtle)' }}>no node statuses</div>
               ) : (
                 <div style={{ overflowX: 'auto' }}>
                   <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                     <thead>
                       <tr>
-                        <th style={{ textAlign: 'left', fontSize: 12, color: '#666', padding: '8px 6px' }}>node</th>
-                        <th style={{ textAlign: 'left', fontSize: 12, color: '#666', padding: '8px 6px' }}>status</th>
-                        <th style={{ textAlign: 'left', fontSize: 12, color: '#666', padding: '8px 6px' }}>started</th>
-                        <th style={{ textAlign: 'left', fontSize: 12, color: '#666', padding: '8px 6px' }}>finished</th>
-                        <th style={{ textAlign: 'left', fontSize: 12, color: '#666', padding: '8px 6px' }}>error</th>
+                        <th style={{ textAlign: 'left', fontSize: 12, color: 'var(--color-text-muted)', padding: '8px 6px' }}>node</th>
+                        <th style={{ textAlign: 'left', fontSize: 12, color: 'var(--color-text-muted)', padding: '8px 6px' }}>status</th>
+                        <th style={{ textAlign: 'left', fontSize: 12, color: 'var(--color-text-muted)', padding: '8px 6px' }}>started</th>
+                        <th style={{ textAlign: 'left', fontSize: 12, color: 'var(--color-text-muted)', padding: '8px 6px' }}>finished</th>
+                        <th style={{ textAlign: 'left', fontSize: 12, color: 'var(--color-text-muted)', padding: '8px 6px' }}>error</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -534,7 +534,7 @@ export default function ExecutionDetail() {
                         <tr
                           key={nodeId}
                           id={`node-status-${nodeId}`}
-                          style={{ borderTop: '1px solid #eee', outline: highlightNodeId === nodeId ? '2px solid #175cd3' : undefined }}
+                          style={{ borderTop: '1px solid var(--color-border)', outline: highlightNodeId === nodeId ? '2px solid var(--color-primary)' : undefined }}
                         >
                           <td style={{ padding: '10px 6px', fontFamily: 'monospace', fontSize: 13 }}>{nodeId}</td>
                           <td style={{ padding: '10px 6px' }}>
@@ -544,21 +544,21 @@ export default function ExecutionDetail() {
                                 padding: '3px 8px',
                                 borderRadius: 999,
                                 fontSize: 12,
-                                border: '1px solid #e5e7eb',
+                                border: '1px solid var(--color-border)',
                                 color: getStatusColor(String(state?.status || 'unknown')),
-                                background: '#fff',
+                                background: 'var(--color-surface)',
                               }}
                             >
                               {String(state?.status || 'unknown')}
                             </span>
                           </td>
-                          <td style={{ padding: '10px 6px', fontSize: 12, color: '#333' }}>
+                          <td style={{ padding: '10px 6px', fontSize: 12, color: 'var(--color-text)' }}>
                             {state?.startedAt ? new Date(state.startedAt).toLocaleString() : '—'}
                           </td>
-                          <td style={{ padding: '10px 6px', fontSize: 12, color: '#333' }}>
+                          <td style={{ padding: '10px 6px', fontSize: 12, color: 'var(--color-text)' }}>
                             {state?.finishedAt ? new Date(state.finishedAt).toLocaleString() : '—'}
                           </td>
-                          <td style={{ padding: '10px 6px', fontSize: 12, color: '#b42318' }}>{state?.error || ''}</td>
+                          <td style={{ padding: '10px 6px', fontSize: 12, color: 'var(--color-error)' }}>{state?.error || ''}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -568,9 +568,9 @@ export default function ExecutionDetail() {
             </div>
 
             <div style={{ display: 'grid', gap: 8 }}>
-              <div style={{ fontSize: 12, color: '#666' }}>Logs</div>
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Logs</div>
               {execution.logs.length === 0 ? (
-                <div style={{ color: '#555' }}>no logs</div>
+                <div style={{ color: 'var(--color-text-subtle)' }}>no logs</div>
               ) : (
                 <div style={{ display: 'grid', gap: 6 }}>
                   {execution.logs.map((l, idx) => (
@@ -578,21 +578,21 @@ export default function ExecutionDetail() {
                       key={idx}
                       id={l.nodeId && firstLogIndexByNodeId[l.nodeId] === idx ? `node-log-${l.nodeId}` : undefined}
                       style={{
-                        border: '1px solid #eee',
+                        border: '1px solid var(--color-border)',
                         borderRadius: 8,
                         padding: 10,
-                        background: '#fafafa',
+                        background: 'var(--color-bg)',
                         display: 'grid',
                         gap: 4,
-                        outline: l.nodeId && highlightNodeId === l.nodeId ? '2px solid #175cd3' : undefined,
+                        outline: l.nodeId && highlightNodeId === l.nodeId ? '2px solid var(--color-primary)' : undefined,
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12 }}>
                         <div style={{ fontWeight: 600 }}>{l.level}</div>
-                        <div style={{ fontSize: 12, color: '#666' }}>{new Date(l.timestamp).toLocaleString()}</div>
+                        <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>{new Date(l.timestamp).toLocaleString()}</div>
                       </div>
                       <div style={{ fontSize: 13 }}>{l.message}</div>
-                      {l.nodeId ? <div style={{ fontSize: 12, color: '#666' }}>node: {l.nodeId}</div> : null}
+                      {l.nodeId ? <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>node: {l.nodeId}</div> : null}
                     </div>
                   ))}
                 </div>

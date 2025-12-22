@@ -1108,7 +1108,7 @@ export default function Editor() {
               </>
             )}
             {workflow ? (
-              <span style={{ fontSize: 11, color: workflow.enabled ? '#157f3b' : '#888', marginLeft: 4 }}>
+              <span style={{ fontSize: 11, color: workflow.enabled ? 'var(--color-success)' : 'var(--color-text-muted)', marginLeft: 4 }}>
                 {workflow.enabled ? '● enabled' : '○ disabled'}
               </span>
             ) : null}
@@ -1120,7 +1120,7 @@ export default function Editor() {
             type="button"
             onClick={onSave}
             disabled={busy || !draft}
-            style={{ background: '#111', color: '#fff', border: '1px solid #111', padding: '6px 12px', borderRadius: 8, fontSize: 12 }}
+            style={{ background: 'var(--color-text)', color: 'var(--color-bg)', border: '1px solid var(--color-text)', padding: '6px 12px', borderRadius: 8, fontSize: 12 }}
           >
             {busy ? '...' : 'save'}
           </button>
@@ -1132,7 +1132,7 @@ export default function Editor() {
             title={!workflow?.enabled && !enableEligibility.ok ? enableEligibility.reason || 'workflow is not valid for enabling' : undefined}
             style={{
               background: 'var(--color-bg)',
-              color: workflow?.enabled ? '#b42318' : '#157f3b',
+              color: workflow?.enabled ? 'var(--color-error)' : 'var(--color-success)',
               border: '1px solid var(--color-border)',
               padding: '6px 12px',
               borderRadius: 8,
@@ -1147,7 +1147,7 @@ export default function Editor() {
             onClick={onRun}
             disabled={busy || !workflowId || !runEligibility.ok}
             title={!runEligibility.ok ? runEligibility.reason || 'workflow is not valid for running' : undefined}
-            style={{ background: '#0b5', color: '#fff', border: '1px solid #084', padding: '6px 12px', borderRadius: 8, fontSize: 12 }}
+            style={{ background: 'var(--color-success)', color: 'var(--color-bg)', border: '1px solid var(--color-success)', padding: '6px 12px', borderRadius: 8, fontSize: 12 }}
           >
             ▶ run
           </button>
@@ -4294,11 +4294,11 @@ export default function Editor() {
             top: 74,
             left: 12,
             zIndex: 10,
-            background: 'var(--color-warning-bg, #fff6ed)',
-            color: 'var(--color-warning, #7a2e0e)',
+            background: 'var(--color-warning-bg)',
+            color: 'var(--color-warning)',
             padding: '10px 12px',
             borderRadius: 10,
-            border: '1px solid #f9dbaf',
+            border: '1px solid var(--color-warning)',
             maxWidth: 520,
           }}
         >

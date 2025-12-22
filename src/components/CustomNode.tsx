@@ -22,14 +22,14 @@ function CustomNode({ id, data, selected }: CustomNodeProps) {
         style={{
           position: 'relative',
           padding: '12px 20px',
-          background: 'var(--color-surface, #fff)',
-          border: selected ? '2px solid #3b82f6' : '1px solid var(--color-border, #e5e7eb)',
+          background: 'var(--color-surface)',
+          border: selected ? '2px solid var(--color-primary)' : '1px solid var(--color-border)',
           borderRadius: 8,
           minWidth: 120,
           textAlign: 'center',
           fontSize: 13,
-          color: 'var(--color-text, #111)',
-          boxShadow: selected ? '0 0 0 2px rgba(59, 130, 246, 0.2)' : '0 1px 3px rgba(0,0,0,0.1)',
+          color: 'var(--color-text)',
+          boxShadow: selected ? '0 0 0 2px var(--color-primary-bg)' : 'var(--shadow-sm)',
         }}
       >
         {/* X button - only visible when selected */}
@@ -46,9 +46,9 @@ function CustomNode({ id, data, selected }: CustomNodeProps) {
               width: 20,
               height: 20,
               borderRadius: '50%',
-              background: 'var(--color-surface, #fff)',
-              border: '2px solid #3b82f6',
-              color: '#3b82f6',
+              background: 'var(--color-surface)',
+              border: '2px solid var(--color-primary)',
+              color: 'var(--color-primary)',
               fontSize: 12,
               fontWeight: 'bold',
               cursor: 'pointer',

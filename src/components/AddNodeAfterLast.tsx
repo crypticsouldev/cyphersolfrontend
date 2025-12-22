@@ -153,7 +153,7 @@ export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onP
         <div style={{ 
           width: 2, 
           height: 36, 
-          background: '#555',
+          background: 'var(--color-border-hover)',
           borderRadius: 1,
         }} />
         <button
@@ -163,28 +163,28 @@ export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onP
             width: 40,
             height: 40,
             borderRadius: 10,
-            background: showMenu ? '#333' : '#1a1a1a',
-            border: `1px solid ${showMenu ? '#555' : '#333'}`,
+            background: showMenu ? 'var(--color-surface-elevated)' : 'var(--color-surface)',
+            border: `1px solid ${showMenu ? 'var(--color-border-hover)' : 'var(--color-border)'}`,
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontSize: 22,
             fontWeight: 300,
-            color: showMenu ? '#fff' : '#666',
+            color: showMenu ? 'var(--color-text)' : 'var(--color-text-muted)',
             transition: 'all 0.15s ease',
             boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
           }}
           onMouseEnter={(e) => {
-            e.currentTarget.style.background = '#2a2a2a'
-            e.currentTarget.style.color = '#fff'
-            e.currentTarget.style.borderColor = '#555'
+            e.currentTarget.style.background = 'var(--color-hover)'
+            e.currentTarget.style.color = 'var(--color-text)'
+            e.currentTarget.style.borderColor = 'var(--color-border-hover)'
           }}
           onMouseLeave={(e) => {
             if (!showMenu) {
-              e.currentTarget.style.background = '#1a1a1a'
-              e.currentTarget.style.color = '#666'
-              e.currentTarget.style.borderColor = '#333'
+              e.currentTarget.style.background = 'var(--color-surface)'
+              e.currentTarget.style.color = 'var(--color-text-muted)'
+              e.currentTarget.style.borderColor = 'var(--color-border)'
             }
           }}
           title="Add node"
@@ -203,8 +203,8 @@ export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onP
               left: popupPosition.x,
               top: popupPosition.y,
               transform: 'translate(-50%, -50%)',
-              background: '#1a1a1a',
-              border: '1px solid #333',
+              background: 'var(--color-surface)',
+              border: '1px solid var(--color-border)',
               borderRadius: 12,
               boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
               padding: 0,
@@ -217,16 +217,16 @@ export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onP
           {/* Header */}
           <div style={{ 
             padding: '14px 16px', 
-            borderBottom: '1px solid #333',
+            borderBottom: '1px solid var(--color-border)',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#fff', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--color-text)', textTransform: 'uppercase', letterSpacing: '1px' }}>
                 ADD NODE
               </span>
-              <span style={{ width: 20, height: 20, background: '#333', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: '#888' }}>+</span>
+              <span style={{ width: 20, height: 20, background: 'var(--color-surface-elevated)', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, color: 'var(--color-text-muted)' }}>+</span>
             </div>
             <button
               onClick={() => {
@@ -241,7 +241,7 @@ export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onP
                 border: 'none',
                 cursor: 'pointer',
                 fontSize: 16,
-                color: '#888',
+                color: 'var(--color-text-muted)',
                 padding: '2px 6px',
                 borderRadius: 4,
               }}
@@ -263,23 +263,23 @@ export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onP
                       padding: '14px 16px',
                       fontSize: 13,
                       textAlign: 'left',
-                      background: '#222',
-                      border: '1px solid #333',
+                      background: 'var(--color-surface-elevated)',
+                      border: '1px solid var(--color-border)',
                       borderRadius: 10,
                       cursor: 'pointer',
-                      color: '#fff',
+                      color: 'var(--color-text)',
                       display: 'flex',
                       alignItems: 'center',
                       gap: 12,
                       transition: 'all 0.15s',
                     }}
                     onMouseEnter={(e) => {
-                      e.currentTarget.style.background = '#2a2a2a'
-                      e.currentTarget.style.borderColor = '#444'
+                      e.currentTarget.style.background = 'var(--color-hover)'
+                      e.currentTarget.style.borderColor = 'var(--color-border-hover)'
                     }}
                     onMouseLeave={(e) => {
-                      e.currentTarget.style.background = '#222'
-                      e.currentTarget.style.borderColor = '#333'
+                      e.currentTarget.style.background = 'var(--color-surface-elevated)'
+                      e.currentTarget.style.borderColor = 'var(--color-border)'
                     }}
                   >
                     <span style={{
@@ -296,9 +296,9 @@ export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onP
                     </span>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 500, marginBottom: 2 }}>{categoryInfo[cat].label}</div>
-                      <div style={{ fontSize: 11, color: '#888' }}>{categoryInfo[cat].description}</div>
+                      <div style={{ fontSize: 11, color: 'var(--color-text-muted)' }}>{categoryInfo[cat].description}</div>
                     </div>
-                    <span style={{ color: '#555', fontSize: 16 }}>→</span>
+                    <span style={{ color: 'var(--color-text-subtle)', fontSize: 16 }}>→</span>
                   </button>
                 ))}
               </div>
@@ -319,16 +319,16 @@ export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onP
                         border: 'none',
                         borderRadius: 8,
                         cursor: 'pointer',
-                        color: '#fff',
+                        color: 'var(--color-text)',
                         display: 'flex',
                         alignItems: 'center',
                         gap: 10,
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.background = '#2a2a2a'
+                        e.currentTarget.style.background = 'var(--color-hover)'
                       }}
                       onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'none'
+                        e.currentTarget.style.background = 'transparent'
                       }}
                     >
                       <span
@@ -341,7 +341,7 @@ export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onP
                       />
                       <div>
                         <div style={{ fontWeight: 500 }}>{opt.label}</div>
-                        <div style={{ fontSize: 10, color: '#888' }}>{opt.description}</div>
+                        <div style={{ fontSize: 10, color: 'var(--color-text-muted)' }}>{opt.description}</div>
                       </div>
                     </button>
                   ))}
