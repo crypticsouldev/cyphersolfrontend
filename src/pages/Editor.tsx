@@ -305,6 +305,51 @@ export default function Editor() {
     return `n${i}`
   }
 
+  function getTerminalNodeIdForMainFlow(nodes: Node[], edges: Edge[]) {
+    const isTriggerNode = (n: Node) => {
+      const kind = String((n.data as any)?.type ?? '')
+      return kind.endsWith('_trigger')
+    }
+
+    const trigger = nodes.find(isTriggerNode)
+    const reachable = new Set<string>()
+
+    if (trigger) {
+      const queue: string[] = [trigger.id]
+      reachable.add(trigger.id)
+      while (queue.length) {
+        const current = queue.shift()!
+        for (const e of edges) {
+          if (e.source !== current) continue
+          if (!reachable.has(e.target)) {
+            reachable.add(e.target)
+            queue.push(e.target)
+          }
+        }
+      }
+    } else {
+      for (const n of nodes) reachable.add(n.id)
+    }
+
+    const nodesWithOutgoing = new Set(
+      edges.filter((e) => reachable.has(e.source) && reachable.has(e.target)).map((e) => e.source),
+    )
+
+    const terminals = nodes.filter((n) => reachable.has(n.id) && !nodesWithOutgoing.has(n.id))
+    if (terminals.length === 0) return undefined
+
+    terminals.sort((a, b) => {
+      const ay = (a.position as any)?.y ?? 0
+      const by = (b.position as any)?.y ?? 0
+      if (ay !== by) return by - ay
+      const ax = (a.position as any)?.x ?? 0
+      const bx = (b.position as any)?.x ?? 0
+      return bx - ax
+    })
+
+    return terminals[0].id
+  }
+
   function addNode(
     kind:
       | 'log'
@@ -363,8 +408,16 @@ export default function Editor() {
       | 'price_trigger'
       | 'onchain_trigger'
       | 'market_data',
+    attachFromNodeId?: string,
   ) {
     if (!draft) return
+
+    const isTriggerKind = kind === 'timer_trigger' || kind === 'price_trigger' || kind === 'onchain_trigger'
+
+    if (draft.nodes.length === 0 && !isTriggerKind) {
+      setError('add a trigger node first')
+      return
+    }
 
     if (kind === 'timer_trigger' || kind === 'price_trigger' || kind === 'onchain_trigger') {
       const existing = draft.nodes.find((n) => {
@@ -381,7 +434,20 @@ export default function Editor() {
 
     const id = getNextNodeId(draft.nodes)
     const maxY = draft.nodes.reduce((acc, n) => Math.max(acc, (n.position as any)?.y ?? 0), 0)
-    const position = { x: 260, y: maxY + 120 }
+
+    const fromId =
+      !isTriggerKind
+        ? attachFromNodeId ?? getTerminalNodeIdForMainFlow(draft.nodes, draft.edges)
+        : undefined
+
+    const fromNode = fromId ? draft.nodes.find((n) => n.id === fromId) : undefined
+
+    const position = fromNode
+      ? {
+          x: (fromNode.position as any)?.x ?? 260,
+          y: Math.max(((fromNode.position as any)?.y ?? 0) + 150, maxY + 120),
+        }
+      : { x: 260, y: maxY + 120 }
 
     const baseData: Record<string, unknown> = {
       label: kind,
@@ -679,6 +745,9 @@ export default function Editor() {
     }
 
     flowRef.current?.addNode(node)
+    if (fromId) {
+      flowRef.current?.addEdge({ id: `e-${fromId}-${id}`, source: fromId, target: id })
+    }
     setSelectedNodeId(id)
   }
 
@@ -4240,8 +4309,8 @@ export default function Editor() {
           flowRef.current?.insertNodeOnEdge(edgeId, newNode)
           setSelectedNodeId(newNodeId)
         }}
-        onAddNodeAfterLast={(nodeType) => {
-          addNode(nodeType as any)
+        onAddNodeAfterLast={(nodeType, fromNodeId) => {
+          addNode(nodeType as any, fromNodeId)
         }}
         onDeleteNode={(nodeId) => {
           if (!draft) return

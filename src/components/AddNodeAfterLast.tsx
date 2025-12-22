@@ -76,13 +76,13 @@ const nodeOptions: { value: string; label: string; category: NodeCategory; descr
 ]
 
 type Props = {
-  screenPosition: { x: number; y: number }
+  position: { x: number; y: number }
   onAddNode: (nodeType: string) => void
   onPopupOpen?: () => void
   onPopupClose?: () => void
 }
 
-export default function AddNodeAfterLast({ screenPosition, onAddNode, onPopupOpen, onPopupClose }: Props) {
+export default function AddNodeAfterLast({ position, onAddNode, onPopupOpen, onPopupClose }: Props) {
   const [showMenu, setShowMenu] = useState(false)
   const [selectedCategory, setSelectedCategory] = useState<NodeCategory | null>(null)
   const [popupPosition, setPopupPosition] = useState({ x: 0, y: 0 })
@@ -110,7 +110,7 @@ export default function AddNodeAfterLast({ screenPosition, onAddNode, onPopupOpe
     if (!showMenu) return
     const handleClick = (e: MouseEvent) => {
       const target = e.target as HTMLElement
-      if (!target.closest('.add-node-after-popup')) {
+      if (!target.closest('.add-node-after-popup') && !target.closest('.add-node-after-anchor')) {
         setShowMenu(false)
         setSelectedCategory(null)
       }
@@ -137,88 +137,82 @@ export default function AddNodeAfterLast({ screenPosition, onAddNode, onPopupOpe
 
   const categories = ['trigger', 'action', 'logic', 'data', 'market'] as NodeCategory[]
 
-  // Render button and popup using portal to avoid ReactFlow zoom transform
-  return createPortal(
-    <>
-      {/* Button always visible with connecting line */}
-      <div
-        style={{
-          position: 'fixed',
-          left: screenPosition.x,
-          top: screenPosition.y,
-          transform: 'translate(-50%, 0)',
-          zIndex: 100,
-          pointerEvents: 'auto',
-        }}
-      >
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-          {/* Connecting line */}
-          <div style={{ 
-            width: 2, 
-            height: 30, 
-            background: '#555',
-            borderRadius: 1,
-          }} />
-          {/* Dark rounded square button */}
-          <button
-            ref={buttonRef}
-            onClick={handleOpenMenu}
-            style={{
-              width: 40,
-              height: 40,
-              borderRadius: 10,
-              background: showMenu ? '#333' : '#1a1a1a',
-              border: `1px solid ${showMenu ? '#555' : '#333'}`,
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 22,
-              fontWeight: 300,
-              color: showMenu ? '#fff' : '#666',
-              transition: 'all 0.15s ease',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#2a2a2a'
-              e.currentTarget.style.color = '#fff'
-              e.currentTarget.style.borderColor = '#555'
-            }}
-            onMouseLeave={(e) => {
-              if (!showMenu) {
-                e.currentTarget.style.background = '#1a1a1a'
-                e.currentTarget.style.color = '#666'
-                e.currentTarget.style.borderColor = '#333'
-              }
-            }}
-            title="Add node"
-          >
-            +
-          </button>
-        </div>
-      </div>
-      
-      {/* Popup - shown when menu is open */}
-      {showMenu && (
-        <div
-          className="add-node-after-popup"
-          onClick={(e) => e.stopPropagation()}
+  return (
+    <div
+      className="nodrag nopan add-node-after-anchor"
+      style={{
+        position: 'absolute',
+        left: position.x,
+        top: position.y,
+        transform: 'translate(-50%, 0)',
+        zIndex: 5,
+      }}
+    >
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        <div style={{ 
+          width: 2, 
+          height: 30, 
+          background: '#555',
+          borderRadius: 1,
+        }} />
+        <button
+          ref={buttonRef}
+          onClick={handleOpenMenu}
           style={{
-            position: 'fixed',
-            left: popupPosition.x,
-            top: popupPosition.y,
-            transform: 'translate(-50%, -50%)',
-            background: '#1a1a1a',
-            border: '1px solid #333',
-            borderRadius: 12,
-            boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
-            padding: 0,
-            minWidth: selectedCategory ? 280 : 380,
-            maxHeight: 480,
-            overflow: 'hidden',
-            zIndex: 99999,
+            width: 40,
+            height: 40,
+            borderRadius: 10,
+            background: showMenu ? '#333' : '#1a1a1a',
+            border: `1px solid ${showMenu ? '#555' : '#333'}`,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 22,
+            fontWeight: 300,
+            color: showMenu ? '#fff' : '#666',
+            transition: 'all 0.15s ease',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
           }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.background = '#2a2a2a'
+            e.currentTarget.style.color = '#fff'
+            e.currentTarget.style.borderColor = '#555'
+          }}
+          onMouseLeave={(e) => {
+            if (!showMenu) {
+              e.currentTarget.style.background = '#1a1a1a'
+              e.currentTarget.style.color = '#666'
+              e.currentTarget.style.borderColor = '#333'
+            }
+          }}
+          title="Add node"
         >
+          +
+        </button>
+      </div>
+
+      {showMenu &&
+        createPortal(
+          <div
+            className="add-node-after-popup"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'fixed',
+              left: popupPosition.x,
+              top: popupPosition.y,
+              transform: 'translate(-50%, -50%)',
+              background: '#1a1a1a',
+              border: '1px solid #333',
+              borderRadius: 12,
+              boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+              padding: 0,
+              minWidth: selectedCategory ? 280 : 380,
+              maxHeight: 480,
+              overflow: 'hidden',
+              zIndex: 99999,
+            }}
+          >
           {/* Header */}
           <div style={{ 
             padding: '14px 16px', 
@@ -353,9 +347,9 @@ export default function AddNodeAfterLast({ screenPosition, onAddNode, onPopupOpe
               </div>
             )}
           </div>
-        </div>
-      )}
-    </>,
-    document.body
+          </div>,
+          document.body,
+        )}
+    </div>
   )
 }

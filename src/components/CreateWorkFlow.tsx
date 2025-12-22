@@ -39,35 +39,31 @@ type Props = {
   onDefinitionChange?: (definition: { nodes: Node[]; edges: Edge[] }) => void
   onNodeSelect?: (nodeId: string | undefined) => void
   onAddNodeOnEdge?: (edgeId: string, nodeType: string, sourceId: string, targetId: string) => void
-  onAddNodeAfterLast?: (nodeType: string) => void
+  onAddNodeAfterLast?: (nodeType: string, fromNodeId: string) => void
   onDeleteNode?: (nodeId: string) => void
   containerStyle?: CSSProperties
   readOnly?: boolean
   syncFromProps?: boolean
 }
 
-// Wrapper component to use hooks inside ReactFlow - converts flow coords to screen coords
+// Wrapper component to use hooks inside ReactFlow
 function AddNodeButton({ nodeId, onAddNode, onPopupOpen, onPopupClose }: { 
   nodeId: string
   onAddNode: (nodeType: string) => void
   onPopupOpen: () => void
   onPopupClose: () => void 
 }) {
-  const { getNode, flowToScreenPosition } = useReactFlow()
+  const { getNode } = useReactFlow()
   const node = getNode(nodeId)
   
   if (!node) return null
   
-  // Calculate position below the node in flow coordinates
-  const flowX = node.position.x + (node.measured?.width ? node.measured.width / 2 : 75)
-  const flowY = node.position.y + (node.measured?.height ? node.measured.height + 10 : 50)
-  
-  // Convert to screen coordinates
-  const screenPos = flowToScreenPosition({ x: flowX, y: flowY })
-  
   return (
     <AddNodeAfterLast
-      screenPosition={screenPos}
+      position={{ 
+        x: node.position.x + (node.measured?.width ? node.measured.width / 2 : 75),
+        y: node.position.y + (node.measured?.height ? node.measured.height + 10 : 50)
+      }}
       onAddNode={onAddNode}
       onPopupOpen={onPopupOpen}
       onPopupClose={onPopupClose}
@@ -78,6 +74,7 @@ function AddNodeButton({ nodeId, onAddNode, onPopupOpen, onPopupClose }: {
 export type CreateWorkFlowHandle = {
   patchNodeData: (nodeId: string, patch: Record<string, unknown>) => void
   addNode: (node: Node) => void
+  addEdge: (edge: Edge) => void
   deleteNode: (nodeId: string) => void
   insertNodeOnEdge: (edgeId: string, node: Node) => void
   shiftNodesDown: (startNodeId: string, amount: number) => void
@@ -120,8 +117,46 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
   // Find terminal nodes (nodes with no outgoing edges)
   const terminalNodes = useMemo(() => {
     if (readOnly || nodes.length === 0) return []
-    const nodesWithOutgoing = new Set(edges.map((e) => e.source))
-    return nodes.filter((n) => !nodesWithOutgoing.has(n.id))
+    const isTriggerNode = (n: Node) => {
+      const kind = String((n.data as any)?.type ?? '')
+      return kind.endsWith('_trigger')
+    }
+
+    const trigger = nodes.find(isTriggerNode)
+    const reachable = new Set<string>()
+
+    if (trigger) {
+      const queue: string[] = [trigger.id]
+      reachable.add(trigger.id)
+      while (queue.length) {
+        const current = queue.shift()!
+        for (const e of edges) {
+          if (e.source !== current) continue
+          if (!reachable.has(e.target)) {
+            reachable.add(e.target)
+            queue.push(e.target)
+          }
+        }
+      }
+    } else {
+      for (const n of nodes) reachable.add(n.id)
+    }
+
+    const nodesWithOutgoing = new Set(
+      edges.filter((e) => reachable.has(e.source) && reachable.has(e.target)).map((e) => e.source),
+    )
+
+    const terms = nodes.filter((n) => reachable.has(n.id) && !nodesWithOutgoing.has(n.id))
+
+    // Stable ordering: pick deepest terminal as the last
+    return terms.sort((a, b) => {
+      const ay = (a.position as any)?.y ?? 0
+      const by = (b.position as any)?.y ?? 0
+      if (ay !== by) return ay - by
+      const ax = (a.position as any)?.x ?? 0
+      const bx = (b.position as any)?.x ?? 0
+      return ax - bx
+    })
   }, [nodes, edges, readOnly])
 
   const didHydrateRef = useRef(false)
@@ -155,6 +190,13 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
       },
       addNode: (node: Node) => {
         setNodes((prev) => [...prev, node])
+      },
+      addEdge: (edge: Edge) => {
+        setEdges((prev) => {
+          const exists = prev.some((e) => e.source === edge.source && e.target === edge.target)
+          if (exists) return prev
+          return [...prev, edge]
+        })
       },
       deleteNode: (nodeId: string) => {
         setNodes((prev) => prev.filter((n) => n.id !== nodeId))
@@ -202,7 +244,18 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
   )
 
   const onConnect: OnConnect = useCallback(
-    (params) => setEdges((edgesSnapshot) => addEdge(params, edgesSnapshot)),
+    (params) =>
+      setEdges((edgesSnapshot) => {
+        if (!params.source || !params.target) return edgesSnapshot
+        const existing = edgesSnapshot.find(
+          (e) =>
+            e.source === params.source && e.target === params.target,
+        )
+        if (existing) {
+          return edgesSnapshot.filter((e) => e.id !== existing.id)
+        }
+        return addEdge(params, edgesSnapshot)
+      }),
     [],
   )
 
@@ -217,8 +270,23 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
   // Handle edge reconnection (drag edge to new target)
   const onReconnect: OnReconnect = useCallback(
     (oldEdge, newConnection) => {
-      edgeReconnectSuccessful.current = true
-      setEdges((edgesSnapshot) => reconnectEdge(oldEdge, newConnection, edgesSnapshot))
+      setEdges((edgesSnapshot) => {
+        const source = newConnection.source ?? oldEdge.source
+        const target = newConnection.target ?? oldEdge.target
+        const existing = edgesSnapshot.find(
+          (e) =>
+            e.id !== oldEdge.id &&
+            e.source === source && e.target === target,
+        )
+
+        if (existing) {
+          edgeReconnectSuccessful.current = true
+          return edgesSnapshot.filter((e) => e.id !== oldEdge.id && e.id !== existing.id)
+        }
+
+        edgeReconnectSuccessful.current = true
+        return reconnectEdge(oldEdge, newConnection, edgesSnapshot)
+      })
     },
     [],
   )
@@ -279,7 +347,7 @@ const CreateWorkFlow = forwardRef<CreateWorkFlowHandle, Props>(
             nodeId={terminalNodes[terminalNodes.length - 1].id}
             onAddNode={(nodeType) => {
               setPopupOpen(false)
-              onAddNodeAfterLast?.(nodeType)
+              onAddNodeAfterLast?.(nodeType, terminalNodes[terminalNodes.length - 1].id)
             }}
             onPopupOpen={() => setPopupOpen(true)}
             onPopupClose={() => setPopupOpen(false)}
