@@ -11,6 +11,8 @@ type Props = {
   disabled?: boolean
   placeholder?: string
   allowCustom?: boolean
+  /** Force plain input even if previous nodes exist (useful for addresses/amounts) */
+  forceInput?: boolean
 }
 
 export default function NodeOutputSelector({
@@ -22,8 +24,27 @@ export default function NodeOutputSelector({
   disabled,
   placeholder = 'Select a value...',
   allowCustom = true,
+  forceInput = false,
 }: Props) {
   const [isCustomMode, setIsCustomMode] = useState(false)
+
+  if (forceInput) {
+    return (
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        style={{
+          padding: '6px 8px',
+          borderRadius: 6,
+          border: '1px solid var(--color-border)',
+          fontFamily: 'monospace',
+          fontSize: 13,
+        }}
+        placeholder={placeholder}
+      />
+    )
+  }
 
   // Get all nodes that come before the current node in the flow
   const previousNodes = useMemo(() => {
@@ -150,10 +171,6 @@ export default function NodeOutputSelector({
               border: '1px solid var(--color-border)',
               flex: 1,
               fontSize: 13,
-              maxWidth: '100%',
-              whiteSpace: 'normal',
-              wordBreak: 'break-word',
-              overflow: 'hidden',
             }}
           >
             <option value="">{placeholder}</option>
