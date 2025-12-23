@@ -3350,12 +3350,14 @@ export default function Editor() {
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
-                <input
+                <NodeOutputSelector
+                  nodes={nodes}
+                  currentNodeId={selectedNode?.id || ''}
+                  edges={edges}
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
-                  onChange={(e) => patchSelectedNode({ mint: e.target.value })}
+                  onChange={(v) => patchSelectedNode({ mint: v })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
-                  placeholder="EPjFWdd5..."
+                  placeholder="Select token mint or enter address..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
@@ -3376,12 +3378,14 @@ export default function Editor() {
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
-                <input
+                <NodeOutputSelector
+                  nodes={nodes}
+                  currentNodeId={selectedNode?.id || ''}
+                  edges={edges}
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
-                  onChange={(e) => patchSelectedNode({ mint: e.target.value })}
+                  onChange={(v) => patchSelectedNode({ mint: v })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
-                  placeholder="EPjFWdd5..."
+                  placeholder="Select token mint or enter address..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>
@@ -3594,12 +3598,14 @@ export default function Editor() {
             <div style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'grid', gap: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
-                <input
+                <NodeOutputSelector
+                  nodes={nodes}
+                  currentNodeId={selectedNode?.id || ''}
+                  edges={edges}
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
-                  onChange={(e) => patchSelectedNode({ mint: e.target.value })}
+                  onChange={(v) => patchSelectedNode({ mint: v })}
                   disabled={busy}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
-                  placeholder="EPjFWdd5..."
+                  placeholder="Select token mint or enter address..."
                 />
               </div>
               <div style={{ display: 'grid', gap: 6 }}>

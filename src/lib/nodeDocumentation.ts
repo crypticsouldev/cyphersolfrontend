@@ -35,7 +35,7 @@ export const nodeDocumentation: Record<string, NodeDoc> = {
     category: 'trigger',
     description: 'Triggers when transactions involving your watched wallets are detected on Solana.',
     inputs: ['walletAddresses'],
-    outputs: ['signature', 'event', 'receivedAt'],
+    outputs: ['signature', 'event', 'matchedWallets', 'receivedAt'],
     example: 'React to wallet activity, swaps, or transfers in real-time.',
   },
 
@@ -336,9 +336,22 @@ export const nodeDocumentation: Record<string, NodeDoc> = {
     type: 'parse_transaction',
     name: 'Parse Transaction',
     category: 'data',
-    description: 'Parses and enriches a Solana transaction with human-readable details.',
+    description: 'Parses and enriches a Solana transaction with human-readable details including token swap info.',
     inputs: ['signature'],
-    outputs: ['type', 'description', 'fee', 'accounts'],
+    outputs: [
+      'signature',
+      'parsed.type',
+      'parsed.source',
+      'parsed.description',
+      'parsed.tokenInputMint',
+      'parsed.tokenInputAmount',
+      'parsed.tokenOutputMint',
+      'parsed.tokenOutputAmount',
+      'parsed.solSent',
+      'parsed.solReceived',
+      'parsed.fee',
+      'parsed.feePayer',
+    ],
   },
 
   // Calculations
