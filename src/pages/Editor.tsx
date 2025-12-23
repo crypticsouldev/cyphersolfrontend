@@ -509,7 +509,7 @@ export default function Editor() {
     }
 
     if (kind === 'dexscreener_price') {
-      baseData.pairAddress = ''
+      baseData.mint = ''
     }
 
     if (kind === 'pyth_price_feed_id') {
@@ -1303,7 +1303,7 @@ export default function Editor() {
                 if (nextType === 'dexscreener_price') {
                   patchSelectedNode({
                     type: nextType,
-                    pairAddress: (selectedNodeData as any).pairAddress || '',
+                    mint: (selectedNodeData as any).mint || '',
                   })
                   return
                 }
@@ -2017,16 +2017,21 @@ export default function Editor() {
 
           {selectedNodeType === 'dexscreener_price' ? (
             <div style={{ display: 'grid', gap: 6 }}>
-              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>pair address (solana)</div>
-              <input
-                value={typeof selectedNodeData.pairAddress === 'string' ? selectedNodeData.pairAddress : ''}
-                onChange={(e) => patchSelectedNode({ pairAddress: e.target.value })}
+              <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
+              <NodeOutputSelector
+                nodes={draft?.nodes || []}
+                currentNodeId={selectedNodeId || ''}
+                edges={draft?.edges || []}
+                value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
+                onChange={(v) => patchSelectedNode({ mint: v })}
                 disabled={busy}
-                style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)', fontFamily: 'monospace' }}
-                placeholder="pair address"
+                placeholder="Enter token mint address (e.g. So11111111111111111111111111111111111112 for SOL)"
               />
               <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
-                fetched from <span style={{ fontFamily: 'monospace' }}>api.dexscreener.com</span>
+                Fetches price from DexScreener. Use token mint address, not pair address.
+              </div>
+              <div style={{ fontSize: 11, color: 'var(--color-text-subtle)' }}>
+                returns: priceUsd, priceNative, baseSymbol, quoteSymbol
               </div>
             </div>
           ) : null}
