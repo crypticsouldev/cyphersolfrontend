@@ -3680,14 +3680,60 @@ export default function Editor() {
 
               <div style={{ display: 'grid', gap: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>content</div>
-                <textarea
-                  value={typeof selectedNodeData.content === 'string' ? selectedNodeData.content : ''}
-                  onChange={(e) => patchSelectedNode({ content: e.target.value })}
-                  disabled={busy}
-                  rows={4}
-                  style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
-                  placeholder="message"
-                />
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {['select', 'custom'].map((mode) => {
+                    const isActive = ((selectedNodeData as any).contentMode ||
+                      ((selectedNodeData as any).content ? 'custom' : 'select')) === mode
+                    return (
+                      <button
+                        key={mode}
+                        type="button"
+                        onClick={() =>
+                          patchSelectedNode({
+                            contentMode: mode,
+                          })
+                        }
+                        disabled={busy}
+                        style={{
+                          padding: '6px 10px',
+                          borderRadius: 6,
+                          border: '1px solid var(--color-border)',
+                          background: isActive ? 'var(--color-surface-strong)' : 'var(--color-bg)',
+                          cursor: 'pointer',
+                          fontSize: 12,
+                        }}
+                      >
+                        {mode === 'select' ? 'Select from outputs' : 'Custom message'}
+                      </button>
+                    )
+                  })}
+                </div>
+                {(((selectedNodeData as any).contentMode || ((selectedNodeData as any).content ? 'custom' : 'select')) ===
+                'custom') ? (
+                  <textarea
+                    value={typeof selectedNodeData.content === 'string' ? selectedNodeData.content : ''}
+                    onChange={(e) => patchSelectedNode({ contentMode: 'custom', content: e.target.value })}
+                    disabled={busy}
+                    rows={4}
+                    style={{ padding: '6px 8px', borderRadius: 6, border: '1px solid var(--color-border)' }}
+                    placeholder="Enter custom message"
+                  />
+                ) : (
+                  <NodeOutputSelector
+                    nodes={draft?.nodes || []}
+                    currentNodeId={selectedNodeId || ''}
+                    edges={draft?.edges || []}
+                    value={typeof selectedNodeData.content === 'string' ? selectedNodeData.content : ''}
+                    onChange={(v) => patchSelectedNode({ contentMode: 'select', content: v })}
+                    disabled={busy}
+                    placeholder="Pick an output from previous nodes..."
+                    allowCustom={false}
+                  />
+                )}
+                <div style={{ fontSize: 11, color: 'var(--color-text-subtle)' }}>
+                  In select mode, pick an output from previous nodes. In custom mode, type any message (supports{' '}
+                  {'{{nodes.id.output.path}}'} if you prefer).
+                </div>
               </div>
 
               <div style={{ display: 'grid', gap: 6 }}>
