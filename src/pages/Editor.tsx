@@ -2025,7 +2025,7 @@ export default function Editor() {
                 value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                 onChange={(v) => patchSelectedNode({ mint: v })}
                 disabled={busy}
-                placeholder="Enter token mint address (e.g. So11111111111111111111111111111111111112 for SOL)"
+                placeholder="Enter token mint address (e.g. So11111111111111111111111111111111111111112 for SOL)"
                 forceInput
               />
               <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>
