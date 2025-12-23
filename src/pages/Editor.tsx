@@ -3351,9 +3351,9 @@ export default function Editor() {
               <div style={{ display: 'grid', gap: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
                 <NodeOutputSelector
-                  nodes={nodes}
-                  currentNodeId={selectedNode?.id || ''}
-                  edges={edges}
+                  nodes={draft?.nodes || []}
+                  currentNodeId={selectedNodeId || ''}
+                  edges={draft?.edges || []}
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(v) => patchSelectedNode({ mint: v })}
                   disabled={busy}
@@ -3379,9 +3379,9 @@ export default function Editor() {
               <div style={{ display: 'grid', gap: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
                 <NodeOutputSelector
-                  nodes={nodes}
-                  currentNodeId={selectedNode?.id || ''}
-                  edges={edges}
+                  nodes={draft?.nodes || []}
+                  currentNodeId={selectedNodeId || ''}
+                  edges={draft?.edges || []}
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(v) => patchSelectedNode({ mint: v })}
                   disabled={busy}
@@ -3599,9 +3599,9 @@ export default function Editor() {
               <div style={{ display: 'grid', gap: 6 }}>
                 <div style={{ fontSize: 12, color: 'var(--color-text-muted)' }}>Token address</div>
                 <NodeOutputSelector
-                  nodes={nodes}
-                  currentNodeId={selectedNode?.id || ''}
-                  edges={edges}
+                  nodes={draft?.nodes || []}
+                  currentNodeId={selectedNodeId || ''}
+                  edges={draft?.edges || []}
                   value={typeof (selectedNodeData as any).mint === 'string' ? (selectedNodeData as any).mint : ''}
                   onChange={(v) => patchSelectedNode({ mint: v })}
                   disabled={busy}
