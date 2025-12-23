@@ -237,8 +237,21 @@ export async function listWorkflowExecutions(workflowId: string) {
   return request<WorkflowExecutionsListResponse>(`/workflows/${workflowId}/executions`)
 }
 
-export async function getExecution(executionId: string) {
-  return request<ExecutionResponse>(`/executions/${executionId}`)
+export async function getExecution(id: string) {
+  return request<{ execution: Execution }>(`/executions/${id}`)
+}
+
+export async function getAnalytics() {
+  return request<{
+    workflows: Array<{ id: string; name: string; enabled: boolean }>
+    executions: Array<{
+      id: string
+      workflowId: string
+      workflowName: string
+      status: string
+      createdAt: string
+    }>
+  }>('/analytics')
 }
 
 export async function listCredentials() {

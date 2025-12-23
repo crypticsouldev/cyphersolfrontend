@@ -1,8 +1,7 @@
 import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { useWorkflows } from '../lib/hooks'
 import useSWR from 'swr'
-import { listWorkflowExecutions, type ExecutionSummary } from '../lib/api'
+import { getAnalytics } from '../lib/api'
 import ThemeToggle from '../components/ThemeToggle'
 
 function StatCard({ title, value, subtitle, icon, trend }: {
@@ -45,28 +44,15 @@ function ExecutionSkeleton() {
 }
 
 export default function Analytics() {
-  const { workflows, isLoading: workflowsLoading } = useWorkflows()
-
-  // Fetch executions for all workflows
-  const { data: allExecutions, isLoading: executionsLoading } = useSWR(
-    workflows.length > 0 ? '/all-executions' : null,
-    async () => {
-      const results: ExecutionSummary[] = []
-      for (const wf of workflows.slice(0, 10)) { // Limit to 10 workflows to avoid too many requests
-        try {
-          const res = await listWorkflowExecutions(wf.id)
-          results.push(...res.executions.map(e => ({ ...e, workflowName: wf.name })))
-        } catch {
-          // Ignore errors for individual workflows
-        }
-      }
-      return results.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    },
+  // Fetch all analytics data in a single request
+  const { data, isLoading } = useSWR(
+    '/analytics',
+    getAnalytics,
     { revalidateOnFocus: false, dedupingInterval: 30000 }
   )
 
-  const executions = allExecutions || []
-  const isLoading = workflowsLoading || executionsLoading
+  const workflows = data?.workflows || []
+  const executions = data?.executions || []
 
   // Calculate stats
   const stats = useMemo(() => {
