@@ -15,8 +15,9 @@ import {
 
 const defaultConfig = {
   revalidateOnFocus: false,
-  dedupingInterval: 5000,
+  dedupingInterval: 10000,
   errorRetryCount: 2,
+  keepPreviousData: true,
 }
 
 // Workflows
@@ -77,7 +78,7 @@ export function useWorkflowExecutions(workflowId: string | undefined) {
       const res = await listWorkflowExecutions(workflowId)
       return res.executions
     },
-    { ...defaultConfig, refreshInterval: 5000 }
+    { ...defaultConfig, refreshInterval: 30000 }
   )
   return { executions: data ?? [], error, isLoading, revalidate }
 }
@@ -90,7 +91,7 @@ export function useExecution(executionId: string | undefined) {
       const res = await getExecution(executionId)
       return res.execution
     },
-    { ...defaultConfig, refreshInterval: 2000 }
+    { ...defaultConfig, refreshInterval: 10000 }
   )
   return { execution: data, error, isLoading, revalidate }
 }
