@@ -3697,10 +3697,12 @@ export default function Editor() {
                         style={{
                           padding: '6px 10px',
                           borderRadius: 6,
-                          border: '1px solid var(--color-border)',
-                          background: isActive ? 'var(--color-surface-strong)' : 'var(--color-bg)',
+                          border: `1px solid ${isActive ? 'var(--color-border-strong, var(--color-border))' : 'var(--color-border)'}`,
+                          background: isActive ? 'var(--color-surface-strong, var(--color-surface))' : 'var(--color-surface)',
                           cursor: 'pointer',
                           fontSize: 12,
+                          color: isActive ? 'var(--color-text)' : 'var(--color-text-muted)',
+                          transition: 'background var(--transition-fast, 150ms ease), color var(--transition-fast, 150ms ease), border-color var(--transition-fast, 150ms ease)',
                         }}
                       >
                         {mode === 'select' ? 'Select from outputs' : 'Custom message'}

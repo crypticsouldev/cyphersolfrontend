@@ -40,6 +40,8 @@ export default function NodeOutputSelector({
           border: '1px solid var(--color-border)',
           fontFamily: 'monospace',
           fontSize: 13,
+          background: 'var(--color-surface)',
+          color: 'var(--color-text)',
         }}
         placeholder={placeholder}
       />
@@ -112,6 +114,8 @@ export default function NodeOutputSelector({
             border: '1px solid var(--color-border)',
             fontFamily: 'monospace',
             fontSize: 13,
+            background: 'var(--color-surface)',
+            color: 'var(--color-text)',
           }}
           placeholder={placeholder}
         />
@@ -137,6 +141,8 @@ export default function NodeOutputSelector({
               fontFamily: 'monospace',
               fontSize: 13,
               flex: 1,
+              background: 'var(--color-surface)',
+              color: 'var(--color-text)',
             }}
             placeholder={placeholder}
           />
@@ -171,6 +177,8 @@ export default function NodeOutputSelector({
               border: '1px solid var(--color-border)',
               flex: 1,
               fontSize: 13,
+              background: 'var(--color-surface)',
+              color: 'var(--color-text)',
             }}
           >
             <option value="">{placeholder}</option>
